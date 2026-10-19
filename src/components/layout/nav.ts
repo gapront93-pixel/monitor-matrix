@@ -3,19 +3,19 @@ import { BarChart3Icon, GitCompareArrowsIcon, ImageIcon, LayoutDashboardIcon, Mo
 import type { shellMessages } from "@/lib/i18n/messages/shell";
 
 type NavKey = keyof (typeof shellMessages)["vi"]["nav"];
-export type NavLink = { href: string; label: NavKey; Icon: LucideIcon; manage?: boolean; sales?: boolean };
+export type NavLink = { href: string; label: NavKey; Icon: LucideIcon; manage?: boolean; sales?: boolean; child?: boolean };
 
-// Screens, in menu order. "manage" and "sales" entries only show for Mod and Admin.
+// Screens, in menu order. "manage" and "sales" entries only show for Mod and Admin; "child" entries sit indented under the entry above.
 export const NAV_GROUPS: { label: NavKey; links: NavLink[] }[] = [
   {
     label: "browse",
     links: [
       { href: "/", label: "overview", Icon: LayoutDashboardIcon },
-      { href: "/san-pham", label: "products", Icon: MonitorIcon },
-      { href: "/bang-gia", label: "prices", Icon: Table2Icon },
-      { href: "/so-sanh", label: "compare", Icon: GitCompareArrowsIcon },
-      { href: "/doi-thu", label: "rivals", Icon: SwordsIcon },
-      { href: "/doanh-so", label: "sales", Icon: BarChart3Icon, sales: true },
+      { href: "/san-pham", label: "products", Icon: MonitorIcon, child: true },
+      { href: "/bang-gia", label: "prices", Icon: Table2Icon, child: true },
+      { href: "/so-sanh", label: "compare", Icon: GitCompareArrowsIcon, child: true },
+      { href: "/doi-thu", label: "rivals", Icon: SwordsIcon, child: true },
+      { href: "/doanh-so", label: "sales", Icon: BarChart3Icon, sales: true, child: true },
     ],
   },
   {

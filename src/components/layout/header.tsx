@@ -11,7 +11,7 @@ import { useT } from "@/lib/i18n/client";
 import { shellMessages } from "@/lib/i18n/messages/shell";
 import { cn } from "@/lib/utils";
 
-import { NAV_GROUPS, isActive } from "./nav";
+import { NAV_GROUPS, isActive, type NavLink } from "./nav";
 import { PrefsMenu } from "./prefs-menu";
 import { UserMenu, type HeaderUser } from "./user-menu";
 
@@ -95,8 +95,37 @@ export function Header({ user, showAdmin, showSales, theme }: { user: HeaderUser
   );
 }
 
+/** Consecutive links grouped by level, so the sub-entries of one parent share a block */
+function blocks(links: NavLink[]): { child: boolean; links: NavLink[] }[] {
+  const out: { child: boolean; links: NavLink[] }[] = [];
+  for (const l of links) {
+    const last = out.at(-1);
+    if (last && last.child === !!l.child) last.links.push(l);
+    else out.push({ child: !!l.child, links: [l] });
+  }
+  return out;
+}
+
 export function NavList({ pathname, showAdmin, showSales }: { pathname: string; showAdmin: boolean; showSales: boolean }) {
   const t = useT(shellMessages);
+  const item = ({ href, label, Icon }: NavLink, child: boolean) => {
+    const current = isActive(pathname, href);
+    return (
+      <Link
+        key={href}
+        href={href}
+        aria-current={current ? "page" : undefined}
+        className={cn(
+          "flex items-center gap-2.5 rounded-panel px-3 font-semibold transition-colors",
+          child ? "py-1.5 text-[12.5px]" : "py-2 text-[13px]",
+          current ? "bg-accent text-on-accent" : "text-fg-2 hover:bg-panel hover:text-fg",
+        )}
+      >
+        <Icon className={cn("shrink-0", child ? "size-3.5" : "size-4")} />
+        {t.nav[label]}
+      </Link>
+    );
+  };
   return (
     <nav aria-label={t.nav.label} className="flex flex-col gap-4">
       {NAV_GROUPS.map((g) => {
@@ -105,23 +134,16 @@ export function NavList({ pathname, showAdmin, showSales }: { pathname: string; 
         return (
           <div key={g.label} className="flex flex-col gap-1">
             <p className="mb-0.5 px-3 text-[11px] font-semibold tracking-[0.08em] text-muted uppercase">{t.nav[g.label]}</p>
-            {links.map(({ href, label, Icon }) => {
-              const current = isActive(pathname, href);
-              return (
-                <Link
-                  key={href}
-                  href={href}
-                  aria-current={current ? "page" : undefined}
-                  className={cn(
-                    "flex items-center gap-2.5 rounded-panel px-3 py-2 text-[13px] font-semibold transition-colors",
-                    current ? "bg-accent text-on-accent" : "text-fg-2 hover:bg-panel hover:text-fg",
-                  )}
-                >
-                  <Icon className="size-4 shrink-0" />
-                  {t.nav[label]}
-                </Link>
-              );
-            })}
+            {blocks(links).map((block) =>
+              block.child ? (
+                // Sub-entries sit indented behind one guide line, so they read as part of the entry above
+                <div key={block.links[0].href} className="ml-[21px] flex flex-col gap-0.5 border-l border-line pl-2">
+                  {block.links.map((l) => item(l, true))}
+                </div>
+              ) : (
+                block.links.map((l) => item(l, false))
+              ),
+            )}
           </div>
         );
       })}
