@@ -95,8 +95,8 @@ export function modelCode(model: string): string {
   return gen ? `${code} ${gen}` : code;
 }
 
-// Order rivals are listed in, as in the design ("ASUS, MSI, Samsung, LG, Dell/Alienware")
-export const RIVAL_BRANDS = ["ASUS", "MSI", "Samsung", "LG", "Dell"];
+// Order rivals are listed in (the brands compared since the 2026 lineup)
+export const RIVAL_BRANDS = ["ASUS", "MSI", "Samsung", "LG", "AOC", "ViewSonic"];
 
 export function byRivalBrand(a: { brand: string; model: string }, b: { brand: string; model: string }): number {
   const ia = RIVAL_BRANDS.indexOf(a.brand), ib = RIVAL_BRANDS.indexOf(b.brand);

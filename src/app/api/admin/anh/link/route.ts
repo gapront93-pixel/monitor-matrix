@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
   const p = Body.safeParse(await req.json().catch(() => ({})));
   if (!p.success) return NextResponse.json({ error: m.badBody }, { status: 400 });
 
-  const products = await prisma.product.findMany({ select: { id: true, slug: true, model: true, aliases: true } });
+  const products = await prisma.product.findMany({ where: { hidden: false }, select: { id: true, slug: true, model: true, aliases: true } });
   const idx = productIndex(products);
   const byId = new Map(products.map((x) => [x.id, x]));
   const jobs: { line: number; id: number | null; url: string | null; raw: string }[] = [];

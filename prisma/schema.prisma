@@ -43,6 +43,7 @@ model Segment {
   conclusionVi String?         @db.Text // kết luận tiếng Việt (TOM-TAT-SO-SANH.md)
   notes        String?         @db.Text // ghi chú gốc từ file phân khúc
   sortOrder    Int
+  hidden       Boolean         @default(false) // phân khúc cũ, không còn dùng (giữ lại cho số đo review)
   products     Product[]
   benchmarks   Benchmark[]
 }
@@ -56,6 +57,7 @@ model Product {
   series     String? // GAMING / AORUS
   line       String? // GS, M, MO, ...
   segmentId  String?
+  hidden     Boolean @default(false) // ngoài danh sách bán hiện tại: ẩn khỏi mọi trang, giữ dữ liệu và lịch sử giá
 
   sizeIn                Float?
   panel                 String?

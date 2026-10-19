@@ -1,14 +1,14 @@
 # GIGABYTE Monitor Matrix
 
-Công cụ nội bộ cho team Marketing GIGABYTE Việt Nam: tra cứu thông số 99 màn hình GIGABYTE, so sánh với 44 mẫu đối thủ theo 8 phân khúc, xem số đo review (kèm link nguồn) và theo dõi giá tại các đại lý Việt Nam theo thời gian.
+Công cụ nội bộ cho team Marketing GIGABYTE Việt Nam: tra cứu thông số các màn hình GIGABYTE đang bán (List LCD GBT + SO Model 2026), so sánh với đối thủ ASUS, MSI, Samsung, LG, AOC, ViewSonic theo 11 phân khúc, xem số đo review (kèm link nguồn), theo dõi giá tại các đại lý Việt Nam theo thời gian và xem doanh số LCD.
 
 - Địa chỉ: **https://monitor.vnpromotion.com**
 - Mỗi người đăng nhập bằng **tài khoản riêng** (email + mật khẩu) do Admin tạo. Có 3 vai trò: **Admin**, **Mod**, **Viewer** (xem mục 3).
 
 | Trang | Dùng để |
 |---|---|
-| `/` Tổng quan | Số liệu nhanh + 8 phân khúc với nhãn kết luận |
-| `/san-pham` | Ma trận 99 mẫu, bộ lọc (lưu trên URL), chọn 2–4 mẫu để so sánh |
+| `/` Tổng quan | Số liệu nhanh + 11 phân khúc với nhãn kết luận |
+| `/san-pham` | Ma trận các mẫu đang bán, bộ lọc (lưu trên URL), chọn 2–4 mẫu để so sánh |
 | `/san-pham/<mã>` | Thông số đầy đủ, giá theo đại lý + biểu đồ lịch sử giá, so với đối thủ, benchmark |
 | `/bang-gia` | Bảng giá theo đại lý, xem giá ngày cũ, xuất Excel |
 | `/so-sanh?m=mã1,mã2` | So sánh 2–4 mẫu (cả đối thủ), tô giá trị tốt nhất |
@@ -83,7 +83,7 @@ Trang **Quản trị → tab Đại lý** (Mod hoặc Admin). Mọi thay đổi 
 - **Hiện cột**: tắt để ẩn đại lý khỏi Bảng giá mà vẫn giữ lịch sử.
 - **Xoá** (chỉ Admin): chỉ xoá được đại lý chưa có giá nào trong lịch sử. Đại lý đã có giá thì tắt "Hiện cột" thay vì xoá.
 
-Nhãn **Dẫn đầu / Ngang / Yếu hơn** và đoạn kết luận của 8 phân khúc sửa ở tab **Phân khúc**.
+Nhãn **Dẫn đầu / Ngang / Yếu hơn** và đoạn kết luận của từng phân khúc sửa ở tab **Phân khúc**.
 
 ---
 
@@ -93,7 +93,7 @@ Menu **Quản lý → Ảnh sản phẩm** (Mod hoặc Admin).
 
 - **Lấy ảnh tự động:** bấm **Bắt đầu lấy ảnh**. App mở trang sản phẩm của các đại lý đang bán mẫu đó, theo thứ tự ưu tiên Thế Giới Di Động, Điện Máy Xanh, FPTShop, GEARVN, HaCom…, rồi lấy ảnh đại diện.
   - Ảnh chỉ được nhận khi tiêu đề trang có đúng mã mẫu, nên không bị lấy nhầm ảnh mẫu khác hay logo của shop.
-  - Mất khoảng 1–2 phút cho 99 mẫu.
+  - Mất khoảng 1–3 phút cho toàn bộ danh mục.
   - Mẫu chưa có đại lý nào bán thì không lấy tự động được.
 - **Tải ảnh lên:** kéo thả nhiều ảnh cùng lúc, **đặt tên file theo mã mẫu**: `MO27Q28G.jpg`, `AORUS-FO32U2P.png`, `G34WQCP-rev-20.webp`. Tên kiểu `MO27Q28G (1).jpg` cũng được nhận.
   - App tự gắn đúng mẫu, tự thu nhỏ (tối đa 1200px) và nén sang WebP.
@@ -121,7 +121,7 @@ Menu **Tra cứu → Doanh số LCD** (chỉ Mod và Admin). Trang này hiển t
   - Bảng **NPP và tỉ trọng**, bảng **Segment và tỉ trọng** (segment theo cột segment của file doanh số), có % số lượng và % doanh thu.
   - Bảng **SO Model** (mã đã gộp giữa các NPP), bấm mũi tên để xem mã gốc theo từng NPP; có link sang trang sản phẩm và so với giá lẻ thấp nhất hôm nay.
   - Phân bổ theo kích thước và tấm nền, top khách hàng.
-- Số liệu là **số thuần**: đã trừ hàng trả về. Mã bán ra được tự khớp với 99 mẫu trong catalog. Mã không ghi revision (ví dụ `G34WQCP`) được tính vào bản mới nhất. Dòng cuối bảng Top mẫu cho biết bao nhiêu chiếc chưa khớp được.
+- Số liệu là **số thuần**: đã trừ hàng trả về. Mã bán ra được tự khớp với các mẫu trong catalog. Mã không ghi revision (ví dụ `G34WQCP`) được tính vào bản mới nhất. Dòng cuối bảng Top mẫu cho biết bao nhiêu chiếc chưa khớp được.
 - **Kết nối:** biến `SALES_DATABASE_URL` trong `.env`, dùng role PostgreSQL `monitor_reader`.
   - Role này chỉ có quyền `SELECT` trên bảng `"SaleRow"` của `vnpromotion_db`, luôn ở chế độ read-only và tối đa 4 kết nối.
   - Nếu vnpromotion **tạo lại** bảng `SaleRow` (ví dụ do migration xoá rồi tạo lại bảng), quyền sẽ mất và trang báo lỗi. Khi đó, chạy lại lệnh:
@@ -129,6 +129,30 @@ Menu **Tra cứu → Doanh số LCD** (chỉ Mod và Admin). Trang này hiển t
 ```bash
 sudo -u postgres psql -d vnpromotion_db -c 'GRANT SELECT ON "SaleRow" TO monitor_reader;'
 ```
+
+---
+
+## 2d. Danh sách mẫu và đối thủ (lineup 2026)
+
+Danh sách hiện trên web nằm trong file `data/lineup-2026.json`:
+- **Mẫu GIGABYTE:** các mẫu trong **List LCD GBT (1).xlsx** cộng với các **SO Model** có bán LCD từ 01/2026 (dashboard vnpromotion). Hiện có 53 mẫu, gồm 6 mẫu mới: FO27Q54G, MO27Q54G, G25F30T, G27Q24, G27Q24T, GS25F16.
+  - Riêng FO27Q54G có thông số đầy đủ, lấy theo TFTCentral vì GIGABYTE chưa đăng trang chính thức.
+  - 5 mẫu còn lại mới có thông số cơ bản theo file: kích thước, độ phân giải, tấm nền, tần số quét, MSDP/MSRP.
+- **11 phân khúc** chia theo nhóm của file (Light Gaming, FHD, QHD, OLED), tách tiếp theo kích thước, tấm nền và tần số quét.
+- **Đối thủ:** mỗi phân khúc chọn tối đa 1 mẫu của mỗi hãng ASUS, MSI, Samsung, LG, AOC, ViewSonic.
+  - Mẫu được chọn là mẫu nhập khẩu nhiều nhất năm 2026 theo file *LCD IMPORT DATA* (sheet RAW 2026).
+  - Thông số lấy từ trang chính hãng.
+  - Samsung không có trong dữ liệu nhập khẩu, nên chọn mẫu Odyssey tương ứng trên samsung.com/vn.
+- **Mẫu ngoài danh sách được ẩn, không bị xoá:** dữ liệu, ảnh và lịch sử giá vẫn còn. Đường dẫn cũ báo "không còn trong danh mục".
+- Nhãn và kết luận của các phân khúc đã được xoá khi đổi đối thủ. Admin đặt lại ở **Quản trị → Phân khúc**.
+
+Đổi danh sách: sửa `data/lineup-2026.json`, rồi chạy:
+
+```bash
+sudo -u deploy -H bash -c 'cd /var/www/monitor-matrix && npm run lineup'
+```
+
+Lệnh này cũng tự chạy sau `npm run seed`. Bản sao lưu database trước khi đổi lineup: `/root/monitor_matrix_before_lineup_2026-10-19.dump`.
 
 ---
 

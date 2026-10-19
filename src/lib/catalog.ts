@@ -85,9 +85,9 @@ export const getCatalog = cache(async (day?: string): Promise<Catalog> => {
   await connection();
   const at = day ? (endOfVnDay(day) ?? undefined) : undefined;
   const [products, dealers, segments, imports, state] = await Promise.all([
-    prisma.product.findMany({ orderBy: [{ isGigabyte: "desc" }, { model: "asc" }], omit: { rawSpecs: true, aliases: true } }),
+    prisma.product.findMany({ where: { hidden: false }, orderBy: [{ isGigabyte: "desc" }, { model: "asc" }], omit: { rawSpecs: true, aliases: true } }),
     prisma.dealer.findMany({ orderBy: { sortOrder: "asc" } }),
-    prisma.segment.findMany({ orderBy: { sortOrder: "asc" } }),
+    prisma.segment.findMany({ where: { hidden: false }, orderBy: { sortOrder: "asc" } }),
     prisma.priceImport.findMany({
       orderBy: [{ capturedAt: "desc" }, { createdAt: "desc" }],
       select: { id: true, capturedAt: true, createdAt: true, source: true, fileName: true },

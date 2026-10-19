@@ -13,7 +13,8 @@
     "db:deploy": "prisma migrate deploy",
     "seed": "tsx scripts/seed.ts",
     "test": "vitest run",
-    "user": "tsx scripts/user.ts"
+    "user": "tsx scripts/user.ts",
+    "lineup": "tsx scripts/lineup.ts"
   },
   "dependencies": {
     "@base-ui/react": "1.8.0",

@@ -35,6 +35,7 @@ export default async function ImagesPage() {
   }
   const [products, dealers, pages] = await Promise.all([
     prisma.product.findMany({
+      where: { hidden: false },
       orderBy: [{ isGigabyte: "desc" }, { model: "asc" }],
       select: { id: true, slug: true, model: true, brand: true, isGigabyte: true, imageFile: true, imageSource: true, imageSourceUrl: true, imageUpdatedAt: true, url: true },
     }),

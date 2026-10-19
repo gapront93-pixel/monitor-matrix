@@ -40,14 +40,14 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
   const [dealers, used, segments, imports, unmatched, products, users] = await Promise.all([
     prisma.dealer.findMany({ orderBy: { sortOrder: "asc" } }),
     prisma.priceSnapshot.groupBy({ by: ["dealerId"], _count: { _all: true } }),
-    prisma.segment.findMany({ orderBy: { sortOrder: "asc" } }),
+    prisma.segment.findMany({ where: { hidden: false }, orderBy: { sortOrder: "asc" } }),
     prisma.priceImport.findMany({
       orderBy: [{ createdAt: "desc" }],
       take: 15,
       include: { _count: { select: { snapshots: true, dealers: true, unmatched: true } }, uploadedBy: { select: { name: true } } },
     }),
     prisma.unmatchedPrice.findMany({ orderBy: [{ capturedAt: "desc" }, { id: "desc" }], take: 400, include: { dealer: { select: { name: true } } } }),
-    prisma.product.findMany({ where: { isGigabyte: true }, select: { id: true, model: true }, orderBy: { model: "asc" } }),
+    prisma.product.findMany({ where: { isGigabyte: true, hidden: false }, select: { id: true, model: true }, orderBy: { model: "asc" } }),
     manageUsers ? prisma.user.findMany({ orderBy: [{ active: "desc" }, { role: "asc" }, { name: "asc" }], include: { _count: { select: { imports: true } } } }) : Promise.resolve([]),
   ]);
   const usedBy = new Map(used.map((u) => [u.dealerId, u._count._all]));

@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
   if (!files.length) return NextResponse.json({ error: m.noFiles }, { status: 400 });
   if (files.length > MAX_FILES) return NextResponse.json({ error: m.maxFiles(MAX_FILES) }, { status: 400 });
 
-  const products = await prisma.product.findMany({ select: { id: true, slug: true, model: true, aliases: true } });
+  const products = await prisma.product.findMany({ where: { hidden: false }, select: { id: true, slug: true, model: true, aliases: true } });
   const idx = productIndex(products);
   const byId = new Map(products.map((p) => [p.id, p]));
   const results: { file: string; ok: boolean; model?: string; slug?: string; error?: string }[] = [];

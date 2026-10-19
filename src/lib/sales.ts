@@ -126,7 +126,7 @@ export async function salesReport(f: SalesFilter, catalog: Catalog): Promise<Sal
     const cur = merged.get(key) ?? {
       key,
       label: name,
-      productSlug: p?.slug ?? null,
+      productSlug: view ? p!.slug : null, // hidden models have no page
       qty: 0,
       amount: 0,
       segmentId: view?.segmentId ?? null,
@@ -172,7 +172,7 @@ export async function salesReport(f: SalesFilter, catalog: Catalog): Promise<Sal
   const amount = months.reduce((n, m) => n + m.amount, 0);
   const pq = prevTotals.rows[0];
   return {
-    totals: { qty, amount, models: models.filter((m) => m.productSlug && m.qty > 0).length, customers: Number(customers.rows[0]?.n ?? 0) },
+    totals: { qty, amount, models: models.filter((m) => m.qty > 0).length, customers: Number(customers.rows[0]?.n ?? 0) },
     previous: pq?.qty !== null && pq?.qty !== undefined ? { qty: Number(pq.qty), amount: Number(pq.amount ?? 0) } : null,
     months,
     models,

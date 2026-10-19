@@ -102,5 +102,14 @@ export async function productBenchmarks(p: { id: number; model: string; segmentI
 }
 
 export async function segmentBenchmarks(segmentId: string): Promise<BenchmarkCard[]> {
-  return toCards(await prisma.benchmark.findMany({ where: { segmentId }, orderBy: [{ date: "desc" }, { id: "asc" }] }));
+  // Reviews filed under the segment, plus those of its current models (the lineup moved models between segments);
+  // reviews of hidden models are left out
+  return toCards(
+    await prisma.benchmark.findMany({
+      where: {
+        OR: [{ segmentId, productId: null }, { product: { segmentId, hidden: false } }],
+      },
+      orderBy: [{ date: "desc" }, { id: "asc" }],
+    }),
+  );
 }

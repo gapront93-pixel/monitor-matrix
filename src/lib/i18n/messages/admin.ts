@@ -65,7 +65,7 @@ const vi = {
   },
   unmatched: {
     title: "Dòng giá chưa khớp mẫu",
-    help: "Tin đăng của đại lý không khớp mẫu nào trong danh mục (mẫu cũ, mẫu ngoài 99 mẫu, hoặc tên viết khác). Chọn đúng mẫu rồi bấm Gắn: giá này hiện ngay trên bảng giá và các lần tải lên sau tự khớp. Mẫu không thuộc danh mục thì bấm Bỏ qua.",
+    help: "Tin đăng của đại lý không khớp mẫu nào trong danh mục (mẫu cũ, mẫu ngoài danh mục, hoặc tên viết khác). Chọn đúng mẫu rồi bấm Gắn: giá này hiện ngay trên bảng giá và các lần tải lên sau tự khớp. Mẫu không thuộc danh mục thì bấm Bỏ qua.",
     none: "Không còn dòng nào chưa khớp.",
     cols: ["Tên trên web đại lý", "Đại lý", "Giá", "Ghi chú", "Gắn vào mẫu"],
     day: (d: string) => `ngày ${d}`,
@@ -288,7 +288,7 @@ const en: typeof vi = {
   },
   unmatched: {
     title: "Unmatched price lines",
-    help: "Dealer listings that match no catalog model (old models, models outside the 99, or other spellings). Pick the right model and press Map: the price shows at once and later uploads match it automatically. Press Dismiss for models outside the catalog.",
+    help: "Dealer listings that match no catalog model (old models, models outside the catalog, or other spellings). Pick the right model and press Map: the price shows at once and later uploads match it automatically. Press Dismiss for models outside the catalog.",
     none: "No unmatched lines left.",
     cols: ["Name on the dealer site", "Dealer", "Price", "Note", "Map to model"],
     day: (d: string) => `on ${d}`,

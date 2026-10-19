@@ -30,8 +30,9 @@ export async function POST(req: NextRequest) {
   const { mode, scope, skip, slug } = p.data;
 
   const where = slug
-    ? { slug }
+    ? { slug, hidden: false }
     : {
+        hidden: false,
         ...(scope === "gigabyte" ? { isGigabyte: true } : {}),
         ...(mode === "missing" ? { imageFile: null } : { OR: [{ imageFile: null }, { imageSource: { notIn: ["upload", "link"] } }] }),
         slug: { notIn: skip },
