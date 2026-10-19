@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { Logo } from "@/components/layout/header";
+import { HeaderBar, Logo } from "@/components/layout/header";
 
 import { LoginForm } from "./form";
 
@@ -10,9 +10,9 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
   const { next } = await searchParams;
   return (
     <div className="flex min-h-dvh flex-col">
-      <header className="flex h-[54px] items-center border-b border-line bg-head px-3.5 md:px-5">
+      <HeaderBar className="flex h-[59px] items-center px-3.5 pb-[3px] md:px-6">
         <Logo />
-      </header>
+      </HeaderBar>
       <main className="flex flex-1 items-start justify-center px-3.5 pt-[70px]">
         <LoginForm next={next ?? "/"} />
       </main>

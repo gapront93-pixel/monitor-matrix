@@ -6,6 +6,7 @@ import { cache } from "react";
 import type { Comparable } from "./compare";
 import { getPriceState } from "./import/plan";
 import { endOfVnDay } from "./format";
+import { imageUrls } from "./image-names";
 import { prisma } from "./prisma";
 import { inStockCount, lowestPrice, type PriceCell } from "./pricing";
 
@@ -48,6 +49,8 @@ export type ProductView = {
   heightAdjMm: number | null;
   pivot: boolean | null;
   url: string | null;
+  image: string | null; // /anh/<slug>.webp?v=..
+  thumb: string | null;
   prices: PriceCell[]; // in dealer column order
   minPrice: number | null;
   minDealerIds: string[];
@@ -123,11 +126,11 @@ export const getCatalog = cache(async (day?: string): Promise<Catalog> => {
       });
     }
     const low = lowestPrice(prices);
-    const { createdAt: _c, updatedAt: _u, ...rest } = p;
-    void _c;
-    void _u;
+    const { createdAt: _c, updatedAt: _u, imageFile: _f, imageSource: _s, imageSourceUrl: _su, imageUpdatedAt: _iu, ...rest } = p;
+    void [_c, _u, _f, _s, _su, _iu];
     return {
       ...rest,
+      ...imageUrls(p),
       prices,
       minPrice: low.price,
       minDealerIds: low.dealerIds,
@@ -156,8 +159,9 @@ export const getCatalog = cache(async (day?: string): Promise<Catalog> => {
 });
 
 /** The fields the comparison table and client screens need, without the price cells */
-export function comparable(p: ProductView): Comparable & { line: string | null; segmentId: string | null } {
+export function comparable(p: ProductView): Comparable & { line: string | null; segmentId: string | null; thumb: string | null } {
   return {
+    thumb: p.thumb,
     slug: p.slug,
     brand: p.brand,
     model: p.model,

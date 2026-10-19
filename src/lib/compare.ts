@@ -2,6 +2,7 @@
 import { fmtNum, resPx } from "./format";
 
 export type Comparable = {
+  thumb?: string | null;
   slug: string;
   brand: string;
   model: string;

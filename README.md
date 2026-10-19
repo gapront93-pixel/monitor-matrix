@@ -84,6 +84,24 @@ Nhãn **Dẫn đầu / Ngang / Yếu hơn** và đoạn kết luận của 8 ph�
 
 ---
 
+## 2b. Ảnh sản phẩm
+
+Menu **Quản lý → Ảnh sản phẩm** (Mod hoặc Admin).
+
+- **Lấy ảnh tự động:** bấm **Bắt đầu lấy ảnh**. App mở trang sản phẩm của các đại lý đang bán mẫu đó, theo thứ tự ưu tiên Thế Giới Di Động, Điện Máy Xanh, FPTShop, GEARVN, HaCom…, rồi lấy ảnh đại diện.
+  - Ảnh chỉ được nhận khi tiêu đề trang có đúng mã mẫu, nên không bị lấy nhầm ảnh mẫu khác hay logo của shop.
+  - Mất khoảng 1–2 phút cho 99 mẫu.
+  - Mẫu chưa có đại lý nào bán thì không lấy tự động được.
+- **Tải ảnh lên:** kéo thả nhiều ảnh cùng lúc, **đặt tên file theo mã mẫu**: `MO27Q28G.jpg`, `AORUS-FO32U2P.png`, `G34WQCP-rev-20.webp`. Tên kiểu `MO27Q28G (1).jpg` cũng được nhận.
+  - App tự gắn đúng mẫu, tự thu nhỏ (tối đa 1200px) và nén sang WebP.
+  - Ảnh nền trắng là đẹp nhất. Mỗi ảnh tối đa 7.5MB.
+  - Muốn đổi ảnh cho một mẫu thì bấm **Đổi** trên thẻ của mẫu đó.
+- **Nguồn ảnh chính hãng:** gigabyte.com chặn truy cập từ máy chủ, nên VPS không lấy ảnh trực tiếp từ hãng được. Muốn dùng ảnh chính hãng, hãy tải ảnh từ gigabyte.com về máy của bạn rồi kéo thả lên.
+- Ảnh bạn **tự tải lên không bao giờ bị thay** bởi lần lấy tự động sau.
+- Ảnh nằm trong `/var/www/monitor-matrix/storage/images`, không bị ảnh hưởng khi deploy. Nên sao lưu thư mục này cùng với database.
+
+---
+
 ## 3. Người dùng và phân quyền
 
 | Quyền | Viewer | Mod | Admin |
@@ -92,6 +110,7 @@ Nhãn **Dẫn đầu / Ngang / Yếu hơn** và đoạn kết luận của 8 ph�
 | Tải file giá, Áp dụng, huỷ lần tải lên | | ✓ | ✓ |
 | Gắn / bỏ qua dòng chưa khớp, sửa phân khúc | | ✓ | ✓ |
 | Sửa đại lý (thêm, tên, website, thứ tự, trọng điểm, lẻ/sỉ, ẩn/hiện) | | ✓ | ✓ |
+| Ảnh sản phẩm (tải lên, lấy tự động, xoá) | | ✓ | ✓ |
 | Xoá đại lý | | | ✓ |
 | Quản lý người dùng | | | ✓ |
 
@@ -178,6 +197,7 @@ Mật khẩu người dùng **không** nằm trong `.env`: chúng được mã h
 
 ```bash
 sudo -u postgres pg_dump -Fc monitor_matrix_db > ~/monitor_matrix_$(date +%F).dump
+sudo tar czf ~/monitor_matrix_images_$(date +%F).tgz -C /var/www/monitor-matrix storage/images
 ```
 
 ## 8. Hạ tầng trên VPS
@@ -192,7 +212,7 @@ sudo -u postgres pg_dump -Fc monitor_matrix_db > ~/monitor_matrix_$(date +%F).du
 
 ## 9. Cho lập trình viên
 
-- **Stack:** Next.js 16 (App Router) + TypeScript, Tailwind CSS 4 (token màu trong `src/app/globals.css`, bảng màu mặc định bị tắt), component kiểu shadcn trên Base UI, TanStack Table + Virtual (bảng giá), Recharts, Prisma 7 + PostgreSQL, Papa Parse, exceljs (xuất .xlsx có tô màu), Vitest.
+- **Stack:** Next.js 16 (App Router) + TypeScript, Tailwind CSS 4 (token màu trong `src/app/globals.css` theo bộ màu vnpromotion: cyan GIGABYTE, hồng AORUS, gradient INFINITY; bảng màu mặc định bị tắt), sharp (xử lý ảnh), component kiểu shadcn trên Base UI, TanStack Table + Virtual (bảng giá), Recharts, Prisma 7 + PostgreSQL, Papa Parse, exceljs (xuất .xlsx có tô màu), Vitest.
 - **Cấu trúc chính:**
   - `prisma/schema.prisma`: Product, Segment, Benchmark, Dealer, PriceImport, PriceImportDealer, PriceSnapshot, UnmatchedPrice, User.
   - `src/lib/permissions.ts`: bảng quyền theo vai trò; `src/lib/auth.ts`: phiên đăng nhập (cookie ký HMAC, kiểm tra lại tài khoản trong database ở mỗi request).
@@ -205,7 +225,7 @@ sudo -u postgres pg_dump -Fc monitor_matrix_db > ~/monitor_matrix_$(date +%F).du
 - **Lệnh thường dùng:**
 
   ```bash
-  npm test             # 38 test: giá thấp nhất, diff khi tải file, đọc CSV/JSON, so sánh, phân quyền, mật khẩu
+  npm test             # 43 test: giá thấp nhất, diff khi tải file, đọc CSV/JSON, so sánh, phân quyền, mật khẩu, khớp tên ảnh
   npm run typecheck
   npm run lint
   npm run db:deploy    # chạy migration

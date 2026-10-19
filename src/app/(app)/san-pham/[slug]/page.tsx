@@ -63,10 +63,11 @@ export default async function ProductPage({ params, searchParams }: Params) {
       </nav>
 
       <Panel className="mb-5 flex flex-col gap-5 p-4 md:flex-row md:p-5">
-        <ProductImage label={p.model} className="aspect-[16/10] w-full shrink-0 md:max-w-[260px] xl:max-w-[380px]" />
+        <ProductImage src={p.image} label={p.model} sizes="(min-width: 1280px) 380px, (min-width: 760px) 260px, 100vw" className="aspect-[16/10] w-full shrink-0 md:max-w-[260px] xl:max-w-[380px]" />
         <div className="flex min-w-0 flex-1 flex-col">
           <div className="eyebrow">
             <span className={p.isGigabyte ? "text-brand-gb" : undefined}>{p.brand}</span>
+            {p.series === "AORUS" && <span className="text-aorus"> · AORUS</span>}
             {p.line && ` · Dòng ${p.line}`}
           </div>
           <h1 className="mt-1 text-[22px] leading-tight font-bold text-fg md:text-[28px]">{p.model}</h1>

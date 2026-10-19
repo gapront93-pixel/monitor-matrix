@@ -83,7 +83,7 @@ export function QuickSearch() {
             go(shown[cursor]);
           } else if (e.key === "Escape") setOpen(false);
         }}
-        className="h-8 w-full rounded-ctl border border-line bg-app px-2.5 text-[13px] text-fg placeholder:text-faint"
+        className="h-8 w-full rounded-ctl border border-white/25 bg-white/10 px-2.5 text-[13px] text-white placeholder:text-white/55 focus-visible:border-accent"
       />
       {open && q.trim() && (
         <ul

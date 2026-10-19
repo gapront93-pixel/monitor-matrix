@@ -1,7 +1,19 @@
+import Image from "next/image";
+
 import { cn } from "@/lib/utils";
 
-/** Striped placeholder until official product photos are added */
-export function ProductImage({ label, className }: { label?: string; className?: string }) {
+/**
+ * Product photo on a white card (product shots are on white), or the striped placeholder while none exists.
+ * Files are already resized to WebP when stored, so Next's optimiser is skipped.
+ */
+export function ProductImage({ src, label, className, sizes = "360px" }: { src?: string | null; label?: string; className?: string; sizes?: string }) {
+  if (src) {
+    return (
+      <div className={cn("relative overflow-hidden rounded-chip border border-line-2 bg-white", className)}>
+        <Image src={src} alt={label ? `Ảnh ${label}` : "Ảnh sản phẩm"} fill sizes={sizes} unoptimized className="object-contain p-[6%]" />
+      </div>
+    );
+  }
   return (
     <div
       role="img"

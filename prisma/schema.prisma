@@ -81,11 +81,17 @@ model Product {
   warranty              String?
   msrpUsd               String?
 
-  url       String? // trang specs chính hãng
-  rawSpecs  Json // bảng specs gốc
-  aliases   String[] // tên khác dùng khi khớp file giá / benchmark (viết thường, không dấu cách)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  url      String? // trang specs chính hãng
+  rawSpecs Json // bảng specs gốc
+
+  // Ảnh sản phẩm (file trong storage/images, phục vụ qua /anh/<file>)
+  imageFile      String? // "MO27Q28G.webp" (+ "-thumb.webp")
+  imageSource    String? // "upload" | "dealer:<id>" | "maker"
+  imageSourceUrl String? // trang lấy ảnh tự động
+  imageUpdatedAt DateTime?
+  aliases        String[] // tên khác dùng khi khớp file giá / benchmark (viết thường, không dấu cách)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
   segment    Segment?        @relation(fields: [segmentId], references: [id])
   prices     PriceSnapshot[]

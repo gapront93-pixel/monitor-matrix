@@ -48,7 +48,7 @@ export function CompareTable({
                     </button>
                   )}
                 </div>
-                {showImages && <ProductImage className="mb-2 hidden aspect-[16/10] w-full md:flex" />}
+                {showImages && <ProductImage src={p.thumb} label={p.model} className="mb-2 hidden aspect-[16/10] w-full md:flex" />}
                 <Link href={`/san-pham/${encodeURIComponent(p.slug)}`} prefetch={false} className="text-[13px] leading-snug font-bold text-fg hover:underline">
                   {p.model}
                 </Link>

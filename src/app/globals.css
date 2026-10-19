@@ -1,67 +1,75 @@
 @import "tailwindcss";
 
 /*
- * Design tokens from design_handoff_monitor_matrix/README.md.
+ * Design tokens. Layout and sizes follow design_handoff_monitor_matrix/README.md; colours follow the
+ * vnpromotion dashboard (GIGABYTE cyan, AORUS magenta, INFINITY gradient), dark theme.
  * The default Tailwind palette is switched off: only these colors exist, so a class like bg-red-500 fails to style anything.
  */
 @theme {
   --color-*: initial;
   --color-transparent: transparent;
   --color-current: currentColor;
+  --color-white: #ffffff; /* text and translucent controls on the black header bar */
 
   /* Surfaces */
-  --color-app: #17191c;
-  --color-head: #121417;
-  --color-panel: #1d2023;
-  --color-outer: #0f1113;
-  --color-row-a: #2a2d31;
-  --color-row-b: #222529;
-  --color-sum-a: #26292d;
-  --color-sum-b: #1f2225;
-  --color-seg-sel: #25282c;
+  --color-app: #0a0e14;
+  --color-head: #0e1218;
+  --color-panel: #12161d;
+  --color-outer: #05070b;
+  --color-nav: #05070b;
+  --color-row-a: #161b22;
+  --color-row-b: #12161d;
+  --color-sum-a: #1b2029;
+  --color-sum-b: #171c24;
+  --color-seg-sel: #1b2029;
 
   /* Lines */
-  --color-line: #33373c;
-  --color-line-2: #2f3337;
-  --color-line-3: #2a2d31;
-  --color-line-hover: #4a4f55;
-  --color-line-dashed: #3a3e44;
+  --color-line: #262c35;
+  --color-line-2: #20262e;
+  --color-line-3: #1b2029;
+  --color-line-hover: #3a434e;
+  --color-line-dashed: #2f3742;
 
   /* Text */
-  --color-fg: #e6e8eb;
-  --color-fg-2: #c9cdd2;
-  --color-muted: #9aa0a6;
-  --color-faint: #7d838a;
-  --color-faint-2: #6b7178;
-  --color-empty: #4a4f55;
-  --color-wholesale: #8a9097;
+  --color-fg: #eef1f5;
+  --color-fg-2: #c5ccd5;
+  --color-muted: #8894a1;
+  --color-faint: #6b7682;
+  --color-faint-2: #5f6873;
+  --color-empty: #3a434e;
+  --color-wholesale: #7f8a96;
 
-  /* AORUS orange: primary button, active tab underline, sort arrow, focus only */
-  --color-accent: #ff6a00;
-  --color-accent-hover: #ff7f26;
-  --color-on-accent: #17191c;
-  --color-brand-gb: #ff8a3d;
+  /* GIGABYTE cyan: primary button, current menu item / tab, sort arrow, focus */
+  --color-accent: #00d0ff;
+  --color-accent-hover: #4ddcff;
+  --color-on-accent: #001a22;
+  --color-brand-gb: #21d4fd;
+  --color-accent-tint: rgba(0, 208, 255, 0.12);
+
+  /* AORUS magenta: AORUS series label and highlights */
+  --color-aorus: #ff4fd2;
+  --color-aorus-tint: rgba(255, 0, 191, 0.14);
 
   /* Best / lowest price */
   --color-best: #3fbf7f;
   --color-best-bg: rgba(63, 191, 127, 0.1);
   --color-best-line: rgba(63, 191, 127, 0.35);
-  --color-best-solid: #1d3a2c;
+  --color-best-solid: #12321f;
 
   /* Warning: out of stock, contact, history */
   --color-warn: #e0a84a;
-  --color-warn-bg: #24201a;
+  --color-warn-bg: #211b10;
   --color-warn-line: #5a4a2a;
 
-  /* Selected row, key dealers */
-  --color-sel: #1f6fd1;
-  --color-sel-bg: #1c3150;
-  --color-key: #6fa3ec;
+  /* Selected row, key dealers, links */
+  --color-sel: #00b4dc;
+  --color-sel-bg: #0c2a36;
+  --color-key: #21d4fd;
 
   /* Admin only: price went up, errors */
   --color-up: #e5534b;
   --color-up-bg: rgba(229, 83, 75, 0.1);
-  --color-err-bg: #221a1a;
+  --color-err-bg: #1f1416;
   --color-err-line: #5a2f2c;
   --color-err-title: #f0a39d;
 
@@ -79,6 +87,12 @@
 
   /* The design has one breakpoint: 760px */
   --breakpoint-md: 47.5rem;
+}
+
+/* Header bar: black badge background with the INFINITY gradient as its bottom rule (as on vnpromotion) */
+:root {
+  --infinity-gradient: linear-gradient(90deg, #00d0ff, #ff00bf);
+  --badge-gradient: linear-gradient(135deg, #0a0e14 0%, #111111 55%, #1b2029 100%);
 }
 
 @layer base {

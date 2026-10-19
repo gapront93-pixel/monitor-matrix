@@ -10,3 +10,6 @@ src/generated/
 !.env.example
 # Dữ liệu giá upload qua admin (đã lưu trong DB)
 uploads/
+
+# Ảnh sản phẩm tải lên / lấy tự động (không đưa lên git)
+storage/

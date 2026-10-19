@@ -6,11 +6,11 @@ import { can, canManage } from "./permissions";
 describe("permissions", () => {
   it("viewer only views", () => {
     expect(can("viewer", "view")).toBe(true);
-    for (const p of ["prices", "unmatched", "segments", "dealers.edit", "dealers.delete", "users"] as const) expect(can("viewer", p)).toBe(false);
+    for (const p of ["prices", "unmatched", "segments", "dealers.edit", "dealers.delete", "images", "users"] as const) expect(can("viewer", p)).toBe(false);
     expect(canManage("viewer")).toBe(false);
   });
   it("mod updates prices, segments and dealers but cannot delete dealers or manage users", () => {
-    expect(["prices", "unmatched", "segments", "dealers.edit"].every((p) => can("mod", p as never))).toBe(true);
+    expect(["prices", "unmatched", "segments", "dealers.edit", "images"].every((p) => can("mod", p as never))).toBe(true);
     expect(can("mod", "dealers.delete")).toBe(false);
     expect(can("mod", "users")).toBe(false);
     expect(canManage("mod")).toBe(true);

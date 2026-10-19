@@ -386,7 +386,7 @@ function MatrixTable({
                 <td className={cn("sticky left-0 z-10 border-r border-b border-line-2 px-3 py-1.5", bg, sel && "shadow-[inset_3px_0_0_var(--color-sel)]")}>
                   <div className="flex items-center gap-2.5">
                     <Check checked={sel} onChange={() => onPick(p.slug)} label={`Chọn ${p.model} để so sánh`} />
-                    <ProductImage className="hidden h-6 w-9 shrink-0 md:flex" />
+                    <ProductImage src={p.thumb} className="hidden h-6 w-9 shrink-0 md:flex" sizes="40px" />
                     <div className="min-w-0">
                       <Link href={`/san-pham/${encodeURIComponent(p.slug)}`} prefetch={false} className="block text-[12.5px] leading-tight font-bold text-fg hover:underline">
                         {p.model}
@@ -430,7 +430,7 @@ function ProductCard({ p, picked, onPick }: { p: Item; picked: boolean; onPick: 
       <div className="absolute top-5 left-5 z-10 flex rounded-chip bg-app/80 p-1">
         <Check checked={picked} onChange={onPick} label={`Chọn ${p.model} để so sánh`} />
       </div>
-      <ProductImage label={p.model} className="aspect-video w-full" />
+      <ProductImage src={p.thumb} label={p.model} className="aspect-video w-full" />
       <Link href={`/san-pham/${encodeURIComponent(p.slug)}`} prefetch={false} className="mt-2.5 text-[14px] font-bold text-fg hover:underline">
         {p.model}
       </Link>

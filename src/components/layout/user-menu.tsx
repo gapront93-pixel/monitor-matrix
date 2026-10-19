@@ -32,7 +32,7 @@ export function UserMenu({ user }: { user: HeaderUser }) {
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-label={`Tài khoản: ${user.name}`}
-        className="flex size-8 items-center justify-center rounded-full border border-line bg-panel text-[11.5px] font-bold text-fg hover:border-line-hover"
+        className="flex size-8 items-center justify-center rounded-full border border-white/30 bg-white/10 text-[11.5px] font-bold text-white hover:bg-white/20"
       >
         {initials}
       </button>
