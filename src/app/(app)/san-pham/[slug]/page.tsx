@@ -50,14 +50,20 @@ export default async function ProductPage({ params, searchParams }: Params) {
   const specs = groupSpecs((raw?.rawSpecs ?? {}) as Record<string, unknown>, p.isGigabyte, locale);
 
   // Same segment, other side: rivals for a GIGABYTE model, GIGABYTE models for a rival.
-  // Rivals only count when the customs data shows them imported in the last 9 months; most imported first
+  // Rivals only count when the customs data shows them imported in the last 9 months (the 3 most imported),
+  // except Samsung: it imports outside these customs records, so its model is always added after them
   const sameSegment = catalog.products.filter((o) => o.segmentId && o.segmentId === p.segmentId && o.isGigabyte !== p.isGigabyte);
   const imports = await importStats([p, ...sameSegment]);
-  const imported = (o: (typeof sameSegment)[number]) => o.isGigabyte || (imports.get(o.slug)?.qty ?? 0) > 0;
-  const others = sameSegment
-    .filter(imported)
-    .sort((a, b) => (a.isGigabyte ? byRivalBrand(a, b) : (imports.get(b.slug)?.qty ?? 0) - (imports.get(a.slug)?.qty ?? 0) || byRivalBrand(a, b)))
-    .slice(0, 3);
+  const exempt = (o: (typeof sameSegment)[number]) => o.brand === "Samsung";
+  const others = p.isGigabyte
+    ? [
+        ...sameSegment
+          .filter((o) => !exempt(o) && (imports.get(o.slug)?.qty ?? 0) > 0)
+          .sort((a, b) => (imports.get(b.slug)?.qty ?? 0) - (imports.get(a.slug)?.qty ?? 0) || byRivalBrand(a, b))
+          .slice(0, 3),
+        ...sameSegment.filter(exempt).slice(0, 1),
+      ]
+    : [...sameSegment].sort(byRivalBrand).slice(0, 3);
   const withFob = (o: (typeof catalog.products)[number]) => ({ ...comparable(o), fobUsd: imports.get(o.slug)?.fob ?? null });
 
   const chips = [p.sizeIn !== null && `${p.sizeIn}"`, p.panel, resLabel(p.resolution), p.refreshHz && `${p.refreshHz}Hz`, p.responseMs !== null && `${p.responseMs}ms`].filter(Boolean) as string[];
