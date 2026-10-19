@@ -1,0 +1,190 @@
+# GIGABYTE Monitor Matrix
+
+Công cụ nội bộ cho team Marketing GIGABYTE Việt Nam: tra cứu thông số 99 màn hình GIGABYTE, so sánh với 44 mẫu đối thủ theo 8 phân khúc, xem số đo review (kèm link nguồn) và theo dõi giá tại các đại lý Việt Nam theo thời gian.
+
+- Địa chỉ: **https://monitor.vnpromotion.com**
+- Cả trang cần đăng nhập. Mật khẩu xem trang là `VIEW_PASSWORD`; trang **Quản trị** dùng `ADMIN_EMAIL` + `ADMIN_PASSWORD` (đều nằm trong file `.env`, xem mục 6).
+
+| Trang | Dùng để |
+|---|---|
+| `/` Tổng quan | Số liệu nhanh + 8 phân khúc với nhãn kết luận |
+| `/san-pham` | Ma trận 99 mẫu, bộ lọc (lưu trên URL), chọn 2–4 mẫu để so sánh |
+| `/san-pham/<mã>` | Thông số đầy đủ, giá theo đại lý + biểu đồ lịch sử giá, so với đối thủ, benchmark |
+| `/bang-gia` | Bảng giá theo đại lý, xem giá ngày cũ, xuất Excel |
+| `/so-sanh?m=mã1,mã2` | So sánh 2–4 mẫu (cả đối thủ), tô giá trị tốt nhất |
+| `/doi-thu` | GIGABYTE so với đối thủ theo từng phân khúc |
+| `/admin` | Tải file giá, quản lý đại lý, sửa kết luận phân khúc |
+
+---
+
+## 1. Cập nhật giá mới
+
+Mọi việc làm trên web, không cần vào VPS.
+
+1. Mở **https://monitor.vnpromotion.com/admin**, đăng nhập bằng email + mật khẩu Quản trị.
+2. Tab **Cập nhật giá** → kéo thả file vào ô, hoặc bấm **Chọn file**.
+3. Xem trước: app so file với giá hiện tại và liệt kê **Tăng giá** (đỏ), **Giảm giá** (xanh), **Mới**, **Đổi tình trạng**, **Bỏ niêm yết**, **Lỗi**. Lúc này chưa có gì được lưu.
+4. Bấm **Áp dụng (n)**. Giá mới hiện ngay ở mọi trang; ngày giá mới xuất hiện trong ô "Ngày giá" ở Bảng giá, và biểu đồ lịch sử giá có thêm một điểm.
+5. Lỡ tải nhầm? Ở mục **Lần tải lên gần đây**, bấm **Huỷ lần này**. Bảng giá quay về lần cập nhật trước.
+
+### Ba định dạng file được nhận
+
+**a) CSV theo dòng** (dễ nhất khi gõ tay hoặc copy từ Excel). Cột bắt buộc: `model, dealer, price, status`. Có thể thêm `url, note`.
+
+```csv
+model,dealer,price,status,url,note
+MO27Q28G,GEARVN,16490000,ok,https://gearvn.com/products/...,
+MO27Q28G,Thế Giới Di Động,15690000,oos,,
+G27Q20,Nguyễn Công PC,,contact,,
+```
+
+- `model`: mã mẫu (`MO27Q28G`, `AORUS-FO32U2P`) hoặc tên mẫu (`AORUS FO32U2P`).
+- `dealer`: tên đại lý hoặc mã đại lý (xem tab Đại lý).
+- `price`: số, có hoặc không có dấu phẩy (`16490000` hay `16,490,000`). Để trống chỉ khi status là `contact`.
+- `status`: `ok` (còn hàng) · `oos` (hết hàng) · `contact` (liên hệ).
+
+**b) CSV bảng giá** (mỗi đại lý một cột, giống `data/bang-gia.csv`). Cách nhanh nhất: bấm nút **Bảng giá hiện tại (.csv)** để tải bảng đang có, sửa trong Excel, rồi tải lên lại. Ô trống = đại lý không bán; ô ghi `Liên hệ` = liên hệ; `10090000 (Hết hàng)` = hết hàng.
+
+**c) JSON theo đại lý** (giống các file trong `data/prices/`). Nếu file có `retailer_id` chưa tồn tại, đại lý đó được tự thêm vào cuối danh sách.
+
+Cả ba loại đều có **file mẫu** để tải ngay trong trang Quản trị.
+
+### Hai lưu ý quan trọng
+
+- **Một file = toàn bộ bảng giá của các đại lý có trong file.** Mẫu nào đại lý từng bán mà không có trong file sẽ bị coi là "bỏ niêm yết". Nếu file chỉ để sửa vài giá, tick **"Giữ giá cũ của các mẫu không có trong file"** (khi có giá sắp bị bỏ, màn hình xem trước cũng hiện nút này).
+- **Ngày giá:** để trống thì app lấy ngày ghi trong file (trường `fetched` của JSON), không có thì lấy hôm nay. Nếu bạn nhập giá của một ngày cũ, hãy chọn ngày đó.
+
+### Quy tắc giá trên toàn app
+
+- **Giá thấp nhất** = giá thấp nhất của đại lý **bán lẻ** còn bán. Không tính giá **sỉ** (như Lê Phụng), không tính "hết hàng" / "ngừng kinh doanh" / "hàng sắp về".
+- **Số nơi còn hàng** = số đại lý lẻ còn bán / số đại lý đang niêm yết.
+- Tình trạng đọc từ ghi chú: có chữ "Hết hàng", "Tạm hết hàng", "Ngừng kinh doanh" hoặc "sắp về" → gạch ngang. Không có giá → "Liên hệ".
+
+### Dòng giá chưa khớp mẫu
+
+Tin đăng của đại lý không khớp mẫu nào (mẫu cũ như FI27Q, hoặc tên viết khác) không bị mất: chúng nằm ở mục **Dòng giá chưa khớp mẫu**.
+
+- Chọn đúng mẫu rồi bấm **Gắn**: giá hiện ngay trên bảng giá, và các lần tải lên sau tự khớp.
+- Mẫu không thuộc danh mục thì bấm **Bỏ qua**.
+
+---
+
+## 2. Thêm hoặc sửa đại lý
+
+Trang **Quản trị → tab Đại lý**. Mọi thay đổi được lưu ngay.
+
+- **Thêm đại lý** → nhập tên + website → Lưu. App báo lại **mã** đại lý (ví dụ `cuahangabc`); dùng tên hoặc mã này trong cột `dealer` của file giá.
+- **Thứ tự cột** trong Bảng giá = thứ tự trong danh sách; đổi bằng nút ▲ ▼.
+- **Trọng điểm**: tên đại lý hiện màu xanh dương ở Bảng giá.
+- **Loại giá Lẻ / Sỉ**: giá sỉ hiện in nghiêng và không tính vào giá thấp nhất.
+- **Hiện cột**: tắt để ẩn đại lý khỏi Bảng giá mà vẫn giữ lịch sử.
+- **Xoá**: chỉ xoá được đại lý chưa có giá nào trong lịch sử. Đại lý đã có giá thì tắt "Hiện cột" thay vì xoá.
+
+Nhãn **Dẫn đầu / Ngang / Yếu hơn** và đoạn kết luận của 8 phân khúc sửa ở tab **Phân khúc**.
+
+---
+
+## 3. Khởi động lại app
+
+Đăng nhập VPS bằng SSH rồi chạy (app chạy bằng user `deploy`, tên PM2 là `monitor-matrix`):
+
+```bash
+sudo -u deploy pm2 restart monitor-matrix     # khởi động lại
+sudo -u deploy pm2 status                      # xem trạng thái các app
+sudo -u deploy pm2 logs monitor-matrix --lines 100   # xem log khi có lỗi
+```
+
+- Sửa `.env` (đổi mật khẩu…) → chỉ cần `pm2 restart monitor-matrix`, không cần build lại.
+- VPS khởi động lại → PM2 tự bật app (đã `pm2 save`).
+- Lệnh trên chỉ khởi động lại app này; vnpromotion, sample-manager, promotion-hub không bị ảnh hưởng.
+
+## 4. Cập nhật code (sau khi sửa code)
+
+```bash
+sudo -u deploy -H /var/www/monitor-matrix/scripts/deploy.sh
+```
+
+Script làm lần lượt:
+1. Cài thư viện nếu `package-lock.json` đổi.
+2. Chạy migration database.
+3. Kiểm tra TypeScript và chạy test.
+4. Build vào thư mục `.next-build` (bản đang chạy chưa bị đụng tới).
+5. Thay bản build và restart PM2.
+6. Kiểm tra app trả lời; nếu không, tự quay lại bản trước.
+
+Build mất khoảng 1 phút và dùng khoảng 750MB RAM. VPS chỉ có 2GB, nên tránh build lúc đang build app khác.
+
+## 5. Nạp lại dữ liệu gốc (`data/`)
+
+Khi có bản mới của `gigabyte-specs.json`, `segments/*.json` hay `data/prices/`, chép đè vào `/var/www/monitor-matrix/data`, rồi chạy:
+
+```bash
+sudo -u deploy -H bash -c 'cd /var/www/monitor-matrix && npm run seed'
+```
+
+Seed chạy lại bao nhiêu lần cũng được, không tạo bản ghi trùng:
+- **Cập nhật:** specs, đối thủ, benchmark, và lần nhập giá "Dữ liệu khởi tạo".
+- **Giữ nguyên:**
+  - Những gì bạn chỉnh trong Quản trị: thứ tự đại lý, trọng điểm, loại giá, ẩn/hiện, nhãn kết luận.
+  - Các lần tải giá từ Quản trị.
+  - Các mẫu bạn đã "Gắn".
+
+## 6. Cấu hình và bảo mật
+
+File `/var/www/monitor-matrix/.env` (chỉ user deploy đọc được, không đưa lên git):
+
+| Biến | Ý nghĩa |
+|---|---|
+| `DATABASE_URL` | PostgreSQL `monitor_matrix_db`, user riêng `monitor_user` (chỉ có quyền trên database này) |
+| `VIEW_PASSWORD` | Mật khẩu xem trang |
+| `ADMIN_EMAIL`, `ADMIN_PASSWORD` | Đăng nhập Quản trị |
+| `SESSION_SECRET` | Khoá ký cookie đăng nhập. Đổi khoá = mọi người phải đăng nhập lại |
+
+Xem mật khẩu: `sudo cat /var/www/monitor-matrix/.env`. Đổi mật khẩu: sửa file rồi `sudo -u deploy pm2 restart monitor-matrix`.
+
+Đăng nhập sai quá 8 lần trong 15 phút (theo IP) sẽ bị chặn 15 phút. Trang có header `noindex` để Google không đưa lên kết quả tìm kiếm.
+
+**Sao lưu database** (nên làm trước khi nạp dữ liệu lớn):
+
+```bash
+sudo -u postgres pg_dump -Fc monitor_matrix_db > ~/monitor_matrix_$(date +%F).dump
+```
+
+## 7. Hạ tầng trên VPS
+
+| Thành phần | Giá trị |
+|---|---|
+| Thư mục | `/var/www/monitor-matrix` (chủ sở hữu: `deploy`) |
+| PM2 | `monitor-matrix`, `next start -H 127.0.0.1 -p 3003` (`ecosystem.config.cjs`) |
+| Nginx | `/etc/nginx/sites-available/monitor.vnpromotion.com` (bản gốc: `deploy/nginx-monitor.vnpromotion.com.conf`) |
+| SSL | Let's Encrypt, Certbot tự gia hạn (`certbot renew`) |
+| DNS | Cloudflare, bản ghi A `monitor` → 157.66.24.196, **Proxied** (tường lửa VPS chỉ nhận cổng 80/443 từ Cloudflare) |
+
+## 8. Cho lập trình viên
+
+- **Stack:** Next.js 16 (App Router) + TypeScript, Tailwind CSS 4 (token màu trong `src/app/globals.css`, bảng màu mặc định bị tắt), component kiểu shadcn trên Base UI, TanStack Table + Virtual (bảng giá), Recharts, Prisma 7 + PostgreSQL, Papa Parse, exceljs (xuất .xlsx có tô màu), Vitest.
+- **Cấu trúc chính:**
+  - `prisma/schema.prisma`: Product, Segment, Benchmark, Dealer, PriceImport, PriceImportDealer, PriceSnapshot, UnmatchedPrice.
+  - `scripts/seed.ts`: nạp `data/`.
+  - `src/lib/import/`: đọc file giá, so sánh, áp dụng (dùng chung cho seed và Quản trị).
+  - `src/lib/catalog.ts`: dữ liệu và giá tại một ngày bất kỳ.
+  - `src/lib/pricing.ts`: quy tắc giá thấp nhất.
+  - `src/app/(app)/`: các trang.
+- **Lịch sử giá:** mỗi lần tải lên là một `PriceImport`. Giá của một đại lý tại ngày X lấy từ lần tải lên gần nhất (≤ X) có đại lý đó.
+- **Lệnh thường dùng:**
+
+  ```bash
+  npm test             # 32 test: giá thấp nhất, diff khi tải file, đọc CSV/JSON, so sánh
+  npm run typecheck
+  npm run lint
+  npm run db:deploy    # chạy migration
+  npm run seed
+  ```
+
+- **Chạy thử trên máy khác:** cần PostgreSQL. Chép `.env.example` thành `.env` rồi điền giá trị, sau đó:
+
+  ```bash
+  npm i && npx prisma migrate deploy && npm run seed && npm run dev
+  ```
+
+  Mở http://127.0.0.1:3003. Muốn tạo migration mới thì dùng `npx prisma migrate dev`; lệnh này cần quyền tạo database tạm.
