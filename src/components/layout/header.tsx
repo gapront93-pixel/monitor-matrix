@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useRef } from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -31,12 +32,17 @@ export function Logo() {
 
 export function Header() {
   const pathname = usePathname();
+  const nav = useRef<HTMLElement>(null);
+  // On phones the tab row scrolls sideways: bring the current tab into view
+  useEffect(() => {
+    nav.current?.querySelector('[aria-current="page"]')?.scrollIntoView({ block: "nearest", inline: "nearest" });
+  }, [pathname]);
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-head">
       <div className="mx-auto flex max-w-[1920px] flex-wrap items-center gap-x-6 px-3.5 md:h-[54px] md:flex-nowrap md:px-5">
         <div className="flex h-[46px] min-w-0 flex-1 items-center gap-5 md:h-full md:flex-initial">
           <Logo />
-          <nav aria-label="Màn hình" className="no-scrollbar -mx-1 flex h-full min-w-0 overflow-x-auto">
+          <nav ref={nav} aria-label="Màn hình" className="no-scrollbar -mx-1 flex h-full min-w-0 overflow-x-auto">
             {TABS.map((t) => {
               const active = isActive(pathname, t.href);
               return (
