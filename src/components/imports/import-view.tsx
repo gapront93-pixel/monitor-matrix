@@ -198,6 +198,9 @@ function YearChart({ data, filter }: { data: ImportData; filter: ChartFilter }) 
   const { num, compact } = useNumbers();
   const years = YEARS.filter((y) => filter.years.includes(y));
   const series = useMemo(() => yearSeries(data, filter), [data, filter]);
+  // Both: value bars + units lines; one measure alone: bars side by side per year, on the left axis
+  const [metric, setMetric] = useState<"both" | "qty" | "rev">("both");
+  const barKey = metric === "qty" ? "qty" : "rev";
   const rows = series.map((s) => {
     const o: Record<string, number | string | null> = { name: t.monthChip(s.month) };
     for (const y of years) {
@@ -209,14 +212,40 @@ function YearChart({ data, filter }: { data: ImportData; filter: ChartFilter }) 
   const tick = { fontSize: 12, fontFamily: "var(--font-mono)" };
   return (
     <section className="flex min-w-0 flex-col gap-3 rounded-[10px] border border-line bg-panel px-5 py-4.5">
-      <h2 className="text-[22px] text-fg">{t.compare.title}</h2>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 className="text-[22px] text-fg">{t.compare.title}</h2>
+        <div role="group" aria-label={t.compare.metric} className="flex h-8 items-center gap-1 rounded-[6px] border border-line bg-app p-0.5">
+          <span className="px-1.5 text-[14px] text-muted">{t.compare.metric}</span>
+          {(["both", "qty", "rev"] as const).map((m) => (
+            <button
+              key={m}
+              type="button"
+              aria-pressed={metric === m}
+              onClick={() => setMetric(m)}
+              className={cn("h-full rounded-[4px] px-2.5 text-[13px]", metric === m ? "bg-accent font-semibold text-on-accent" : "text-fg-2 hover:bg-panel")}
+            >
+              {t.compare.metrics[m]}
+            </button>
+          ))}
+        </div>
+      </div>
       <div className="h-[300px]">
         <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 1000, height: 300 }}>
-          <ComposedChart data={rows} margin={{ top: 8, right: 4, bottom: 0, left: 0 }} barGap={2}>
+          {/* Remounted when the years or the measure change: Recharts keeps series in the order they were first added */}
+          <ComposedChart key={`${years.join("-")}-${metric}`} data={rows} margin={{ top: 8, right: 4, bottom: 0, left: 0 }} barGap={2}>
             <CartesianGrid vertical={false} stroke="var(--color-line-2)" strokeDasharray="3 3" />
             <XAxis dataKey="name" tickLine={false} axisLine={{ stroke: "var(--color-line)" }} tick={{ ...tick, fill: "var(--color-fg-2)" }} />
-            <YAxis yAxisId="rev" width={64} tickLine={false} axisLine={false} tickFormatter={(v: number) => compact(v)} tick={{ ...tick, fill: "var(--color-imp-rev)" }} />
-            <YAxis yAxisId="qty" orientation="right" width={64} tickLine={false} axisLine={false} tickFormatter={(v: number) => compact(v)} tick={{ ...tick, fill: "var(--color-imp-qty)" }} />
+            <YAxis
+              yAxisId="rev"
+              width={64}
+              tickLine={false}
+              axisLine={false}
+              tickFormatter={(v: number) => compact(v)}
+              tick={{ ...tick, fill: metric === "qty" ? "var(--color-imp-qty)" : "var(--color-imp-rev)" }}
+            />
+            {metric === "both" && (
+              <YAxis yAxisId="qty" orientation="right" width={64} tickLine={false} axisLine={false} tickFormatter={(v: number) => compact(v)} tick={{ ...tick, fill: "var(--color-imp-qty)" }} />
+            )}
             <Tooltip
               cursor={{ fill: "var(--color-accent-tint)" }}
               contentStyle={{ background: "var(--color-head)", border: "1px solid var(--color-line)", borderRadius: 6, fontSize: 12.5 }}
@@ -229,9 +258,9 @@ function YearChart({ data, filter }: { data: ImportData; filter: ChartFilter }) 
               }}
             />
             {years.map((y) => (
-              <Bar key={`b${y}`} yAxisId="rev" dataKey={`rev${y}`} fill={YEAR_COLORS[y].bar} radius={[3, 3, 0, 0]} maxBarSize={years.length > 1 ? 22 : 44} isAnimationActive={false} />
+              <Bar key={`b${y}`} yAxisId="rev" dataKey={`${barKey}${y}`} fill={YEAR_COLORS[y].bar} radius={[3, 3, 0, 0]} maxBarSize={years.length > 1 ? 22 : 44} isAnimationActive={false} />
             ))}
-            {years.map((y) => (
+            {metric === "both" && years.map((y) => (
               <Line
                 key={`l${y}`}
                 yAxisId="qty"
@@ -252,12 +281,14 @@ function YearChart({ data, filter }: { data: ImportData; filter: ChartFilter }) 
           <li key={y} className="flex items-center gap-4">
             <span className="flex items-center gap-1.5">
               <span aria-hidden className="size-3 rounded-[2px]" style={{ background: YEAR_COLORS[y].bar }} />
-              {t.compare.revYear(y)}
+              {metric === "both" ? t.compare.revYear(y) : metric === "qty" ? t.compare.qtyBar(y) : t.compare.revBar(y)}
             </span>
-            <span className="flex items-center gap-1.5">
-              <span aria-hidden className="h-[3px] w-[18px] rounded-[2px]" style={{ background: YEAR_COLORS[y].line }} />
-              {t.compare.qtyYear(y)}
-            </span>
+            {metric === "both" && (
+              <span className="flex items-center gap-1.5">
+                <span aria-hidden className="h-[3px] w-[18px] rounded-[2px]" style={{ background: YEAR_COLORS[y].line }} />
+                {t.compare.qtyYear(y)}
+              </span>
+            )}
           </li>
         ))}
         {years.includes(2026) && <li className="text-[12px] text-faint">· {t.compare.partial}</li>}

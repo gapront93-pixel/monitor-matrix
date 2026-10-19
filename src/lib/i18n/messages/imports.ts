@@ -61,6 +61,10 @@ const vi = {
     qty: "Số lượng",
     unit: "chiếc",
     partial: "2026 có số liệu đến 22/09",
+    metric: "Hiển thị",
+    metrics: { both: "Cả hai", qty: "Số lượng", rev: "Kim ngạch" },
+    qtyBar: (y: number) => `Số lượng ${y}`,
+    revBar: (y: number) => `Kim ngạch ${y}`,
   },
   pivot: {
     title: "Phân tích dữ liệu",
@@ -198,6 +202,10 @@ const en: typeof vi = {
     qty: "Units",
     unit: "units",
     partial: "2026 has data up to 22/09",
+    metric: "Show",
+    metrics: { both: "Both", qty: "Units", rev: "Value" },
+    qtyBar: (y: number) => `Units ${y}`,
+    revBar: (y: number) => `Value ${y}`,
   },
   pivot: {
     title: "Data analysis",
