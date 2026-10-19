@@ -264,3 +264,228 @@ export function visibleRows(t: PivotTable, collapsed: Set<number>): number[] {
   });
   return out;
 }
+
+// --- Pivot builder: any dimension on rows (with an optional sub-row) and columns, over the RAW rows ---
+
+export const DIMS = ["year", "quarter", "month", "size", "brand", "res", "panel", "hz", "model"] as const;
+export type Dim = (typeof DIMS)[number];
+export type Measure = "qty" | "rev" | "both";
+
+export type PivotFilter = {
+  years: MultiSel<Year>;
+  months: MultiSel<number>;
+  sizes: MultiSel<number>;
+  brands: MultiSel<string>;
+  res: MultiSel<string>;
+  panels: MultiSel<string>;
+  hz: MultiSel<number>;
+};
+export const ALL_FILTER: PivotFilter = { years: null, months: null, sizes: null, brands: null, res: null, panels: null, hz: null };
+
+export type PivotSpec = { row: Dim; sub: Dim | null; col: Dim | null; measure: Measure };
+
+const MAX_COLS = 40; // wider than that, the smallest columns fold into one "other" column
+export const OTHER_KEY = "\u0000other";
+
+type Key = string | number;
+function dimKey(d: ImportData, dim: Dim, r: ImportRow, y: Year): Key {
+  switch (dim) {
+    case "year":
+      return y;
+    case "quarter":
+      return Math.ceil(r[C.m] / 3);
+    case "month":
+      return r[C.m];
+    case "size":
+      return r[C.size];
+    case "brand":
+      return d.dicts.brand[r[C.brand]];
+    case "res":
+      return r[C.res];
+    case "panel":
+      return r[C.panel];
+    case "hz":
+      return r[C.hz];
+    case "model":
+      return d.dicts.model[r[C.model]];
+  }
+}
+
+export type DimWords = { month: (m: number) => string; quarter: (q: number) => string; other: string };
+export function dimLabel(dim: Dim, k: Key, w: DimWords): string {
+  if (k === OTHER_KEY) return w.other;
+  switch (dim) {
+    case "quarter":
+      return w.quarter(Number(k));
+    case "month":
+      return w.month(Number(k));
+    case "size":
+      return sizeLabel(Number(k));
+    case "res":
+      return resLabel(String(k));
+    case "hz":
+      return hzLabel(Number(k));
+    default:
+      return String(k);
+  }
+}
+
+/** Natural order for time, size, refresh rate and resolution; by total (largest first) for the others */
+function orderKeys(dim: Dim, keys: Key[], total: (k: Key) => number): Key[] {
+  if (dim === "year" || dim === "quarter" || dim === "month" || dim === "size" || dim === "hz") return [...keys].sort((a, b) => Number(a) - Number(b));
+  if (dim === "res") return [...keys].sort((a, b) => (RES_ORDER.indexOf(String(a)) + 1 || 99) - (RES_ORDER.indexOf(String(b)) + 1 || 99));
+  return [...keys].sort((a, b) => total(b) - total(a));
+}
+
+export function pivotFilterPass(d: ImportData, f: PivotFilter): (r: ImportRow, y: Year) => boolean {
+  const B = d.dicts.brand;
+  return (r, y) =>
+    inSel(f.years, y) &&
+    inSel(f.months, r[C.m]) &&
+    inSel(f.sizes, r[C.size]) &&
+    inSel(f.brands, B[r[C.brand]]) &&
+    inSel(f.res, r[C.res]) &&
+    inSel(f.panels, r[C.panel]) &&
+    inSel(f.hz, r[C.hz]);
+}
+
+/** A pivot over the filtered rows, in the shape the pivot cards render (totals column and row, groups for "both") */
+export function buildPivot(d: ImportData, f: PivotFilter, spec: PivotSpec, w: DimWords): PivotTable {
+  const pass = pivotFilterPass(d, f);
+  type Acc = { q: number; r: number };
+  const add = (m: Map<Key, Acc>, k: Key, q: number, rv: number) => {
+    const a = m.get(k) ?? { q: 0, r: 0 };
+    a.q += q;
+    a.r += rv;
+    m.set(k, a);
+  };
+  // row -> (sub ->) col -> sums
+  const cells = new Map<Key, { all: Map<Key, Acc>; sum: Acc; subs: Map<Key, { all: Map<Key, Acc>; sum: Acc }> }>();
+  const colTot = new Map<Key, Acc>();
+  const grand: Acc = { q: 0, r: 0 };
+  const col = spec.col;
+  for (const y of YEARS) {
+    for (const r of rowsOf(d, y)) {
+      if (!pass(r, y)) continue;
+      const q = r[C.qty], rv = r[C.rev];
+      const rk = dimKey(d, spec.row, r, y);
+      const ck: Key = col ? dimKey(d, col, r, y) : "";
+      let row = cells.get(rk);
+      if (!row) cells.set(rk, (row = { all: new Map(), sum: { q: 0, r: 0 }, subs: new Map() }));
+      add(row.all, ck, q, rv);
+      row.sum.q += q;
+      row.sum.r += rv;
+      if (spec.sub) {
+        const sk = dimKey(d, spec.sub, r, y);
+        let s = row.subs.get(sk);
+        if (!s) row.subs.set(sk, (s = { all: new Map(), sum: { q: 0, r: 0 } }));
+        add(s.all, ck, q, rv);
+        s.sum.q += q;
+        s.sum.r += rv;
+      }
+      add(colTot, ck, q, rv);
+      grand.q += q;
+      grand.r += rv;
+    }
+  }
+  const main = (a: Acc) => (spec.measure === "rev" ? a.r : a.q);
+  let colKeys: Key[] = col ? orderKeys(col, [...colTot.keys()], (k) => main(colTot.get(k)!)) : [];
+  // Too many columns: keep the largest, fold the rest
+  let folded = new Set<Key>();
+  if (col && colKeys.length > MAX_COLS) {
+    const byTotal = [...colKeys].sort((a, b) => main(colTot.get(b)!) - main(colTot.get(a)!));
+    folded = new Set(byTotal.slice(MAX_COLS - 1));
+    colKeys = [...colKeys.filter((k) => !folded.has(k)), OTHER_KEY];
+  }
+  const get = (m: Map<Key, Acc>, k: Key): Acc => {
+    if (k !== OTHER_KEY) return m.get(k) ?? { q: 0, r: 0 };
+    const o = { q: 0, r: 0 };
+    for (const [kk, a] of m) {
+      if (!folded.has(kk)) continue;
+      o.q += a.q;
+      o.r += a.r;
+    }
+    return o;
+  };
+  const both = spec.measure === "both";
+  const vals = (a: Acc): Cell[] => (both ? [a.q || "", a.r || ""] : [main(a) || ""]);
+  const line = (all: Map<Key, Acc>, sum: Acc): Cell[] => [...(col ? colKeys.flatMap((k) => vals(get(all, k))) : []), ...vals(sum)];
+
+  const rows: PivotRow[] = [];
+  const rowKeys = orderKeys(spec.row, [...cells.keys()], (k) => main(cells.get(k)!.sum));
+  for (const rk of rowKeys) {
+    const row = cells.get(rk)!;
+    rows.push({ l: 0, c: [dimLabel(spec.row, rk, w), ...line(row.all, row.sum)] });
+    if (spec.sub) {
+      for (const sk of orderKeys(spec.sub, [...row.subs.keys()], (k) => main(row.subs.get(k)!.sum))) {
+        const s = row.subs.get(sk)!;
+        rows.push({ l: 1, c: [dimLabel(spec.sub, sk, w), ...line(s.all, s.sum)] });
+      }
+    }
+  }
+  rows.push({ l: -1, c: ["Grand Total", ...line(colTot, grand)] });
+
+  const measureCols = both ? ["Tổng của QTY", "Tổng của REV"] : [spec.measure === "rev" ? "Tổng của REV" : "Tổng của QTY"];
+  const colLabels = col ? colKeys.map((k) => dimLabel(col, k, w)) : [];
+  const cols = [
+    spec.row,
+    ...(both ? colLabels.flatMap(() => measureCols) : colLabels),
+    ...(both ? measureCols.map((m) => `Total ${m}`) : col ? ["Grand Total"] : measureCols),
+  ];
+  return {
+    key: `pv-${spec.row}-${spec.sub}-${spec.col}-${spec.measure}`,
+    ref: "RAW 2024–2026",
+    measure: both ? "" : measureCols[0],
+    filters: [],
+    rowFields: [spec.row, ...(spec.sub ? [spec.sub] : [])],
+    cols,
+    groups: both && col ? [...colLabels.map((label) => ({ label, span: 2 })), { label: "", span: 2 }] : null,
+    rows,
+  };
+}
+
+/** The analyses of the workbook's pivot sheets, as builder settings */
+export const PRESETS: { sheet: string; spec: PivotSpec; filter: Partial<PivotFilter>; gaming?: number }[] = [
+  { sheet: "Market TAM", spec: { row: "size", sub: null, col: "year", measure: "both" }, filter: {} },
+  { sheet: "Gaming Only", spec: { row: "size", sub: null, col: "res", measure: "qty" }, filter: { years: [2026] }, gaming: 144 },
+  { sheet: "Gaming Only", spec: { row: "size", sub: null, col: "hz", measure: "qty" }, filter: { years: [2026] }, gaming: 120 },
+  { sheet: "Gaming Only", spec: { row: "size", sub: null, col: "panel", measure: "qty" }, filter: { years: [2026] }, gaming: 144 },
+  { sheet: "Gaming by Brand", spec: { row: "brand", sub: null, col: "year", measure: "qty" }, filter: { years: [2025, 2026] }, gaming: 144 },
+  { sheet: "Gaming by Brand", spec: { row: "res", sub: "size", col: "brand", measure: "qty" }, filter: { years: [2026] }, gaming: 144 },
+  { sheet: "Analysis UTD", spec: { row: "size", sub: "res", col: "panel", measure: "qty" }, filter: { years: [2026] }, gaming: 144 },
+  { sheet: "Analysis UTD", spec: { row: "size", sub: "res", col: "brand", measure: "qty" }, filter: { years: [2026] }, gaming: 144 },
+  { sheet: "Analysis UTD", spec: { row: "brand", sub: null, col: "panel", measure: "qty" }, filter: { years: [2026] }, gaming: 144 },
+  { sheet: "Analysis UTD", spec: { row: "brand", sub: "model", col: "panel", measure: "qty" }, filter: { years: [2026] }, gaming: 144 },
+];
+
+/** Year-on-year chart: one value per month and chosen year (months a year has no data for stay null) */
+export function yearSeries(d: ImportData, f: ChartFilter): { month: number; byYear: Record<number, { qty: number; rev: number } | null> }[] {
+  const pass = rowFilter(d, f);
+  const years = YEARS.filter((y) => f.years.includes(y));
+  const sums = new Map<Year, { qty: number[]; rev: number[] }>();
+  for (const y of years) {
+    const qty = Array(12).fill(0), rev = Array(12).fill(0);
+    for (const r of rowsOf(d, y)) {
+      if (!pass(r)) continue;
+      qty[r[C.m] - 1] += r[C.qty];
+      rev[r[C.m] - 1] += r[C.rev];
+    }
+    sums.set(y, { qty, rev });
+  }
+  const last = Math.max(...years.map((y) => monthsIn(d, y)));
+  return Array.from({ length: last }, (_, i) => ({
+    month: i + 1,
+    byYear: Object.fromEntries(years.map((y) => [y, i < monthsIn(d, y) ? { qty: sums.get(y)!.qty[i], rev: sums.get(y)!.rev[i] } : null])),
+  }));
+}
+
+/** Values of each dimension for the pivot filters */
+export function dimOptions(d: ImportData) {
+  const all = [...d.r2024, ...d.r2025, ...d.r2026];
+  const uniq = <T,>(xs: T[]) => [...new Set(xs)];
+  return {
+    sizes: uniq(all.map((r) => r[C.size])).sort((a, b) => a - b),
+    res: uniq(all.map((r) => r[C.res])).sort((a, b) => (RES_ORDER.indexOf(a) + 1 || 99) - (RES_ORDER.indexOf(b) + 1 || 99)),
+    panels: uniq(all.map((r) => r[C.panel])).sort(),
+  };
+}

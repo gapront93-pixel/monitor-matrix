@@ -3,7 +3,7 @@ import path from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { EMPTY_FILTER, chartSlots, gamingTable, hzBucket, niceMax, options, sizeBucket, tamTable, visibleRows, type ImportData, type PivotSheet } from "./imports";
+import { ALL_FILTER, EMPTY_FILTER, PRESETS, buildPivot, chartSlots, yearSeries, gamingTable, hzBucket, niceMax, options, sizeBucket, tamTable, visibleRows, type ImportData, type PivotSheet } from "./imports";
 
 const dir = path.join(__dirname, "..", "..", "data", "import");
 const data: ImportData = JSON.parse(readFileSync(path.join(dir, "import-raw-2024-2026.json"), "utf8"));
@@ -53,5 +53,36 @@ describe("pivot tables match the workbook", () => {
     const t = piv.find((s) => s.sheet === "Analysis UTD")!.tables[0];
     expect(visibleRows(t, new Set([0])).length).toBeLessThan(t.rows.length);
     expect(visibleRows(t, new Set()).length).toBe(t.rows.length);
+  });
+});
+
+const W = { month: (m: number) => `T${m}`, quarter: (q: number) => `Q${q}`, other: "Khác" };
+
+describe("pivot builder", () => {
+  it("Market TAM preset gives the same cells as the Market TAM table", () => {
+    const p = PRESETS[0];
+    const mine = buildPivot(data, { ...ALL_FILTER, ...p.filter }, p.spec, W);
+    const tam = tamTable(data, { brand: null, months: null });
+    expect(mine.rows.map((r) => r.c.slice(1))).toEqual(tam.rows.map((r) => r.c.slice(1)));
+  });
+  it("Gaming Only preset matches the Gaming Only table", () => {
+    const p = PRESETS[1];
+    const mine = buildPivot(data, { ...ALL_FILTER, ...p.filter, hz: ge(144) }, p.spec, W);
+    const old = gamingTable(data, "res", { hz: ge(144), brand: null, year: [2026] });
+    expect(mine.rows.map((r) => r.c)).toEqual(old.rows.map((r) => r.c));
+  });
+  it("sub-rows add up to their parent and wide column sets fold into 'other'", () => {
+    const t = buildPivot(data, { ...ALL_FILTER, years: [2026] }, { row: "size", sub: "res", col: "brand", measure: "qty" }, W);
+    expect(t.cols.length).toBeLessThanOrEqual(42);
+    const i = t.rows.findIndex((r) => r.c[0] === "24 inch");
+    const kids = [];
+    for (let j = i + 1; t.rows[j]?.l === 1; j++) kids.push(t.rows[j]);
+    expect(kids.reduce((n, r) => n + Number(r.c.at(-1)), 0)).toBe(t.rows[i].c.at(-1));
+  });
+  it("year series has 12 months and no 2026 value after September", () => {
+    const s = yearSeries(data, { ...EMPTY_FILTER, years: [2025, 2026] });
+    expect(s).toHaveLength(12);
+    expect(s[9].byYear[2026]).toBeNull();
+    expect(s[0].byYear[2025]!.qty).toBeGreaterThan(0);
   });
 });
