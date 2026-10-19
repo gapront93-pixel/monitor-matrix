@@ -3,6 +3,7 @@ import "server-only";
 import { connection } from "next/server";
 import { cache } from "react";
 
+import type { Comparable } from "./compare";
 import { getPriceState } from "./import/plan";
 import { endOfVnDay } from "./format";
 import { prisma } from "./prisma";
@@ -153,3 +154,34 @@ export const getCatalog = cache(async (day?: string): Promise<Catalog> => {
     asOf,
   };
 });
+
+/** The fields the comparison table and client screens need, without the price cells */
+export function comparable(p: ProductView): Comparable & { line: string | null; segmentId: string | null } {
+  return {
+    slug: p.slug,
+    brand: p.brand,
+    model: p.model,
+    isGigabyte: p.isGigabyte,
+    line: p.line,
+    segmentId: p.segmentId,
+    sizeIn: p.sizeIn,
+    panel: p.panel,
+    resolution: p.resolution,
+    refreshHz: p.refreshHz,
+    responseMs: p.responseMs,
+    brightnessSdrNits: p.brightnessSdrNits,
+    brightnessHdrPeakNits: p.brightnessHdrPeakNits,
+    dciP3Pct: p.dciP3Pct,
+    hdr: p.hdr,
+    dpVer: p.dpVer,
+    hdmiVer: p.hdmiVer,
+    usbC: p.usbC,
+    usbCPdW: p.usbCPdW,
+    heightAdjMm: p.heightAdjMm,
+    pivot: p.pivot,
+    kvm: p.kvm,
+    minPrice: p.minPrice,
+    inStock: p.inStock,
+    sellers: p.sellers,
+  };
+}

@@ -102,3 +102,9 @@ export function byRivalBrand(a: { brand: string; model: string }, b: { brand: st
   const ia = RIVAL_BRANDS.indexOf(a.brand), ib = RIVAL_BRANDS.indexOf(b.brand);
   return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib) || a.model.localeCompare(b.model);
 }
+
+/** "VESA DisplayHDR True Black 500" -> "TrueBlack 500", "VESA DisplayHDR 400" -> "DisplayHDR 400" */
+export function shortHdr(hdr: string | null): string {
+  if (!hdr) return "—";
+  return hdr.replace(/^VESA\s+/i, "").replace(/DisplayHDR\s+True\s*Black/i, "TrueBlack").trim();
+}

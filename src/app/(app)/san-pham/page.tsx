@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 
-import { ComingSoon } from "@/components/coming-soon";
+import { ProductMatrix } from "@/components/products/product-matrix";
+import { comparable, getCatalog } from "@/lib/catalog";
 
 export const metadata: Metadata = { title: "Sản phẩm" };
 
-export default function Page() {
-  return <ComingSoon eyebrow="Sản phẩm" title="Ma trận màn hình GIGABYTE" />;
+export default async function ProductsPage() {
+  const { products } = await getCatalog();
+  return <ProductMatrix items={products.filter((p) => p.isGigabyte).map(comparable)} />;
 }
