@@ -24,7 +24,8 @@ export type Comparable = {
   pivot: boolean | null;
   kvm: boolean | null;
   minPrice: number | null;
-  fobUsd?: number | null; // average import FOB over the last 9 months (customs data); absent when not loaded
+  fobUsd?: number | null; // unit FOB of the latest import shipment (customs data); absent when not loaded
+  fobDate?: string | null; // its day, dd/mm/yyyy
   inStock: number;
   sellers: number;
 };
@@ -49,7 +50,12 @@ const num = (v: number | null, unit = "") => (v === null ? "—" : `${fmtNum(v)}
 
 export const COMPARE_FIELDS: CompareField[] = [
   // Import price (USD, FOB) above the dealer price, so the two read together
-  { key: "fob", rank: (p) => p.fobUsd ?? null, better: "low", show: (p) => (p.fobUsd ? `${p.fobUsd.toFixed(1)} USD` : "—") },
+  {
+    key: "fob",
+    rank: (p) => p.fobUsd ?? null,
+    better: "low",
+    show: (p) => (p.fobUsd ? `${fmtNum(Math.round(p.fobUsd * 10) / 10)} USD${p.fobDate ? ` (${p.fobDate})` : ""}` : "—"),
+  },
   { key: "price", rank: (p) => p.minPrice, better: "low", show: (p, w) => (p.minPrice ? fmtNum(p.minPrice) : w.noPrice) },
   { key: "stock", rank: (p) => (p.sellers ? p.inStock : null), better: "high", show: (p) => (p.sellers ? String(p.inStock) : "—") },
   { key: "size", show: (p) => (p.sizeIn !== null ? `${p.sizeIn}"` : "—") },

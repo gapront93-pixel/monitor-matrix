@@ -13,7 +13,7 @@ import { EmptyState } from "@/components/ui/states";
 import { comparable, getCatalog, type Catalog, type ProductView } from "@/lib/catalog";
 import { byRivalBrand, fmtDate, fmtDiff, fmtNum, fmtPriceCell, resLabel } from "@/lib/format";
 import { isBuyable } from "@/lib/import/prices";
-import { importStats } from "@/lib/import-stats";
+import { fobDay, importStats } from "@/lib/import-stats";
 import { prisma } from "@/lib/prisma";
 import { priceHistory, productBenchmarks } from "@/lib/product-detail";
 import { catalogMessages } from "@/lib/i18n/messages/catalog";
@@ -64,7 +64,7 @@ export default async function ProductPage({ params, searchParams }: Params) {
         ...sameSegment.filter(exempt).slice(0, 1),
       ]
     : [...sameSegment].sort(byRivalBrand).slice(0, 3);
-  const withFob = (o: (typeof catalog.products)[number]) => ({ ...comparable(o), fobUsd: imports.get(o.slug)?.fob ?? null });
+  const withFob = (o: (typeof catalog.products)[number]) => ({ ...comparable(o), fobUsd: imports.get(o.slug)?.fob ?? null, fobDate: fobDay(imports.get(o.slug)?.fobDate ?? null) });
 
   const chips = [p.sizeIn !== null && `${p.sizeIn}"`, p.panel, resLabel(p.resolution), p.refreshHz && `${p.refreshHz}Hz`, p.responseMs !== null && `${p.responseMs}ms`].filter(Boolean) as string[];
 

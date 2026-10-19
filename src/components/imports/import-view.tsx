@@ -815,7 +815,14 @@ function ModelTable({ data }: { data: ImportData }) {
                       </span>
                     </td>
                     <td className={cn(td, "text-right text-fg-2")}>{num(r.rev)}</td>
-                    <td className={cn(td, "text-right font-semibold text-fg")}>{dec(r.fob)}</td>
+                    <td className={cn(td, "text-right")}>
+                      <span className="font-semibold text-fg">{dec(r.fob)}</span>
+                      {r.fobDate > 0 && (
+                        <span className="ml-1.5 text-[12px] text-faint">
+                          {String(r.fobDate % 100).padStart(2, "0")}/{String(Math.floor(r.fobDate / 100) % 100).padStart(2, "0")}/{Math.floor(r.fobDate / 10000)}
+                        </span>
+                      )}
+                    </td>
                     <td className={cn(td, "text-right text-muted")}>{r.fobMin && r.fobMin !== r.fobMax ? `${dec(r.fobMin)} – ${dec(r.fobMax)}` : r.fobMax ? dec(r.fobMax) : "—"}</td>
                     <td className={cn(td, "text-right text-fg-2")}>{r.importers}</td>
                     <td className={cn(td, "max-w-[280px] truncate text-[13px] text-fg-2")} title={r.topImporter}>

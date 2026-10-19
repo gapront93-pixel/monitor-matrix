@@ -179,10 +179,10 @@ Menu **Import Data - LCD** (chỉ Mod và Admin), nằm dưới Doanh số LCD. 
     - Giá FOB;
     - Kênh nhập khẩu (nhà nhập khẩu, cửa khẩu, xuất xứ).
   - Khi có hơn 40 cột, các cột nhỏ được gộp vào cột "Khác".
-- **Model & giá FOB:** mỗi model gồm số lượng, kim ngạch, FOB bình quân, FOB thấp – cao nhất, số nhà nhập khẩu và nhà nhập khẩu chính. Có lọc theo năm, Brand và "chỉ gaming ≥144Hz", có ô tìm kiếm và nhiều cách sắp xếp.
+- **Model & giá FOB:** mỗi model gồm số lượng, kim ngạch, **giá FOB của lô nhập gần nhất** (kèm ngày; nếu cùng ngày có nhiều lô thì lấy lô lớn nhất), FOB thấp – cao nhất, số nhà nhập khẩu và nhà nhập khẩu chính. Có lọc theo năm, Brand và "chỉ gaming ≥144Hz", có ô tìm kiếm và nhiều cách sắp xếp.
 - **Dùng ở trang sản phẩm:**
   - Tab **So với đối thủ** chỉ hiện đối thủ có số lượng nhập khẩu lớn hơn 0 trong **9 tháng gần nhất**, xếp theo số lượng nhập khẩu.
-  - Bảng so sánh, ở cả tab này lẫn trang So sánh, có hàng **Giá FOB nhập khẩu (9 tháng)** ngay trên hàng Giá thấp nhất.
+  - Bảng so sánh, ở cả tab này lẫn trang So sánh, có hàng **Giá FOB lô nhập gần nhất** (kèm ngày nhập) ngay trên hàng Giá thấp nhất. Đây là giá của lô gần nhất, không phải giá trung bình.
   - Mẫu được so khớp với dữ liệu hải quan theo brand và mã model (tên model hoặc alias; nếu không khớp thì so theo mã con). Samsung không có trong dữ liệu hải quan, nên **Samsung không áp dụng điều kiện nhập khẩu**: mẫu Samsung cùng phân khúc luôn được thêm vào sau 3 đối thủ nhập khẩu nhiều nhất, hàng FOB của Samsung để "—".
 - **Dữ liệu:** file `data/import/import-raw-2024-2026.json`, có số liệu đến 22/09/2026, chỉ tài khoản Mod và Admin tải được (`/api/nhap-khau`).
   - **Lưu ý về file gốc:** model "LEGION 27Q-10" (Lenovo) bị lặp ở nhiều brand khác, do lỗi kéo-điền trong file Excel. Trang vẫn hiển thị đúng như dữ liệu gốc.

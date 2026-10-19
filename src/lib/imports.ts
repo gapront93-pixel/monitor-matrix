@@ -550,7 +550,8 @@ export type ModelRow = {
   curved: boolean;
   qty: number;
   rev: number;
-  fob: number; // weighted average (value / units)
+  fob: number; // unit FOB of the latest shipment (on the same day, the biggest)
+  fobDate: number; // its day, YYYYMMDD
   fobMin: number;
   fobMax: number;
   importers: number;
@@ -561,7 +562,7 @@ export function modelTable(d: ImportData, f: ModelFilter): ModelRow[] {
   const B = d.dicts.brand, M = d.dicts.model, I = d.dicts.imp;
   const q = f.search.trim().toUpperCase();
   // One row per brand + model: a code filed under several brands (a copy-down slip in the source) stays apart
-  const m = new Map<string, ModelRow & { imps: Map<number, number> }>();
+  const m = new Map<string, ModelRow & { imps: Map<number, number>; lastQty: number }>();
   for (const y of YEARS.filter((x) => f.years.includes(x))) {
     for (const r of rowsOf(d, y)) {
       if (f.brand && B[r[C.brand]] !== f.brand) continue;
@@ -572,7 +573,8 @@ export function modelTable(d: ImportData, f: ModelFilter): ModelRow[] {
       if (!o) {
         o = {
           model: M[r[C.model]], brand: B[r[C.brand]], size: r[C.size], panel: r[C.panel], res: r[C.res], hz: r[C.hz], curved: /curv/i.test(r[C.type]),
-          qty: 0, rev: 0, fob: 0, fobMin: Infinity, fobMax: 0, importers: 0, topImporter: "", imps: new Map(),
+          qty: 0, rev: 0, fob: 0, fobDate: 0, fobMin: Infinity, fobMax: 0, importers: 0, topImporter: "", imps: new Map(),
+          lastQty: 0,
         };
         m.set(key, o);
       }
@@ -581,14 +583,21 @@ export function modelTable(d: ImportData, f: ModelFilter): ModelRow[] {
       if (r[C.fob] > 0) {
         o.fobMin = Math.min(o.fobMin, r[C.fob]);
         o.fobMax = Math.max(o.fobMax, r[C.fob]);
+        const day = y * 10000 + r[C.m] * 100 + r[C.d];
+        if (day > o.fobDate || (day === o.fobDate && r[C.qty] > o.lastQty)) {
+          o.fobDate = day;
+          o.fob = r[C.fob];
+          o.lastQty = r[C.qty];
+        }
       }
       o.imps.set(r[C.imp], (o.imps.get(r[C.imp]) ?? 0) + r[C.qty]);
     }
   }
   return [...m.values()]
     .filter((o) => o.qty > 0)
-    .map(({ imps, ...o }) => {
+    .map(({ imps, lastQty: _l, ...o }) => {
+      void _l;
       const top = [...imps.entries()].sort((a, b) => b[1] - a[1])[0];
-      return { ...o, fob: o.rev / o.qty, fobMin: o.fobMin === Infinity ? 0 : o.fobMin, importers: imps.size, topImporter: top ? I[top[0]] : "" };
+      return { ...o, fobMin: o.fobMin === Infinity ? 0 : o.fobMin, importers: imps.size, topImporter: top ? I[top[0]] : "" };
     });
 }

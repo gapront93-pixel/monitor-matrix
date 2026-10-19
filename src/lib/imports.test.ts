@@ -102,10 +102,17 @@ describe("FOB, shares, importers and models", () => {
     expect(importerShort("CÔNG TY TNHH MỘT THÀNH VIÊN CÔNG NGHỆ TIN HỌC VIỄN SƠN")).toBe("CÔNG NGHỆ TIN HỌC VIỄN SƠN");
     expect(importerShort("ANTTEQ")).toBe("ANTTEQ");
   });
-  it("model table: units add up and FOB sits between its low and high", () => {
+  it("model table: units add up and the latest FOB sits between its low and high", () => {
     const rows = modelTable(data, { years: [2026], brand: "Gigabyte", gaming: false, search: "" });
     expect(rows.reduce((n, r) => n + r.qty, 0)).toBe(data.r2026.filter((r) => data.dicts.brand[r[4]] === "Gigabyte").reduce((n, r) => n + r[11], 0));
-    for (const r of rows) if (r.fobMin) expect(r.fob).toBeGreaterThanOrEqual(r.fobMin - 0.01);
+    for (const r of rows) {
+      if (!r.fobMin) continue;
+      expect(r.fob).toBeGreaterThanOrEqual(r.fobMin);
+      expect(r.fob).toBeLessThanOrEqual(r.fobMax);
+      // it is the price of a shipment on its latest day
+      const day = data.r2026.filter((x) => data.dicts.model[x[3]] === r.model && data.dicts.brand[x[4]] === r.brand && 20260000 + x[0] * 100 + x[1] === r.fobDate);
+      expect(day.map((x) => x[10])).toContain(r.fob);
+    }
   });
   it("every preset builds", () => {
     for (const p of PRESETS) expect(buildPivot(data, { ...ALL_FILTER, ...p.filter }, p.spec, W).rows.length).toBeGreaterThan(1);
