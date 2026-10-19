@@ -1,0 +1,58 @@
+{
+ "retailer": "Hoàng Hà PC",
+ "retailer_id": "hoanghapc",
+ "site": "https://hoanghapc.vn",
+ "fetched": "2026-10-18",
+ "status": "ok",
+ "note": "Substitute for CDC. Category page (8 Gigabyte products) is JS-rendered/robots-blocked for sorted views; only 5 new product pages read, all price 'Liên hệ'. Skipped G34WQC A-EK '99%' (used).",
+ "source_pages": [
+  "https://hoanghapc.vn/man-hinh-gigabyte",
+  "https://hoanghapc.vn/man-hinh-gigabyte-m32qc-ek",
+  "https://hoanghapc.vn/man-hinh-may-tinh-gigabyte-g27f",
+  "https://hoanghapc.vn/man-hinh-gigabyte-g24f-ek",
+  "https://hoanghapc.vn/man-hinh-gigabyte-gaming-aorus-fv43u",
+  "https://hoanghapc.vn/man-hinh-may-tinh-gigabyte-m27f-ek"
+ ],
+ "items": [
+  {
+   "slug": "M32QC",
+   "name_on_site": "Màn hình Gigabyte M32QC-EK (31.5inch / QHD / VA / 165Hz)",
+   "price_vnd": null,
+   "list_price_vnd": null,
+   "url": "https://hoanghapc.vn/man-hinh-gigabyte-m32qc-ek",
+   "note": "Liên hệ; Còn hàng"
+  },
+  {
+   "slug": null,
+   "name_on_site": "Màn hình Gigabyte G27F-EK (27 inch / FHD / IPS / 144Hz)",
+   "price_vnd": null,
+   "list_price_vnd": 7399000,
+   "url": "https://hoanghapc.vn/man-hinh-may-tinh-gigabyte-g27f",
+   "note": "Liên hệ (Tình trạng: Liên hệ); old price 7.399.000 struck through"
+  },
+  {
+   "slug": null,
+   "name_on_site": "Màn hình Gigabyte G24F-EK (23.8inch / FHD / IPS / 165Hz)",
+   "price_vnd": null,
+   "list_price_vnd": null,
+   "url": "https://hoanghapc.vn/man-hinh-gigabyte-g24f-ek",
+   "note": "Liên hệ; Còn hàng"
+  },
+  {
+   "slug": null,
+   "name_on_site": "Màn hình Gigabyte M27F-EK (27 inch / FHD / IPS / 144Hz / 1ms)",
+   "price_vnd": null,
+   "list_price_vnd": null,
+   "url": "https://hoanghapc.vn/man-hinh-may-tinh-gigabyte-m27f-ek",
+   "note": "Liên hệ; Còn hàng"
+  },
+  {
+   "slug": "AORUS-FV43U",
+   "name_on_site": "Màn hình Gigabyte Gaming AORUS FV43U 43 inch 144Hz",
+   "price_vnd": null,
+   "list_price_vnd": null,
+   "url": "https://hoanghapc.vn/man-hinh-gigabyte-gaming-aorus-fv43u",
+   "note": "Liên hệ (Tình trạng: Liên hệ)"
+  }
+ ]
+}

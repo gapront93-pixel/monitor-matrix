@@ -1,0 +1,221 @@
+{
+ "retailer": "KCC Shop",
+ "retailer_id": "kccshop",
+ "site": "https://kccshop.vn",
+ "fetched": "2026-10-18",
+ "status": "ok",
+ "note": "Category page text cut off after 26 items; more may exist. Price = Giá bán, list = Giá niêm yết.",
+ "source_pages": [
+  "https://kccshop.vn/man-hinh-gigabyte/"
+ ],
+ "items": [
+  {
+   "slug": "G25F2A",
+   "name_on_site": "Màn hình gaming Gigabyte G25F2A (24in / FHD / IPS / 240Hz / 1ms)",
+   "price_vnd": 3530000,
+   "list_price_vnd": 3850000,
+   "url": "https://kccshop.vn/man-hinh-gaming-gigabyte-g25f2a-24in-fhd-ips-240hz-1ms/",
+   "note": "Còn hàng"
+  },
+  {
+   "slug": "G32QC-A",
+   "name_on_site": "Màn hình gaming Gigabyte G32QC A (32 inch / VA / 165Hz)",
+   "price_vnd": 5490000,
+   "list_price_vnd": 5930000,
+   "url": "https://kccshop.vn/man-hinh-gaming-gigabyte-g32qc-a-165hz/",
+   "note": "Còn hàng"
+  },
+  {
+   "slug": "AORUS-FO27Q3",
+   "name_on_site": "Màn hình gaming Gigabyte AORUS FO27Q3 (27 inch / QHD / 0.03ms / 360Hz / OLED)",
+   "price_vnd": 20540000,
+   "list_price_vnd": 22180000,
+   "url": "https://kccshop.vn/man-hinh-gaming-gigabyte-aorus-fo27q3/",
+   "note": "Còn hàng"
+  },
+  {
+   "slug": "G34WQCP-rev-20",
+   "name_on_site": "Màn hình gaming Gigabyte G34WQCP (34 inch / WQHD / 1ms / 180Hz / VA)",
+   "price_vnd": 7420000,
+   "list_price_vnd": 8090000,
+   "url": "https://kccshop.vn/man-hinh-gaming-gigabyte-g34wqcp/",
+   "note": "Còn hàng"
+  },
+  {
+   "slug": "M27QA",
+   "name_on_site": "Màn hình gaming Gigabyte M27QA (27 inch/QHD/1ms/180Hz/IPS)",
+   "price_vnd": 4980000,
+   "list_price_vnd": 5530000,
+   "url": "https://kccshop.vn/man-hinh-gaming-gigabyte-m27qa/",
+   "note": "Còn hàng"
+  },
+  {
+   "slug": "AORUS-FO32U2P",
+   "name_on_site": "Màn hình gaming Gigabyte AORUS FO32U2P (32 inch/UHD/0.03ms/240Hz/OLED)",
+   "price_vnd": 31350000,
+   "list_price_vnd": 34800000,
+   "url": "https://kccshop.vn/man-hinh-gaming-gigabyte-aorus-fo32u2p/",
+   "note": "Còn hàng"
+  },
+  {
+   "slug": "GS27FA",
+   "name_on_site": "Màn hình Gaming Gigabyte GS27FA (27 inch, Full HD, IPS, 180Hz, 1ms, phẳng)",
+   "price_vnd": 2920000,
+   "list_price_vnd": 3210000,
+   "url": "https://kccshop.vn/man-hinh-gaming-gigabyte-gs27fa-27-inch-full-hd-ips-180hz-1ms-phang/",
+   "note": "Còn hàng"
+  },
+  {
+   "slug": "GS25F2",
+   "name_on_site": "Màn hình gaming Gigabyte GS25F2 (24.5in / FHD / IPS / 200Hz / 1ms)",
+   "price_vnd": 2580000,
+   "list_price_vnd": 2790000,
+   "url": "https://kccshop.vn/man-hinh-gaming-gigabyte-gs25f2-24-5in-fhd-ips-200hz-1ms/",
+   "note": "Còn hàng"
+  },
+  {
+   "slug": "G25F2",
+   "name_on_site": "Màn hình gaming Gigabyte G25F2 (24in / FHD / IPS / 200Hz / 1ms)",
+   "price_vnd": 2790000,
+   "list_price_vnd": 3040000,
+   "url": "https://kccshop.vn/man-hinh-gaming-gigabyte-g25f2-24in-fhd-ips-200hz-1ms/",
+   "note": "Còn hàng"
+  },
+  {
+   "slug": "G34WQC2",
+   "name_on_site": "Màn hình gaming Gigabyte G34WQC2 (34in / WQHD / VA / 200Hz / 1ms / Cong)",
+   "price_vnd": 7760000,
+   "list_price_vnd": 8540000,
+   "url": "https://kccshop.vn/man-hinh-gaming-gigabyte-g34wqc2-34in-wqhd-va-200hz-1ms-cong/",
+   "note": "Còn hàng"
+  },
+  {
+   "slug": "AORUS-FO27Q5P",
+   "name_on_site": "Màn hình gaming Gigabyte AORUS FO27Q5P (27in / QHD / OLED / 500Hz / 0.03ms)",
+   "price_vnd": 28680000,
+   "list_price_vnd": 32120000,
+   "url": "https://kccshop.vn/man-hinh-gaming-gigabyte-aorus-fo27q5p-27in-qhd-oled-500hz-0-03ms/",
+   "note": "Còn hàng"
+  },
+  {
+   "slug": "GS32QCA",
+   "name_on_site": "Màn hình gaming Gigabyte GS32QCA (31.5 in / QHD / VA / 1ms / 180Hz / Cong)",
+   "price_vnd": 5490000,
+   "list_price_vnd": 6040000,
+   "url": "https://kccshop.vn/man-hinh-gaming-gigabyte-gs32qca-31-5-in-qhd-1ms-180hz-va-cong/",
+   "note": "Còn hàng"
+  },
+  {
+   "slug": "M27UP",
+   "name_on_site": "Màn hình gaming Gigabyte M27UP (27in / UHD / IPS / 160Hz / 1ms)",
+   "price_vnd": 9520000,
+   "list_price_vnd": 10760000,
+   "url": "https://kccshop.vn/man-hinh-gaming-gigabyte-m27up-27in-uhd-ips-160hz-1ms/",
+   "note": "Còn hàng"
+  },
+  {
+   "slug": "MO27Q28G",
+   "name_on_site": "Màn hình gaming Gigabyte MO27Q28G OLED (27in / QHD / OLED / 280Hz / 0.03ms)",
+   "price_vnd": 16160000,
+   "list_price_vnd": 17450000,
+   "url": "https://kccshop.vn/man-hinh-gaming-gigabyte-mo27q28g-oled-27in-qhd-oled-280hz-0-03ms/",
+   "note": "Còn hàng"
+  },
+  {
+   "slug": null,
+   "name_on_site": "Màn hình Gigabyte G32QC (31.5 inch/2K/VA/165Hz/1ms/350 nits/HDMI+DP/Cong)",
+   "price_vnd": 7490000,
+   "list_price_vnd": 8160000,
+   "url": "https://kccshop.vn/man-hinh-gigabyte-g32qc-31-5-inch-2k-va-165hz-1ms-350-nits-hdmidp-cong/",
+   "note": "Còn hàng; G32QC without A suffix (older model)"
+  },
+  {
+   "slug": "GS34WQCA",
+   "name_on_site": "Màn hình gaming Gigabyte GS34WQCA (34in / WQHD / VA / 160Hz / 1ms)",
+   "price_vnd": 5940000,
+   "list_price_vnd": 6530000,
+   "url": "https://kccshop.vn/man-hinh-gaming-gigabyte-gs34wqca-34in-wqhd-va-160hz-1ms/",
+   "note": "Còn hàng"
+  },
+  {
+   "slug": "GS25F2A",
+   "name_on_site": "Màn hình gaming Gigabyte GS25F2A (24.5in / FHD / IPS / 240Hz / 1ms)",
+   "price_vnd": 3320000,
+   "list_price_vnd": 3720000,
+   "url": "https://kccshop.vn/man-hinh-gaming-gigabyte-gs25f2a-24-5in-fhd-ips-240hz-1ms/",
+   "note": "Còn hàng"
+  },
+  {
+   "slug": "GS27FC2",
+   "name_on_site": "Màn hình gaming Gigabyte GS27FC2 (27in / FHD / VA / 240Hz / 1ms / Cong)",
+   "price_vnd": 3640000,
+   "list_price_vnd": 4000000,
+   "url": "https://kccshop.vn/man-hinh-gaming-gigabyte-gs27fc2-27in-fhd-va-240hz-1ms-cong/",
+   "note": "Còn hàng"
+  },
+  {
+   "slug": "GS24F14",
+   "name_on_site": "Màn hình gaming Gigabyte GS24F14 (24in / FHD / IPS / 144Hz / 1ms)",
+   "price_vnd": 2140000,
+   "list_price_vnd": 2310000,
+   "url": "https://kccshop.vn/man-hinh-gaming-gigabyte-gs24f14-24in-fhd-ips-144hz-1ms/",
+   "note": "Còn hàng"
+  },
+  {
+   "slug": "GS25F14",
+   "name_on_site": "Màn hình gaming Gigabyte GS25F14 (24.5in / FHD / IPS / 144Hz / 1ms)",
+   "price_vnd": 2260000,
+   "list_price_vnd": 2490000,
+   "url": "https://kccshop.vn/man-hinh-gaming-gigabyte-gs25f14-24-5in-fhd-ips-144hz-1ms/",
+   "note": "Còn hàng"
+  },
+  {
+   "slug": "G27Q20",
+   "name_on_site": "Màn hình Gaming Gigabyte G27Q20 (27 inch / QHD / 210Hz (OC) / IPS / 0.5ms)",
+   "price_vnd": 4590000,
+   "list_price_vnd": 5190000,
+   "url": "https://kccshop.vn/man-hinh-gaming-gigabyte-g27q20-27-inch-qhd-210hz-oc-ips-0-5ms/",
+   "note": "Còn hàng"
+  },
+  {
+   "slug": "G27U",
+   "name_on_site": "Màn hình gaming Gigabyte G27U (27in / UHD / IPS / 320Hz / 1ms)",
+   "price_vnd": null,
+   "list_price_vnd": null,
+   "url": "https://kccshop.vn/man-hinh-gaming-gigabyte-g27u-27in-uhd-ips-320hz-1ms/",
+   "note": "Liên hệ; Còn hàng"
+  },
+  {
+   "slug": "AORUS-ELITE-FO27Q28G",
+   "name_on_site": "Màn hình gaming Gigabyte AORUS ELITE FO27Q28G (27in / QHD / WOLED / 280 Hz / 0.03ms)",
+   "price_vnd": 16160000,
+   "list_price_vnd": 18270000,
+   "url": "https://kccshop.vn/man-hinh-gaming-gigabyte-aorus-elite-fo27q28g-27in-qhd-woled-280-hz-0-03ms/",
+   "note": "Còn hàng"
+  },
+  {
+   "slug": "G27Q20T",
+   "name_on_site": "Màn hình gaming Gigabyte G27Q20T (27in / QHD / IPS / 210Hz / 0.5ms)",
+   "price_vnd": 3990000,
+   "list_price_vnd": 4830000,
+   "url": "https://kccshop.vn/man-hinh-gaming-gigabyte-g27q20t-27in-qhd-ips-210hz-0-5ms/",
+   "note": "Còn hàng"
+  },
+  {
+   "slug": "G27Q3",
+   "name_on_site": "Màn hình gaming Gigabyte G27Q3 (27in / QHD / IPS / 320Hz / 1ms)",
+   "price_vnd": 5830000,
+   "list_price_vnd": 6360000,
+   "url": "https://kccshop.vn/man-hinh-gaming-gigabyte-g27q3-27in-qhd-ips-320hz-1ms/",
+   "note": "Còn hàng"
+  },
+  {
+   "slug": "GS32QA",
+   "name_on_site": "Màn hình gaming Gigabyte GS32QA (32in / QHD / IPS / 180Hz / 1ms)",
+   "price_vnd": 5830000,
+   "list_price_vnd": 6530000,
+   "url": "https://kccshop.vn/man-hinh-gaming-gigabyte-gs32qa-32in-qhd-ips-180hz-1ms/",
+   "note": "Còn hàng"
+  }
+ ]
+}

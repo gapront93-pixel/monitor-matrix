@@ -1,0 +1,13 @@
+{
+ "retailer": "Máy Tính CDC",
+ "retailer_id": "cdc",
+ "site": "https://maytinhcdc.vn",
+ "fetched": "2026-10-18",
+ "status": "no_gigabyte_monitors",
+ "note": "Monitor menu/brand filters only Dell, HP, Lenovo, Samsung, Asus; Gigabyte appears only for desktops/components. Substituted Hoàng Hà PC.",
+ "source_pages": [
+  "https://maytinhcdc.vn",
+  "https://maytinhcdc.vn/man-hinh-may-tinh.html"
+ ],
+ "items": []
+}

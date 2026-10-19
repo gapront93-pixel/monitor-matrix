@@ -1,0 +1,9 @@
+{"retailer":"Cellphones","retailer_id":"cellphones","site":"https://cellphones.com.vn","fetched":"2026-10-18","status":"ok","source_pages":["https://cellphones.com.vn/man-hinh/gigabyte.html","https://cellphones.com.vn/man-hinh-gigabyte-m27q-27-inch.html","https://cellphones.com.vn/man-hinh-gigabyte-g27f-2-27-inch.html","https://cellphones.com.vn/man-hinh-gigabyte-gs24f14-24-inch.html","https://cellphones.com.vn/man-hinh-gigabyte-g24f-24-inch.html","https://cellphones.com.vn/man-hinh-cong-gigabyte-g27fc-27-inch.html"],
+ "items":[
+  {"slug":"G27F-2","name_on_site":"Màn hình Gaming Gigabyte G27F 2 27 inch","price_vnd":4290000,"list_price_vnd":5800000,"url":"https://cellphones.com.vn/man-hinh-gigabyte-g27f-2-27-inch.html","note":"Tạm hết hàng"},
+  {"slug":"GS24F14","name_on_site":"Màn hình Gigabyte GS24F14 24 inch","price_vnd":2190000,"list_price_vnd":2690000,"url":"https://cellphones.com.vn/man-hinh-gigabyte-gs24f14-24-inch.html","note":"Tạm hết hàng"},
+  {"slug":null,"name_on_site":"Màn hình cong Gigabyte Gaming 27 inch G27FC-EK","price_vnd":6490000,"list_price_vnd":null,"url":"https://cellphones.com.vn/man-hinh-cong-gigabyte-g27fc-27-inch.html","note":"Tạm hết hàng; G27FC (not G27FC A) not in slug list"},
+  {"slug":"M27Q-rev-20","name_on_site":"Màn hình Gigabyte M27Q 27 inch","price_vnd":null,"list_price_vnd":null,"url":"https://cellphones.com.vn/man-hinh-gigabyte-m27q-27-inch.html","note":"Liên hệ để báo giá; sắp về hàng"},
+  {"slug":null,"name_on_site":"Màn hình Gigabyte G24F 24 inch","price_vnd":null,"list_price_vnd":null,"url":"https://cellphones.com.vn/man-hinh-gigabyte-g24f-24-inch.html","note":"Liên hệ để báo giá; sắp về hàng; original G24F not in slug list"}
+ ],
+ "notes":"Category page /man-hinh/gigabyte.html shows 'Không có sản phẩm phù hợp' (0 listed). Items above found via search on individual product pages; none in stock. Used (hàng cũ) Gigabyte monitors G27F-AP, G27QC A, G27FC-EK excluded."}

@@ -1,0 +1,220 @@
+{
+  "segment_id": "fhd-esports-24-27",
+  "segment_name_vi": "Màn hình eSports Full HD 24-27 inch IPS 144-240Hz (phân khúc phổ thông)",
+  "criteria": "24-27 inch, 1920x1080, IPS-type, 144-240Hz native (competitors up to 280-500Hz noted where they are the brand's closest current esports FHD model), budget/esports positioning.",
+  "gigabyte_models": ["gs25f2a", "g25f2a", "gs27f2", "gs25f14", "gs24f14", "g24f-2", "gs27fa"],
+  "competitors": [
+    {
+      "brand": "ASUS",
+      "model": "TUF Gaming VG259QM5A",
+      "spec_url": "https://www.asus.com/ph/displays-desktops/monitors/tuf-gaming/tuf-gaming-vg259qm5a/",
+      "specs": {
+        "size": "24.5\"",
+        "panel": "Fast IPS",
+        "resolution": "1920x1080",
+        "refresh_hz": 240,
+        "response_time": "0.3ms GTG (min)",
+        "brightness_sdr": "",
+        "brightness_hdr_peak": "",
+        "hdr_cert": "",
+        "dci_p3": "99% sRGB (DCI-P3 not listed)",
+        "contrast": "",
+        "ports": "2x HDMI 2.0, 1x DP 1.4 (page text; image alt mentions HDMI 2.1)",
+        "usb_c_pd_w": "",
+        "ergonomics": "Tilt +20/-5, swivel +/-20, pivot +/-90, height 0-130mm, VESA",
+        "speakers": "",
+        "warranty": "",
+        "msrp_usd": ""
+      }
+    },
+    {
+      "brand": "MSI",
+      "model": "MAG 255XF",
+      "spec_url": "https://storage-asset.msi.com/datasheet/monitor/fr/MAG-255XF.pdf",
+      "specs": {
+        "size": "24.5\"",
+        "panel": "Rapid IPS, flat",
+        "resolution": "1920x1080",
+        "refresh_hz": 300,
+        "response_time": "0.5ms GtG (min)",
+        "brightness_sdr": "250 nits",
+        "brightness_hdr_peak": "",
+        "hdr_cert": "HDR (no VESA cert listed)",
+        "dci_p3": "90% (sRGB 120%, Adobe RGB 87%)",
+        "contrast": "1000:1",
+        "ports": "1x DP (1.4a per spec table), 2x HDMI 2.0b, headphone out; no USB",
+        "usb_c_pd_w": "",
+        "ergonomics": "Tilt -5/+20 only, VESA 100x100",
+        "speakers": "None",
+        "warranty": "",
+        "msrp_usd": ""
+      }
+    },
+    {
+      "brand": "Samsung",
+      "model": "Odyssey G4 G40B S25BG40 (LS25BG400)",
+      "spec_url": "https://pcmonitors.info/samsung/samsung-s25bg40-240hz-full-hd-ips/",
+      "specs": {
+        "size": "25\" (24.5\" class)",
+        "panel": "IPS-type, matte",
+        "resolution": "1920x1080",
+        "refresh_hz": 240,
+        "response_time": "1ms GTG",
+        "brightness_sdr": "400 nits",
+        "brightness_hdr_peak": "",
+        "hdr_cert": "",
+        "dci_p3": "99% sRGB (DCI-P3 not listed)",
+        "contrast": "1000:1",
+        "ports": "2x HDMI 2.0, 1x DP 1.2a, headphone jack; external PSU",
+        "usb_c_pd_w": "",
+        "ergonomics": "Height 120mm, pivot, (fully adjustable), VESA 100x100",
+        "speakers": "",
+        "warranty": "",
+        "msrp_usd": "~350 (per PCMonitors, 2022)"
+      }
+    },
+    {
+      "brand": "LG",
+      "model": "UltraGear 24GS60F-B",
+      "spec_url": "https://www.lg.com/us/monitors/lg-24gs60f-b-gaming-monitor",
+      "specs": {
+        "size": "24\" (23.8\")",
+        "panel": "IPS",
+        "resolution": "1920x1080",
+        "refresh_hz": 180,
+        "response_time": "1ms GtG",
+        "brightness_sdr": "",
+        "brightness_hdr_peak": "",
+        "hdr_cert": "HDR10 (no VESA cert)",
+        "dci_p3": "99% sRGB (DCI-P3 not listed)",
+        "contrast": "",
+        "ports": "",
+        "usb_c_pd_w": "",
+        "ergonomics": "",
+        "speakers": "",
+        "warranty": "",
+        "msrp_usd": "149.99 (LG US current listed price, not confirmed launch MSRP)"
+      }
+    },
+    {
+      "brand": "Dell",
+      "model": "G2524H",
+      "spec_url": "https://www.shi.com/product/49912001/Dell-25-Gaming-Monitor-G2524H",
+      "specs": {
+        "size": "24.5\"",
+        "panel": "Fast IPS",
+        "resolution": "1920x1080",
+        "refresh_hz": 280,
+        "response_time": "0.5ms GtG (min), 1ms extreme",
+        "brightness_sdr": "400 nits",
+        "brightness_hdr_peak": "",
+        "hdr_cert": "",
+        "dci_p3": "99% sRGB (DCI-P3 not listed)",
+        "contrast": "1000:1",
+        "ports": "1x HDMI, 2x DP 1.4, USB 3.2 Gen1 hub (1 up / 2 down)",
+        "usb_c_pd_w": "",
+        "ergonomics": "Height 130mm, tilt -5/+21, swivel, pivot, VESA 100",
+        "speakers": "",
+        "warranty": "3 years Advanced Exchange + Premium Panel Exchange",
+        "msrp_usd": "249.99 (per PCGamesN review)"
+      }
+    },
+    {
+      "brand": "Dell",
+      "model": "Alienware AW2524HF",
+      "spec_url": "https://www.tomshardware.com/reviews/alienware-aw2524hf-review",
+      "specs": {
+        "size": "24.5\"",
+        "panel": "IPS, W-LED edge",
+        "resolution": "1920x1080",
+        "refresh_hz": 500,
+        "response_time": "0.5ms GTG",
+        "brightness_sdr": "400 nits",
+        "brightness_hdr_peak": "",
+        "hdr_cert": "HDR10 (no VESA cert)",
+        "dci_p3": "sRGB+ (no P3 claim)",
+        "contrast": "1000:1",
+        "ports": "2x DP 1.4, 1x HDMI 2.1 (255Hz), USB 3.2 hub 1 up/4 down; no headphone jack",
+        "usb_c_pd_w": "",
+        "ergonomics": "Height 4.3\", pivot 90, tilt -5/+21, swivel 20, VESA 100",
+        "speakers": "None",
+        "warranty": "3 years",
+        "msrp_usd": "650 (price at time of Tom's review)"
+      }
+    }
+  ],
+  "benchmarks": [
+    {
+      "brand": "Dell",
+      "model": "Alienware AW2524HF",
+      "source": "Tom's Hardware",
+      "url": "https://www.tomshardware.com/reviews/alienware-aw2524hf-review/3",
+      "date": "2023-10-05",
+      "metrics": {
+        "Max brightness SDR (nits)": "~400",
+        "Native contrast": "1220.4:1",
+        "Calibrated contrast": "930.9:1",
+        "ANSI contrast": "901.6:1"
+      },
+      "verdict": "Editor's Choice: very fast response and low input lag without the G-Sync module premium, but expensive."
+    },
+    {
+      "brand": "Dell",
+      "model": "Alienware AW2524HF",
+      "source": "Tom's Hardware",
+      "url": "https://www.tomshardware.com/reviews/alienware-aw2524hf-review/4",
+      "date": "2023-10-05",
+      "metrics": {
+        "Color error avg (dE)": "1.22",
+        "sRGB coverage": "close to 100% (sRGB+)",
+        "DCI-P3 coverage (%)": "over 84 (from review summary)"
+      },
+      "verdict": "Excellent out-of-box accuracy; an sRGB+ rather than a DCI-P3 display."
+    },
+    {
+      "brand": "Dell",
+      "model": "G2524H",
+      "source": "PCGamesN",
+      "url": "https://www.pcgamesn.com/dell-g2524h-review",
+      "date": "",
+      "metrics": {
+        "Contrast (measured)": "1242:1",
+        "White point default (K)": "6454",
+        "Avg response time Fast mode (ms)": "7.8",
+        "Avg response time Extreme mode (ms)": "7.5"
+      },
+      "verdict": "7/10: good value and design, but ~7.5ms average response undercuts the 280Hz refresh (effectively ~140Hz-class motion)."
+    },
+    {
+      "brand": "Samsung / Dell",
+      "model": "Odyssey G4 G40B S27BG40 vs G2524H",
+      "source": "RTINGS",
+      "url": "https://www.rtings.com/monitor/tools/compare/samsung-odyssey-g4-g40b-s27bg40-vs-dell-g2524h/34131/41303",
+      "date": "",
+      "metrics": {},
+      "verdict": "RTINGS: both perform similarly; Dell adds 280Hz overclock and USB ports, Samsung's HDR adds little (qualitative only, numbers not readable)."
+    },
+    {
+      "brand": "GIGABYTE",
+      "model": "G24F 2",
+      "source": "Monitors Unboxed (relayed by PCMonitors forum moderator)",
+      "url": "https://forum.pcmonitors.info/?p=69386",
+      "date": "2023-07-08",
+      "metrics": {
+        "Input lag (ms)": "~6 (vs ~3.8 for AOC 24G2SP)",
+        "Specified static contrast": "1100:1 (spec, not measured)"
+      },
+      "verdict": "Secondhand: overdrive less well tuned than AOC 24G2SP(U) at high refresh; considered a decent fallback."
+    },
+    {
+      "brand": "GIGABYTE",
+      "model": "G24F 2",
+      "source": "TechSpot / Hardware Unboxed (AOC 24G4 review)",
+      "url": "https://www.techspot.com/review/2800-aoc-24g4/",
+      "date": "2024-02-09",
+      "metrics": {},
+      "verdict": "Qualitative: AOC 24G4 is much faster than the G24F 2, which had poorly tuned overdrive settings; no numbers in text (charts are images)."
+    }
+  ],
+  "notes": "RTINGS review pages render no measurement data through the fetch tool (only meta descriptions), and RTINGS has no review of GS25F2/G25F2/GS27F2/GS25F14/GS24F14/G24F 2/GS27FA, VG259QM5A, MAG 255XF or 24GS60F (only predecessors VG259QM, Samsung G40B 27\", Dell G2524H, LG 24GS65F-B). No Tom's/TFTCentral/PCMonitors full reviews found for any current GIGABYTE FHD model; only non-core outlets (techporn.ph, mezha.ua, itc.ua) cover GS25F2/GS27FA/GS27F. Competitor field: MSI MAG 255XF is 300Hz and Dell G2524H 280Hz, AW2524HF 500Hz (premium); LG 25GR75FG (360Hz) official page not retrieved, 24GS60F-B used instead. Most-direct budget 240Hz rivals on spec are ASUS VG259QM5A (best ergonomics, 0.3ms claim) and Samsung G40B (400 nits, full stand). LG official page omits brightness/contrast/ports. MSRPs largely unavailable from official pages."
+}

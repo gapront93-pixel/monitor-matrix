@@ -1,0 +1,292 @@
+{
+  "segment_id": "oled27-qhd-360-500",
+  "segment_name_vi": "Màn hình OLED 27 inch QHD 360-500Hz",
+  "criteria": "27-inch (26.5-26.7\" viewable) 2560x1440 OLED, 360-500Hz native refresh. One current, most-direct competitor per brand; 500Hz QD-OLED preferred where it exists to match AORUS FO27Q5P.",
+  "gigabyte_models": ["aorus-fo27q3", "mo27q3", "aorus-fo27q5p"],
+  "competitors": [
+    {
+      "brand": "ASUS",
+      "model": "ROG Strix OLED XG27AQDPG",
+      "spec_url": "https://rog.asus.com/monitors/27-to-31-5-inches/rog-strix-oled-xg27aqdpg/spec",
+      "specs": {
+        "size": "27\" (26.5\" viewable)",
+        "panel": "QD-OLED (Samsung Display; generation not stated)",
+        "resolution": "2560x1440",
+        "refresh_hz": 500,
+        "response_time": "0.03 ms GTG",
+        "brightness_sdr": "300 cd/m2 typical",
+        "brightness_hdr_peak": "1000 cd/m2",
+        "hdr_cert": "VESA DisplayHDR True Black 500",
+        "dci_p3": "99%",
+        "contrast": "1,500,000:1",
+        "ports": "2x HDMI 2.1 (FRL), 1x DisplayPort 1.4 (DSC), 2x USB 3.2 Gen1 Type-A, 3.5mm jack",
+        "usb_c_pd_w": "No USB-C",
+        "ergonomics": "Height 0-110 mm, tilt +20/-5, swivel +/-45, pivot +/-90",
+        "speakers": "None",
+        "warranty": "3 years incl. panel burn-in",
+        "msrp_usd": "$899 (Tom's Hardware review price)"
+      }
+    },
+    {
+      "brand": "MSI",
+      "model": "MPG 271QR QD-OLED X50",
+      "spec_url": "https://storage-asset.msi.com/datasheet/monitor/us/MPG-271QR-QD-OLED-X50.pdf",
+      "specs": {
+        "size": "26.5\"",
+        "panel": "QD-OLED (Samsung Display; generation not stated)",
+        "resolution": "2560x1440",
+        "refresh_hz": 500,
+        "response_time": "0.03 ms GTG",
+        "brightness_sdr": "300 nits typical",
+        "brightness_hdr_peak": "1000 nits (3% APL); 515 nits at 10% APL",
+        "hdr_cert": "VESA DisplayHDR True Black 500",
+        "dci_p3": "99% (CIE1976)",
+        "contrast": "1,500,000:1",
+        "ports": "2x HDMI 2.1, 1x DisplayPort 2.1a (UHBR20), 1x USB-C (DP Alt), 2x USB-A 5Gbps, 1x USB-B, headphone out; KVM",
+        "usb_c_pd_w": "98W (datasheet spec table; feature text says 90W)",
+        "ergonomics": "Height 0-110 mm, tilt -5/+20, swivel +/-30, pivot +/-90",
+        "speakers": "None",
+        "warranty": "Not listed on datasheet (MSI US OLED: 3 years incl. burn-in per TechSpot on sister MAG 272QP X50)",
+        "msrp_usd": "$899 (Notebookcheck citing TFTCentral)"
+      }
+    },
+    {
+      "brand": "Samsung",
+      "model": "Odyssey OLED G6 G60SF (LS27FG602SNXZA)",
+      "spec_url": "https://www.samsung.com/us/monitors/gaming/27-inch-odyssey-oled-g6-g60sf-qhd-500hz-gaming-monitor-sku-ls27fg602snxza",
+      "specs": {
+        "size": "27\"",
+        "panel": "QD-OLED, glare-free (matte)",
+        "resolution": "2560x1440",
+        "refresh_hz": 500,
+        "response_time": "0.03 ms GTG",
+        "brightness_sdr": "300 cd/m2 typical",
+        "brightness_hdr_peak": "1000 nits (marketing)",
+        "hdr_cert": "VESA DisplayHDR True Black 500",
+        "dci_p3": "99%",
+        "contrast": "1,000,000:1",
+        "ports": "2x HDMI 2.1, 1x DisplayPort 1.4, USB 3.2 Gen1 hub (2x A down, 1x B up), headphone out",
+        "usb_c_pd_w": "No USB-C",
+        "ergonomics": "Height 120 mm, tilt -2/+25, swivel +/-30, pivot +/-92",
+        "speakers": "None",
+        "warranty": "3 years incl. burn-in (US, per Tom's Hardware); 2 years UK retailer",
+        "msrp_usd": "$999.99 (samsung.com US list); $699.99 at Tom's review"
+      }
+    },
+    {
+      "brand": "LG",
+      "model": "UltraGear 27GX790A-B",
+      "spec_url": "https://www.lg.com/uk/monitors/gaming/27gx790a-b/",
+      "specs": {
+        "size": "27\"",
+        "panel": "WOLED with MLA+ (RGWB subpixel per TechSpot), anti-glare low-reflection",
+        "resolution": "2560x1440",
+        "refresh_hz": 480,
+        "response_time": "0.03 ms GTG",
+        "brightness_sdr": "275 cd/m2 typical (APL 100%)",
+        "brightness_hdr_peak": "1300 nits (APL 1.5%)",
+        "hdr_cert": "VESA DisplayHDR True Black 400",
+        "dci_p3": "98.5% typical",
+        "contrast": "1,500,000:1",
+        "ports": "2x HDMI 2.1, 1x DisplayPort 2.1, USB 3.0 (1 up / 2 down), 4-pole headphone out",
+        "usb_c_pd_w": "No USB-C",
+        "ergonomics": "Height 110 mm, tilt -5/+15, swivel +/-30, pivot (clockwise)",
+        "speakers": "None (DTS Headphone:X)",
+        "warranty": "2 years (Tom's Hardware spec table)",
+        "msrp_usd": "$999.99 (TechSpot: $1,000 MSRP)"
+      }
+    },
+    {
+      "brand": "Dell/Alienware",
+      "model": "Alienware AW2725DF",
+      "spec_url": "https://www.dell.com/en-us/shop/monitors/apd/alienware-27-360hz-qd-oled-gaming-monitor-aw2725df/aw2725df/-",
+      "specs": {
+        "size": "27\" (26.7\" viewable)",
+        "panel": "QD-OLED (Samsung Display, 360Hz)",
+        "resolution": "2560x1440",
+        "refresh_hz": 360,
+        "response_time": "0.03 ms GTG",
+        "brightness_sdr": "Dell page lists 400 nits typical (Tom's spec table: 250 nits SDR / 400 HDR)",
+        "brightness_hdr_peak": "1000 nits",
+        "hdr_cert": "VESA DisplayHDR True Black 400",
+        "dci_p3": "99.3%",
+        "contrast": "1,500,000:1",
+        "ports": "1x HDMI 2.1, 2x DisplayPort 1.4, USB 3.2 Gen1 (1x B up, 3x A + 1x C down)",
+        "usb_c_pd_w": "Data USB-C with BC1.2 charging (no PD/DP Alt)",
+        "ergonomics": "Height up to 4.33\" (110 mm), tilt -5/+21, swivel +/-20, pivot +/-90",
+        "speakers": "None (no headphone jack)",
+        "warranty": "3 years incl. OLED burn-in (Advanced Exchange + Premium Panel Exchange)",
+        "msrp_usd": "~$900 at launch (Tom's Hardware); $649.99 on dell.com at time of check"
+      }
+    }
+  ],
+  "benchmarks": [
+    {
+      "brand": "GIGABYTE", "model": "AORUS FO27Q5P", "source": "Tom's Hardware",
+      "url": "https://www.tomshardware.com/monitors/gaming-monitors/gigabyte-aorus-fo27q5p-27-inch-500-hz-qd-oled-gaming-monitor-review",
+      "date": "2025-11-08",
+      "metrics": {
+        "Input lag (ms)": "18",
+        "Full white field draw time (ms)": "2",
+        "SDR peak, APL Stabilize High (nits)": "503",
+        "SDR peak, APL Stabilize Low (nits)": "~360",
+        "DCI-P3 coverage (%)": "108.61",
+        "sRGB coverage (%)": "97.94",
+        "Gamma (measured)": "2.18",
+        "Grayscale dE calibrated": "<1 all steps",
+        "HDR": ">500 nits; small highlights >1000 nits"
+      },
+      "verdict": "Superb in every respect: premium gaming experience with stunning image; only flaw is slight uncorrectable gamma error in sRGB mode. Brighter than all rivals except ASUS XG27AQDPG."
+    },
+    {
+      "brand": "GIGABYTE", "model": "AORUS FO27Q5P", "source": "KitGuru",
+      "url": "https://www.kitguru.net/peripherals/monitors/dominic-moass/gigabyte-aorus-fo27q5p-review-500hz-qd-oled/",
+      "date": "2026-04-27",
+      "metrics": {
+        "SDR full-screen white (cd/m2)": "317.2",
+        "Min brightness (cd/m2)": "24.4",
+        "DCI-P3 coverage (%)": "99.3",
+        "sRGB coverage (%)": "140.1",
+        "DCI-P3 dE default": "3.61 (warm balance)",
+        "Greyscale dE after manual RGB tweak": "0.93",
+        "Input latency OSRTT (ms)": "1.29",
+        "HDR Peak 1000 mode": ">1000 nits at 1-2% APL, rolls off with larger windows",
+        "Score": "8/10"
+      },
+      "verdict": "A strong 500Hz contender at ~£600, held back mainly by a warm out-of-box balance and sRGB mode trailing MSI's 272QP X50."
+    },
+    {
+      "brand": "GIGABYTE", "model": "AORUS FO27Q3", "source": "KitGuru",
+      "url": "https://www.kitguru.net/peripherals/dominic-moass/gigabyte-aorus-fo27q3-review-1440p-360hz-qd-oled/",
+      "date": "2024-09-09",
+      "metrics": {
+        "SDR full-screen white (cd/m2)": "255.1",
+        "DCI-P3 coverage (%)": "98.9",
+        "sRGB coverage (%)": "99.9",
+        "Greyscale dE default / after RGB tweak": "3.33 / 1.27",
+        "DCI-P3 color dE default": "2.93",
+        "sRGB emulation dE": "1.59",
+        "Input latency (ms)": "1.48",
+        "Score": "8.5/10"
+      },
+      "verdict": "Fast 360Hz Gen-3 QD-OLED with very low latency, assessed at an £800 asking price."
+    },
+    {
+      "brand": "GIGABYTE", "model": "AORUS FO27Q3", "source": "Club386",
+      "url": "https://club386.com/gigabyte-aorus-fo27q3-review",
+      "date": "2024-05-30",
+      "metrics": {
+        "SDR peak (cd/m2)": "253",
+        "DCI-P3 coverage (%)": "98",
+        "sRGB dE avg (sRGB preset)": "2.01",
+        "Power all-white 100% (W)": "86",
+        "Text clarity": "Text fringing noted on QHD QD-OLED",
+        "Score": "4.5/5 (Recommended)"
+      },
+      "verdict": "Buttery-smooth Gen-3 QD-OLED with KVM, but price ($800/£930) is a tad too high and USB-C PD only 18W."
+    },
+    {
+      "brand": "ASUS", "model": "ROG Strix OLED XG27AQDPG", "source": "Tom's Hardware",
+      "url": "https://www.tomshardware.com/monitors/gaming-monitors/asus-rog-strix-xg27aqdpg-27-inch-500-hz-oled-gaming-monitor-review",
+      "date": "2025-10-21",
+      "metrics": {
+        "Input lag (ms)": "16",
+        "Full white field draw time (ms)": "2",
+        "SDR 25% window (nits)": "~500",
+        "SDR full field (nits)": "~320",
+        "DCI-P3 coverage": ">108%",
+        "sRGB mode dE avg": "1.68",
+        "Gamut dE (comparison)": "1.38",
+        "Gamma (measured)": "2.18"
+      },
+      "verdict": "Superb example of OLED with phenomenal gaming performance, ~25% brighter than rivals; no speakers, only fair light rejection."
+    },
+    {
+      "brand": "MSI", "model": "MPG 271QR QD-OLED X50", "source": "Display Ninja",
+      "url": "https://www.displayninja.com/msi-mpg-271qr-qd-oled-x50-review/",
+      "date": "2026-01-13",
+      "metrics": {
+        "SDR max (nits)": "298",
+        "HDR True Black 500 peak (nits)": "509",
+        "HDR 3% APL Peak 1000 / EOTF Boost (nits)": "988",
+        "DCI-P3 coverage (%)": "97.3",
+        "sRGB mode dE avg / max": "0.91 / 2.61",
+        "User mode dE avg (OOB)": "3.11",
+        "Calibrated dE avg": "0.32",
+        "Display latency at 500Hz (ms)": "1.46",
+        "VRR flicker": "Possible in dark scenes/menus",
+        "Score": "4.8/5"
+      },
+      "verdict": "Strong gaming and HDR monitor with best QD-OLED HDR seen (EOTF Boost), DP 2.1, 98W USB-C and KVM; no FreeSync Premium Pro and dim BFI (152 nits)."
+    },
+    {
+      "brand": "MSI", "model": "MAG 272QP QD-OLED X50 (same 500Hz panel as MPG 271QR X50)", "source": "TechSpot (Monitors Unboxed)",
+      "url": "https://www.techspot.com/review/3009-msi-mag=272qp-x50-500hz/",
+      "date": "2025-07-06",
+      "metrics": {
+        "Avg response time (ms)": "~0.3",
+        "SDR full-field white (nits)": "302",
+        "HDR 10% window (nits)": "~530",
+        "HDR 2% window Peak 1000 (nits)": "~1000",
+        "EOTF Boost avg peak (nits)": "562",
+        "DCI-P3 coverage (%)": "99.5",
+        "Rec.2020 coverage (%)": "82.1",
+        "Text clarity": "Triangle RGB fringing; on par with 480Hz RGWB WOLED, better than 240Hz RWBG WOLED",
+        "Launch price (USD)": "$850"
+      },
+      "verdict": "One of the best QD-OLEDs tested; big brightness gains and strong motion clarity for competitive gamers, but no USB hub/KVM on MAG and 500Hz only pays off above 240 FPS."
+    },
+    {
+      "brand": "Samsung", "model": "Odyssey OLED G6 G60SF", "source": "Tom's Hardware",
+      "url": "https://www.tomshardware.com/monitors/gaming-monitors/samsung-odyssey-oled-g6-s27fg60-27-inch-500-hz-qd-oled-gaming-monitor-review",
+      "date": "2025-12-26",
+      "metrics": {
+        "Input lag (ms)": "16",
+        "SDR peak, full field = window (nits)": "322",
+        "HDR full output (nits)": "527",
+        "DCI-P3 coverage (%)": "107.76",
+        "sRGB volume (%)": "98.25",
+        "Grayscale dE out of box": "1.52",
+        "sRGB mode color dE avg": "1.35",
+        "Gamma (measured)": "2.18"
+      },
+      "verdict": "Editor's Choice: one of the highest-performing OLED gaming displays; accurate out of the box; no speakers, no variable SDR brightness."
+    },
+    {
+      "brand": "LG", "model": "UltraGear 27GX790A-B", "source": "Tom's Hardware",
+      "url": "https://www.tomshardware.com/monitors/gaming-monitors/lg-27gx790a-27-inch-480-hz-oled-gaming-monitor-review",
+      "date": "2025-07-25",
+      "metrics": {
+        "Input lag (ms)": "10 (record low, stated in Tom's FO27Q5P/XG27AQDPG/G60SF comparisons)",
+        "SDR 25% window (nits)": "415",
+        "HDR 25% window (nits)": "763",
+        "DCI-P3 coverage": ">96%"
+      },
+      "verdict": "Editor's Choice: one of the fastest gaming monitors at any price with bright HDR and glare-reducing layer; needs calibration, no quantum dot, no speakers."
+    },
+    {
+      "brand": "Dell/Alienware", "model": "AW2725DF", "source": "Tom's Hardware",
+      "url": "https://www.tomshardware.com/monitors/gaming-monitors/alienware-aw2725df-27-inch-360-hz-oled-gaming-monitor-review",
+      "date": "2024-04-18",
+      "metrics": {
+        "Input lag (ms)": "19",
+        "SDR measured (nits)": "~250",
+        "HDR measured (nits)": "~450",
+        "DCI-P3 coverage": ">110%"
+      },
+      "verdict": "Editor's Choice: near-perfect display for gaming or productivity; no speakers or headphone jack."
+    },
+    {
+      "brand": "MSI/Samsung", "model": "500Hz QD-OLED group (MAG 272QP X50, MPG 271QR X50, G60SF)", "source": "TechSpot (Monitors Unboxed)",
+      "url": "https://www.techspot.com/bestof/oled-monitors-26/",
+      "date": "2026-06-23",
+      "metrics": {
+        "MAG 272QP X50 street (USD)": "~$650",
+        "MPG 271QR X50 street (USD)": "~$700",
+        "G60SF street (USD)": "~$600"
+      },
+      "verdict": "The five 500Hz QD-OLEDs TechSpot compared perform similarly (>300 nits SDR, HDR panel dimming); MAG 272QP X50 is the value pick, G60SF for matte; no 360Hz 1440p model recommended."
+    }
+  ],
+  "notes": "500Hz QD-OLEDs (GIGABYTE FO27Q5P, ASUS XG27AQDPG, MSI MPG 271QR X50 / MAG 272QP X50, Samsung G60SF) share the same Samsung Display panel: 300-nit SDR, True Black 500, ~108% DCI-P3 measured; differences are firmware/features. FO27Q5P is the best-equipped GIGABYTE (2x DP 2.1 + DP out, 2x HDMI 2.1, USB-C, KVM, 2x5W speakers, mic jack, 3y burn-in) – the only one in segment with speakers; MSI MPG X50 has stronger USB-C (98W) and DP 2.1. ASUS XG27AQDPG and FO27Q5P are the brightest SDR (~500 nits 25% window, Tom's). Input lag (Tom's, same method): LG 27GX790A 10 ms < XG27AQDPG 16 ms = G60SF 16 ms < FO27Q5P 18 ms < AW2725DF 19 ms. 360Hz models (FO27Q3, MO27Q3, AW2725DF) are previous Gen-3 QD-OLED, 250 nits/True Black 400 and now mostly price-competes vs ~$600-700 500Hz models. LG 27GX790A is WOLED MLA+ 480Hz: higher HDR highlights, less gamut (~96% P3), 2-yr warranty. Value: FO27Q5P street ~£600 (KitGuru) but $1,569 Amazon listing at Tom's review time (likely third-party) – US pricing needs checking. Gaps: RTINGS numeric data did not render via WebFetch; TFTCentral/PCMonitors are video reviews (no numbers); no reputable review found for GIGABYTE MO27Q3 (likely same panel as FO27Q3); MSI/ASUS warranty from spec sheets/TechSpot. Display Ninja and KitGuru used to fill gaps."
+}

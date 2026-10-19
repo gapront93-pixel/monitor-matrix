@@ -1,0 +1,304 @@
+{
+  "segment_id": "oled32-4k-240",
+  "segment_name_vi": "Màn hình OLED 32 inch 4K 240Hz",
+  "criteria": "31.5-32 inch, 3840x2160, OLED (QD-OLED or WOLED), 240Hz native. Competitor = most direct current model per brand. 27-inch 4K 240Hz (MO27U2) is tracked as a separate adjacent model.",
+  "gigabyte_models": ["aorus-fo32u2p", "aorus-fo32u2", "mo32u2", "mo32u24", "aorus-elite-fo32u24g", "mo27u2"],
+  "competitors": [
+    {
+      "brand": "ASUS",
+      "model": "ROG Swift OLED PG32UCDM Gen3 (PG32UCDM3)",
+      "spec_url": "https://rog.asus.com/uk/monitors/27-to-31-5-inches/rog-swift-oled-pg32ucdm-gen3-pg32ucdm3/spec/",
+      "specs": {
+        "size": "31.5 inch flat",
+        "panel": "QD-OLED (Tandem QD-OLED), anti-reflective (BlackShield film per Tom's Hardware)",
+        "resolution": "3840x2160",
+        "refresh_hz": 240,
+        "response_time": "0.03ms GtG",
+        "brightness_sdr": "Typical not listed by ASUS; Tom's Hardware lists 500 nits spec (DisplayHDR 500)",
+        "brightness_hdr_peak": "1000 nits",
+        "hdr_cert": "VESA DisplayHDR 500 True Black; HDR10 + Dolby Vision",
+        "dci_p3": "99%",
+        "contrast": "1,500,000:1",
+        "ports": "1x DP 2.1a (UHBR20, 80Gbps per Tom's Hardware), 2x HDMI 2.1 (FRL), 1x USB-C (DP Alt), 3x USB 3.2 Gen1 Type-A, headphone jack; KVM: yes",
+        "usb_c_pd_w": "90W",
+        "ergonomics": "Tilt +20/-5, swivel +/-15, height 0-80mm, VESA 100x100",
+        "speakers": "None",
+        "warranty": "3 years incl. panel burn-in",
+        "msrp_usd": "$1,299 (Tom's Hardware, Feb 2026)"
+      }
+    },
+    {
+      "brand": "MSI",
+      "model": "MPG 321URX QD-OLED",
+      "spec_url": "https://storage-asset.msi.com/specSheet/cz/monitor/MPG%20321URXDE%20QD-OLED.pdf",
+      "specs": {
+        "size": "31.5 inch flat",
+        "panel": "QD-OLED (Samsung 3rd-gen 32-inch panel per reviews)",
+        "resolution": "3840x2160",
+        "refresh_hz": 240,
+        "response_time": "0.03ms GtG",
+        "brightness_sdr": "250 nits",
+        "brightness_hdr_peak": "1000 nits",
+        "hdr_cert": "VESA DisplayHDR True Black 400",
+        "dci_p3": "99% (CIE1976 overlap); 110% CIE1976 / 107% CIE1931 coverage",
+        "contrast": "1,500,000:1",
+        "ports": "2x HDMI 2.1 (48Gbps), 1x DP 1.4a, 1x USB-C (DP Alt), 2x USB 2.0 Type-A, 1x USB Type-B upstream, headphone out; KVM: yes",
+        "usb_c_pd_w": "90W",
+        "ergonomics": "Tilt -5/+15, swivel +/-30, pivot +/-10, height 0-110mm, VESA 100x100",
+        "warranty": "36 months; 3-year burn-in coverage (TechSpot)",
+        "msrp_usd": "$949.99 (TechSpot: $950 launch)"
+      }
+    },
+    {
+      "brand": "Samsung",
+      "model": "Odyssey OLED G8 G80SD (S32DG80x)",
+      "spec_url": "https://www.wepc.com/news/samsung-odyssey-oled-g8-32-inch-specs/",
+      "specs": {
+        "size": "32 inch flat",
+        "panel": "QD-OLED, Samsung 3rd gen, matte anti-glare coating (PC Gamer)",
+        "resolution": "3840x2160",
+        "refresh_hz": 240,
+        "response_time": "0.03ms GtG",
+        "brightness_sdr": "250 nits (PC Gamer)",
+        "brightness_hdr_peak": "1000 nits (PC Gamer)",
+        "hdr_cert": "VESA DisplayHDR True Black 400; HDR10/HDR10+",
+        "dci_p3": "99% (PC Gamer)",
+        "ports": "2x HDMI 2.1, 1x DP 1.4, USB hub; Tizen Smart TV platform, Multi Control, SmartThings hub",
+        "msrp_usd": "$1,299 (PC Gamer, Jun 2024)"
+      }
+    },
+    {
+      "brand": "LG",
+      "model": "UltraGear 32GS95UE-B",
+      "spec_url": "https://tftcentral.co.uk/news/lg-32gs95ue-with-32-dual-mode-oled-panel-full-specs-and-pricing-released",
+      "specs": {
+        "size": "31.5 inch flat",
+        "panel": "WOLED (LG Display, MLA, RGWB, matte AG)",
+        "resolution": "3840x2160 (Dual-Mode 1920x1080)",
+        "refresh_hz": 240,
+        "response_time": "0.03ms GtG",
+        "brightness_sdr": "275 nits",
+        "brightness_hdr_peak": "1300 nits (LG Display panel rating; TFTCentral measured 1324)",
+        "hdr_cert": "VESA DisplayHDR True Black 400",
+        "dci_p3": "98.5%",
+        "contrast": "1,500,000:1",
+        "ports": "HDMI 2.1, DP 1.4 (DSC), no DP 2.1, no USB-C, no KVM (TFTCentral review); 4-pole headphone out",
+        "ergonomics": "Tilt, height, swivel, pivot",
+        "speakers": "Yes - LG Pixel Sound (behind panel)",
+        "msrp_usd": "$1,399.99",
+        "refresh_dual_mode": "4K 240Hz / FHD 480Hz"
+      }
+    },
+    {
+      "brand": "Dell",
+      "model": "Alienware AW3225QF",
+      "spec_url": "https://www.dell.com/en-in/shop/cty/apd/210-BLNX",
+      "specs": {
+        "size": "31.6 inch, 1700R curved",
+        "panel": "QD-OLED (3rd gen)",
+        "resolution": "3840x2160",
+        "refresh_hz": 240,
+        "response_time": "0.03ms GtG",
+        "brightness_sdr": "250 nits (Tom's Hardware spec table)",
+        "brightness_hdr_peak": "1000 nits",
+        "hdr_cert": "VESA DisplayHDR True Black 400 (not listed on Dell page); HDR10 + Dolby Vision",
+        "dci_p3": "99%",
+        "contrast": "1,000,000:1",
+        "ports": "1x DP 1.4 (DSC), 2x HDMI 2.1 (1 eARC), USB 3.2 Gen1: 1x Type-B up, 3x Type-A down, 1x Type-C down (BC1.2); no KVM",
+        "usb_c_pd_w": "None (downstream data/charging BC1.2 only)",
+        "ergonomics": "Height 110mm, tilt -5/+21, swivel +/-20, no pivot",
+        "speakers": "None",
+        "warranty": "3 years Advanced Exchange + Premium Panel Exchange incl. burn-in",
+        "msrp_usd": "$1,199.99 (Tom's Hardware/TechSpot: $1,200)"
+      }
+    },
+    {
+      "brand": "ASUS",
+      "model": "ROG Swift OLED PG32UCDM (1st gen, reference)",
+      "spec_url": "https://rog.asus.com/uk/monitors/27-to-31-5-inches/rog-swift-oled-pg32ucdm/spec/",
+      "specs": {
+        "size": "31.5 inch flat",
+        "panel": "QD-OLED (3rd gen)",
+        "resolution": "3840x2160",
+        "refresh_hz": 240,
+        "hdr_cert": "VESA DisplayHDR True Black 400",
+        "msrp_usd": "$1,299 (TechSpot: $1,300)"
+      }
+    }
+  ],
+  "benchmarks": [
+    {
+      "brand": "GIGABYTE", "model": "AORUS FO32U2P", "source": "Tom's Hardware",
+      "url": "https://www.tomshardware.com/monitors/gaming-monitors/gigabyte-aorus-fo32u2p-240-hz-4k-oled-gaming-monitor-review",
+      "date": "2024-06-12",
+      "metrics": {
+        "Input lag total (ms)": "25",
+        "SDR peak brightness (nits)": "265",
+        "HDR peak brightness, 25% window (nits)": "457",
+        "DCI-P3 coverage (%)": "~108 (above 107)",
+        "Grayscale dE out of box": "1.44",
+        "Grayscale dE calibrated": "0.43",
+        "Color gamut dE (before/after cal)": "2.40 / 2.03",
+        "Gamma (avg)": "2.11 (light)",
+        "Award": "Editor's Choice"
+      },
+      "verdict": "Aside from slightly light SDR gamma the FO32U2P has no real flaws; accurate out of the box with strong motion and HDR."
+    },
+    {
+      "brand": "GIGABYTE", "model": "AORUS FO32U2P", "source": "Wccftech",
+      "url": "https://wccftech.com/review/gigabyte-aorus-fo32u2p-4k-240hz-qd-oled-gaming-monitor-review-an-oled-stunner-with-full-dp2-1-bandwidth/amp/",
+      "date": "2024-10-04",
+      "metrics": {"Price at review (USD)": "1249 (MSRP 1300)"},
+      "verdict": "A fantastic OLED monitor with full DP 2.1 bandwidth; main wish is a lower price."
+    },
+    {
+      "brand": "ASUS", "model": "ROG Swift PG32UCDM3", "source": "Tom's Hardware",
+      "url": "https://www.tomshardware.com/monitors/gaming-monitors/asus-rog-swift-pg32ucdm3-32-inch-240-hz-qd-oled-gaming-monitor-review",
+      "date": "2026-02-23",
+      "metrics": {
+        "Input lag total (ms)": "18",
+        "Panel response black-white (ms)": "0.24",
+        "SDR peak brightness, 25% window, Uniform Brightness off (nits)": "~500+",
+        "HDR peak brightness, 25% window (nits)": "504",
+        "DCI-P3 coverage (%)": "~108",
+        "Award": "Editor's Choice"
+      },
+      "verdict": "A superlative flagship 4K OLED with no real flaws other than price and no speakers; nothing better among 32-inch 4K panels."
+    },
+    {
+      "brand": "ASUS", "model": "ROG Swift PG32UCDM", "source": "TFTCentral",
+      "url": "https://tftcentral.co.uk/reviews/asus-rog-swift-pg32ucdm",
+      "date": "2024-02-14",
+      "metrics": {
+        "G2G response avg @240Hz (ms)": "0.49",
+        "Total display lag @240Hz (ms)": "0.50",
+        "SDR max brightness, Uniform Brightness off (nits)": "477",
+        "SDR max brightness, Uniform Brightness on (nits)": "~265",
+        "HDR peak 10% APL (nits)": "1065",
+        "HDR 100% APL (nits)": "272",
+        "DCI-P3 coverage absolute (%)": "98.9",
+        "Greyscale dE (default)": "0.6",
+        "sRGB Cal mode dE": "0.8",
+        "Text clarity": "Very hard to detect fringing at 100-150% scaling (140 PPI, new subpixel layout)",
+        "Flicker": "Flicker-free; minor refresh-synced fluctuation"
+      },
+      "verdict": "An amazing screen and the best OLED monitor TFTCentral had tested to date; ELMB limited to 120Hz and no hardware calibration."
+    },
+    {
+      "brand": "ASUS", "model": "ROG Swift PG32UCDM", "source": "Monitors Unboxed / TechSpot",
+      "url": "https://www.techspot.com/review/2805-asus-rog-swift-pg32ucdm/",
+      "date": "2024-02-22",
+      "metrics": {
+        "Response time avg @240Hz (ms)": "0.3",
+        "Processing latency (ms)": "<0.5",
+        "SDR full-white max (nits)": "245",
+        "HDR 10% window (nits)": "475",
+        "HDR 2% window (nits)": "1042",
+        "DCI-P3 coverage (%)": "99.1",
+        "Rec.2020 coverage (%)": "79.3",
+        "sRGB-mode grayscale dE ITP": "3.25",
+        "HDR grayscale dE": "3.41",
+        "TechSpot score": "90"
+      },
+      "verdict": "Excellent 4K QD-OLED with top motion clarity, HDR and text quality; glossy reflections and price premium are drawbacks."
+    },
+    {
+      "brand": "MSI", "model": "MPG 321URX QD-OLED", "source": "Monitors Unboxed / TechSpot",
+      "url": "https://www.techspot.com/review/2813-msi-mpg-321urx/",
+      "date": "2024-03-01",
+      "metrics": {
+        "Response time avg @240Hz (ms)": "0.3",
+        "Processing latency (ms)": "<0.5",
+        "SDR max brightness (nits)": "238",
+        "HDR full-screen (nits)": "252",
+        "HDR 10% window (nits)": "464",
+        "HDR 2% window (nits)": "1014",
+        "DCI-P3 coverage (%)": "99.1",
+        "Adobe RGB (%)": "97.6",
+        "Rec.2020 (%)": "79.7",
+        "TechSpot score": "85"
+      },
+      "verdict": "Another excellent 4K QD-OLED; at $950 in the US the reviewer would buy it over the ASUS despite no BFI, no unlocked sRGB and no Dolby Vision."
+    },
+    {
+      "brand": "MSI", "model": "MPG 321URX QD-OLED", "source": "TFTCentral",
+      "url": "https://tftcentral.co.uk/reviews/msi-mpg-321urx",
+      "date": "2024-02-23",
+      "metrics": {"Format": "video review; numbers not in page text"},
+      "verdict": "Extremely impressive spec and feature set at an attractive price point."
+    },
+    {
+      "brand": "LG", "model": "UltraGear 32GS95UE-B", "source": "TFTCentral",
+      "url": "https://tftcentral.co.uk/reviews/lg-32gs95ue",
+      "date": "2024-07-19",
+      "metrics": {
+        "G2G response avg (ms)": "0.52",
+        "Total display lag high refresh (ms)": "0.33",
+        "SDR max brightness, uniform (nits)": "~282",
+        "SDR small-APL with Peak Brightness High (nits)": "438",
+        "HDR peak, Peak Brightness High (nits)": "1324",
+        "DCI-P3 coverage absolute (%)": "97.1",
+        "Greyscale dE (Gamer 1)": "1.1",
+        "DCI-P3 colour dE": "1.2",
+        "Text clarity": "Sharp and crisp thanks to new subpixel layout + 140 PPI",
+        "VRR range": "48-240Hz 4K; 48-480Hz 1080p"
+      },
+      "verdict": "An impressive 32-inch OLED and excellent gaming screen with very low lag and hardware calibration; lacks BFI, USB-C, KVM, and has grainy matte coating."
+    },
+    {
+      "brand": "LG", "model": "UltraGear 32GS95UE-B", "source": "Monitors Unboxed / TechSpot",
+      "url": "https://www.techspot.com/review/2822-lg-32gs95ue-woled/",
+      "date": "2024-04-05",
+      "metrics": {
+        "Response time avg @240Hz and 480Hz (ms)": "0.3",
+        "Processing delay 4K240 / 1080p480 (ms)": "0.3 / 0.5",
+        "SDR max brightness (nits)": "262",
+        "HDR 10% window High mode (nits)": "~500",
+        "HDR 2% window High mode (nits)": "1140",
+        "DCI-P3 coverage (%)": "96",
+        "Default dE ITP": "5.79",
+        "Text clarity": "Ranked behind QD-OLED and IPS; shadowing on right side of text",
+        "TechSpot score": "85"
+      },
+      "verdict": "Dual-mode 1080p 480Hz is a standout for competitive players but it needs price parity with QD-OLED alternatives."
+    },
+    {
+      "brand": "Dell", "model": "Alienware AW3225QF", "source": "Tom's Hardware",
+      "url": "https://www.tomshardware.com/monitors/gaming-monitors/alienware-aw3225qf-oled-4k-gaming-monitor-review",
+      "date": "2024-05-08",
+      "metrics": {
+        "Input lag total (ms)": "22",
+        "SDR peak brightness (nits)": "259",
+        "HDR peak, 25% window (nits)": "453",
+        "DCI-P3 coverage (%)": "~110",
+        "Award": "Editor's Choice"
+      },
+      "verdict": "Hard to imagine anyone complaining about any aspect; excellent gaming performance with greater color volume than most OLEDs."
+    },
+    {
+      "brand": "Dell", "model": "Alienware AW3225QF", "source": "Monitors Unboxed / TechSpot",
+      "url": "https://www.techspot.com/review/2814-dell-alienware-aw3225qf/",
+      "date": "2024-03-11",
+      "metrics": {
+        "Response time avg @240Hz (ms)": "0.3",
+        "Processing latency (ms)": "<0.5",
+        "SDR full-white (nits)": "239",
+        "HDR 10% window (nits)": "460",
+        "HDR 2% window (nits)": "1002",
+        "DCI-P3 coverage (%)": "99.1",
+        "Default SDR grayscale dE ITP": "~5.6",
+        "sRGB-mode ColorChecker dE": "2.96",
+        "TechSpot score": "85"
+      },
+      "verdict": "Another excellent QD-OLED, ranked third of the three 4K QD-OLEDs tested due to curve and feature gaps."
+    },
+    {
+      "brand": "Samsung", "model": "Odyssey OLED G8 G80SD", "source": "PC Gamer",
+      "url": "https://www.pcgamer.com/hardware/gaming-monitors/samsung-odyssey-g8-oled-g80sd-review/",
+      "date": "2024-06-21",
+      "metrics": {"PC Gamer score": "60", "Lab measurements": "none published"},
+      "verdict": "Punchy panel but impossible to recommend because the Smart TV interface makes PC setup painful and colour can't be corrected."
+    }
+  ],
+  "notes": "RTINGS reviews exist for FO32U2P, PG32UCDM (and Gen3), 321URX, 32GS95UE, G80SD and AW3225QF but pages are JS-rendered/blocked for the fetch tool, so no RTINGS numbers were recorded. No independent lab review found for MO32U2, MO32U24, AORUS FO32U2, AORUS ELITE FO32U24G or MO27U2; no TFTCentral/TechSpot review of FO32U2P found. Measurement methods differ: Tom's Hardware input lag (18-25ms) is end-to-end click-to-photon, TFTCentral/TechSpot (<0.5ms) is display processing lag only - do not mix. Tom's HDR peak is 25% window; TechSpot/TFTCentral quote 10%/2%. Market has moved on: TechSpot's June 2026 OLED guide names ASUS XG32UCWMG (Tandem WOLED), MSI 321UPX, Samsung G81SF as current picks; ASUS PG32UCDP (WOLED dual-mode 480Hz) also exists. FO32U2P's differentiator vs most rivals: full DP 2.1 UHBR20 + KVM + speakers; only PG32UCDM3 matches DP 2.1 among listed rivals."
+}

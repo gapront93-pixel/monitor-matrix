@@ -1,0 +1,297 @@
+{
+  "segment_id": "oled27-qhd-240-280",
+  "segment_name_vi": "Màn hình OLED 27 inch QHD 240-280Hz",
+  "criteria": "27-inch (26.5-26.7\" viewable) 2560x1440 OLED (WOLED or QD-OLED), 240-280Hz native refresh. One current, most-direct competitor per brand (280Hz newest generation preferred).",
+  "gigabyte_models": ["mo27q28g", "aorus-elite-fo27q28g", "aorus-elite-fo27q24g", "mo27q2a", "go27q24", "aorus-fo27q2"],
+  "competitors": [
+    {
+      "brand": "ASUS",
+      "model": "ROG Strix OLED XG27AQWMG",
+      "spec_url": "https://rog.asus.com/monitors/27-to-31-5-inches/rog-strix-oled-xg27aqwmg/spec/",
+      "specs": {
+        "size": "27\" (26.5\" viewable)",
+        "panel": "Tandem WOLED (4th-gen LG Display Primary RGB Tandem), TrueBlack Glossy",
+        "resolution": "2560x1440",
+        "refresh_hz": 280,
+        "response_time": "0.03 ms GTG",
+        "brightness_sdr": "Not listed on ASUS spec page (Tom's Hardware spec table: 557 nits at 25% window)",
+        "brightness_hdr_peak": "1500 cd/m2",
+        "hdr_cert": "VESA DisplayHDR True Black 500",
+        "dci_p3": "99.5%",
+        "contrast": "1,500,000:1",
+        "ports": "2x HDMI 2.1 (FRL), 1x DisplayPort 1.4 (DSC), 2x USB 3.2 Gen1 Type-A, headphone jack",
+        "usb_c_pd_w": "No USB-C",
+        "ergonomics": "Height 0-110 mm, tilt +20/-5, swivel +/-45, pivot +/-90",
+        "speakers": "None",
+        "warranty": "3 years incl. panel burn-in",
+        "msrp_usd": "$599 (press opening price per Tom's Hardware); street $649-699"
+      }
+    },
+    {
+      "brand": "MSI",
+      "model": "MAG 271QP QD-OLED X28",
+      "spec_url": "https://storage-asset.msi.com/datasheet/monitor/us/MAG-271QP-QD-OLED-X28.pdf",
+      "specs": {
+        "size": "26.5\"",
+        "panel": "QD-OLED (Samsung Display; generation not stated)",
+        "resolution": "2560x1440",
+        "refresh_hz": 280,
+        "response_time": "0.03 ms GTG",
+        "brightness_sdr": "250 nits typical",
+        "brightness_hdr_peak": "1000 nits (3% APL); 450 nits at 10% APL",
+        "hdr_cert": "VESA DisplayHDR True Black 400",
+        "dci_p3": "99%",
+        "contrast": "1,500,000:1",
+        "ports": "2x HDMI 2.1, 1x DisplayPort 1.4a, 1x USB-C (DP Alt), headphone out; no USB hub",
+        "usb_c_pd_w": "15W",
+        "ergonomics": "Height 0-110 mm, tilt -5/+20, swivel +/-30, pivot +/-90",
+        "speakers": "None",
+        "warranty": "3 years incl. panel burn-in",
+        "msrp_usd": "$499.99 (list per technobezz; TechSpot cites $500 MSRP)"
+      }
+    },
+    {
+      "brand": "Samsung",
+      "model": "Odyssey OLED G6 G60SD (LS27DG602SNXZA)",
+      "spec_url": "https://content.abt.com/documents/164495/samsung-monitor-LS27DG602SNXZA-spec-sheet.pdf",
+      "specs": {
+        "size": "27\"",
+        "panel": "QD-OLED (Samsung Display, 360Hz panel), matte/glare-free",
+        "resolution": "2560x1440",
+        "refresh_hz": 360,
+        "response_time": "0.03 ms GTG",
+        "brightness_sdr": "250 cd/m2 typical",
+        "brightness_hdr_peak": "Not listed on spec sheet",
+        "hdr_cert": "HDR10, HDR10+ Gaming (spec sheet lists no VESA tier)",
+        "dci_p3": "99% (CIE 1976)",
+        "contrast": "1,000,000:1",
+        "ports": "2x HDMI 2.1, 1x DisplayPort 1.4, 2x USB 3.0 hub",
+        "usb_c_pd_w": "No USB-C",
+        "ergonomics": "Height 120 mm, tilt -2/+25, swivel +/-30, pivot +/-92",
+        "speakers": "None listed",
+        "warranty": "Burn-in covered under normal use (duration not listed on sheet)",
+        "msrp_usd": "$899.99 (samsung.com US list)"
+      }
+    },
+    {
+      "brand": "LG",
+      "model": "UltraGear 27GX700A-B",
+      "spec_url": "https://www.lg.com/uk/monitors/gaming/27gx700a-b/",
+      "specs": {
+        "size": "27\" (26.5\" viewable)",
+        "panel": "WOLED, 4th-gen Primary RGB Tandem (same panel as MO27Q28G per RTINGS), anti-glare",
+        "resolution": "2560x1440",
+        "refresh_hz": 280,
+        "response_time": "0.03 ms GTG (Faster mode)",
+        "brightness_sdr": "335 cd/m2 typical",
+        "brightness_hdr_peak": "1500 nits",
+        "hdr_cert": "VESA DisplayHDR True Black 500",
+        "dci_p3": "99.5% typical in spec table (98.5% in feature text)",
+        "contrast": "1,500,000:1",
+        "ports": "2x HDMI 2.1, 1x DisplayPort 1.4, USB 3.0 hub (1 up / downstream), 4-pole headphone out",
+        "usb_c_pd_w": "No USB-C",
+        "ergonomics": "Height 110 mm, tilt -5/+15, swivel +/-30, pivot (clockwise)",
+        "speakers": "None (DTS Headphone:X)",
+        "warranty": "Not stated on LG page (Scan UK: 2 years)",
+        "msrp_usd": "$849.99 list (games.gg citing Amazon); seen at $399.99"
+      }
+    },
+    {
+      "brand": "Dell/Alienware",
+      "model": "Alienware AW2725D",
+      "spec_url": "https://www.dell.com/en-us/shop/monitors/apd/alienware-27-280hz-qd-oled-gaming-monitor-aw2725d/aw2725d_monitor/-",
+      "specs": {
+        "size": "27\" (26.7\" viewable)",
+        "panel": "QD-OLED (Samsung Display)",
+        "resolution": "2560x1440",
+        "refresh_hz": 280,
+        "response_time": "0.03 ms GTG",
+        "brightness_sdr": "250 nits (Tom's Hardware spec table)",
+        "brightness_hdr_peak": "1000 nits",
+        "hdr_cert": "VESA DisplayHDR True Black 400",
+        "dci_p3": "99.3%",
+        "contrast": "1,500,000:1",
+        "ports": "2x HDMI 2.1 FRL, 1x DisplayPort 1.4, USB 5Gbps (1x Type-B up, 1x Type-A + 1x Type-C down)",
+        "usb_c_pd_w": "Data USB-C, up to 15W charging (no DP Alt)",
+        "ergonomics": "Height up to 4.33\" (110 mm), tilt -5/+21, swivel +/-20, pivot +/-90",
+        "speakers": "None (no headphone jack)",
+        "warranty": "3 years incl. OLED burn-in (Advanced Exchange + Premium Panel Exchange)",
+        "msrp_usd": "$549.99 (Dell estimated value); $399.99 on dell.com at time of check"
+      }
+    }
+  ],
+  "benchmarks": [
+    {
+      "brand": "GIGABYTE", "model": "MO27Q28G", "source": "Tom's Hardware",
+      "url": "https://www.tomshardware.com/monitors/gaming-monitors/gigabyte-mo27q28g-27-inch-280-hz-oled-gaming-monitor-review",
+      "date": "2026-03-25",
+      "metrics": {
+        "Input lag (ms)": "14",
+        "SDR full-field brightness (nits)": "~330",
+        "SDR 25% window, variable brightness (nits)": "~600",
+        "DCI-P3 coverage (%)": "~110 (just under)",
+        "sRGB coverage (%)": "103.63",
+        "Grayscale dE out of box / calibrated": "4.63 / 0.43",
+        "Color gamut dE out of box / calibrated": "2.62 / 2.45",
+        "Gamma (measured)": "2.30",
+        "BT.2020 HDR saturation coverage": "R 90% / G 75% / B 95%"
+      },
+      "verdict": "Hard to fault: high brightness, vivid color and very smooth, responsive gaming at a reasonable price; needs calibration for best image."
+    },
+    {
+      "brand": "GIGABYTE", "model": "MO27Q28G", "source": "PCMonitors.info",
+      "url": "https://forum.pcmonitors.info/topic/gigabyte-mo27q28g-review/",
+      "date": "2026-01-10",
+      "metrics": {
+        "VRR flicker": "Persistent; basic anti-flicker setting only helps in specific cases",
+        "Black crush": "At higher refresh in SDR (fixable via gamma mode)",
+        "Text clarity": "RGB tandem subpixel layout more accommodating than older RWBG WOLED"
+      },
+      "verdict": "An attractively priced monitor with benefits over the competition that should be on your shortlist."
+    },
+    {
+      "brand": "GIGABYTE", "model": "MO27Q28G", "source": "RTINGS",
+      "url": "https://www.rtings.com/monitor/tools/compare/lg-27gx700a-b-gigabyte-mo27q28g/117624/101122",
+      "date": "",
+      "metrics": {
+        "Panel note": "Same 4th-gen RGB Tandem WOLED as LG 27GX700A-B; performs almost identically"
+      },
+      "verdict": "RTINGS says MO27Q28G and LG 27GX700A-B perform almost identically (shared panel); LG over-brightens some images, Gigabyte slightly crushes midtones in SDR. (Numeric scores did not render via fetch.)"
+    },
+    {
+      "brand": "GIGABYTE", "model": "AORUS FO27Q2", "source": "Tom's Hardware",
+      "url": "https://www.tomshardware.com/monitors/gaming-monitors/aorus-fo27q2-40-hz-qhd-qd-oled-review",
+      "date": "2025-01-13",
+      "metrics": {
+        "Input lag (ms)": "13",
+        "SDR 25% window, APL High (nits)": "454",
+        "SDR full field (nits)": "~250",
+        "Grayscale dE out of box": "0.56",
+        "Color gamut dE": "0.60",
+        "Gamma (measured)": "2.19",
+        "Color volume DCI-P3 (%)": "110.53"
+      },
+      "verdict": "Gorgeous display and serious gaming tool with the lowest input lag the reviewer had measured at the time; only con was no LED lighting."
+    },
+    {
+      "brand": "GIGABYTE", "model": "MO27Q2A", "source": "Profesional Review",
+      "url": "https://www.profesionalreview.com/2026/07/20/gigabyte-mo27q2a-review/",
+      "date": "2026-07-20",
+      "metrics": {
+        "SDR full-screen default (cd/m2)": "240",
+        "SDR max 3% APL (cd/m2)": "458",
+        "HDR max 3% APL (cd/m2)": "807",
+        "DCI-P3 coverage (%)": "99.5",
+        "DCI-P3 dE avg / calibrated": "1.91 / 0.38",
+        "sRGB dE avg / calibrated": "0.89 / 0.36",
+        "End-to-end latency LDAT (ms)": "~10",
+        "Score": "93%"
+      },
+      "verdict": "Platinum award: 280Hz QD-OLED with pro-grade factory calibration, KVM/PIP and 3-year OLED Care warranty; glossy reflections and 18W USB-C PD are the downsides."
+    },
+    {
+      "brand": "GIGABYTE", "model": "GO27Q24A", "source": "TechSpot (Monitors Unboxed)",
+      "url": "https://www.techspot.com/review/3175-budget-1440p-oled-monitors/",
+      "date": "2026-10-04",
+      "metrics": {
+        "Tier": "Limited-brightness QD-OLED (200 SDR / 400 HDR class)",
+        "SDR full-screen vs AW2726DM": "~8% brighter",
+        "HDR 10% window": "~20 nits behind full-brightness tier (full tier 455-485 nits)",
+        "Price (USD)": "~$350 (MSRP $450)"
+      },
+      "verdict": "Preferred pick among budget limited-brightness 1440p QD-OLEDs (MSI 272QP X24 close second)."
+    },
+    {
+      "brand": "GIGABYTE", "model": "GO27Q24A", "source": "PC Gamer",
+      "url": "https://www.pcgamer.com/hardware/gaming-monitors/gigabyte-go27q24a-review/",
+      "date": "2026-09-03",
+      "metrics": { "Score": "82/100" },
+      "verdict": "Fast, colourful and cheap 1440p QD-OLED; low peak brightness, reflective glossy coat and text not sharp enough for all-day office work."
+    },
+    {
+      "brand": "ASUS", "model": "ROG Strix OLED XG27AQWMG", "source": "Tom's Hardware",
+      "url": "https://www.tomshardware.com/monitors/gaming-monitors/asus-rog-strix-xg27aqwmg-27-inch-280-hz-oled-gaming-monitor-review",
+      "date": "2026-01-22",
+      "metrics": {
+        "Input lag (ms)": "20",
+        "SDR 25% window (nits)": "557",
+        "HDR 25% window (nits)": "653",
+        "DCI-P3 coverage (%)": "107.66",
+        "sRGB coverage (%)": "95.41",
+        "Grayscale dE out of box / calibrated": "3.30 / 1.04",
+        "Color gamut dE (default)": "2.09",
+        "Gamma (measured)": "2.22"
+      },
+      "verdict": "Editor's Choice: excellent picture and performance, good value for an OLED; only con is no speakers."
+    },
+    {
+      "brand": "ASUS", "model": "ROG Strix OLED XG27AQWMG", "source": "TechSpot (Monitors Unboxed)",
+      "url": "https://www.techspot.com/bestof/oled-monitors-26/",
+      "date": "2026-06-23",
+      "metrics": { "Street price (USD)": "$650, rarely discounted" },
+      "verdict": "Same Tandem WOLED as the Gigabyte MO27Q28GR and slightly better overall (more color options, proximity sensor), but the Gigabyte is the better value."
+    },
+    {
+      "brand": "Dell/Alienware", "model": "AW2725D", "source": "Tom's Hardware",
+      "url": "https://www.tomshardware.com/monitors/gaming-monitors/alienware-aw2725d-27-inch-qd-oled-qhd-280-hz-gaming-monitor-review",
+      "date": "2025-09-02",
+      "metrics": {
+        "Input lag (ms)": "17",
+        "DCI-P3 coverage (%)": ">111",
+        "sRGB coverage (%)": "109",
+        "Grayscale dE out of box / calibrated": "3.73 / 0.32",
+        "Color dE": "1.76",
+        "Gamma (measured)": "2.22",
+        "HDR Peak 1000 mode peak (nits)": "~460"
+      },
+      "verdict": "Editor's Choice: everything an OLED gaming monitor should be for less money than the competition; no speakers/headphone jack, slight green tint in HDR."
+    },
+    {
+      "brand": "Dell/Alienware", "model": "AW2725D", "source": "TechSpot (Monitors Unboxed)",
+      "url": "https://www.techspot.com/review/3175-budget-1440p-oled-monitors/",
+      "date": "2026-10-04",
+      "metrics": {
+        "Tier": "Full-brightness QD-OLED (250 SDR / 1000 HDR)",
+        "HDR 10% window (tier range, nits)": "455-485",
+        "HDR 2% peak": ">1000 nits"
+      },
+      "verdict": "Top overall budget 1440p QD-OLED pick for balanced SDR/HDR and good calibration; worth ~$400, not its $550 MSRP."
+    },
+    {
+      "brand": "MSI", "model": "MAG 271QP QD-OLED X28", "source": "TechSpot (Monitors Unboxed)",
+      "url": "https://www.techspot.com/review/3175-budget-1440p-oled-monitors/",
+      "date": "2026-10-04",
+      "metrics": {
+        "Tier": "Full-brightness QD-OLED (250 SDR / 1000 HDR)",
+        "HDR 2% peak": ">1000 nits"
+      },
+      "verdict": "Full-brightness tier performer but flagged for SDR black crush."
+    },
+    {
+      "brand": "Samsung", "model": "Odyssey OLED G6 G60SD", "source": "PCMonitors.info",
+      "url": "https://forum.pcmonitors.info/topic/samsung-odyssey-oled-g60sd-g6-s27dg60-review/",
+      "date": "2024-07-28",
+      "metrics": {
+        "VRR flicker": "Possible, situational (typical OLED)",
+        "Pixel response": "No perceived weaknesses",
+        "Input lag": "Low (no number given)"
+      },
+      "verdict": "A gaming powerhouse with an exceptionally fluid experience, wide gamut, excellent uniformity and many HDR settings."
+    },
+    {
+      "brand": "Samsung", "model": "Odyssey OLED G6 G60SD", "source": "Tom's Hardware",
+      "url": "https://www.tomshardware.com/monitors/gaming-monitors/alienware-aw2725d-27-inch-qd-oled-qhd-280-hz-gaming-monitor-review/2",
+      "date": "2025-09-02",
+      "metrics": { "Input lag (ms)": "18 (stated as comparison in AW2725D review: AW2725D is 1 ms ahead of the Samsung OLED G6)" },
+      "verdict": "Used as a comparison unit; no standalone verdict on this page."
+    },
+    {
+      "brand": "LG", "model": "UltraGear 27GX700A-B", "source": "RTINGS",
+      "url": "https://www.rtings.com/monitor/tools/compare/lg-27gx700a-b-gigabyte-mo27q28g/117624/101122",
+      "date": "",
+      "metrics": { "Panel note": "Shares panel with Gigabyte MO27Q28G" },
+      "verdict": "Performs almost identically to the MO27Q28G; LG over-brightens some images. (Numeric scores did not render via fetch.)"
+    }
+  ],
+  "notes": "Two panel camps: (1) 4th-gen Primary RGB Tandem WOLED 280Hz (GIGABYTE MO27Q28G/FO27Q28G, ASUS XG27AQWMG, LG 27GX700A-B) – brighter SDR (~330 nits full field, 1500-nit HDR claim, True Black 500) and better text than old RWBG WOLED; (2) QD-OLED 280Hz/240Hz (GIGABYTE MO27Q2A/FO27Q2/GO27Q24, MSI X28, Alienware AW2725D) – wider gamut (~108-111% DCI-P3), 250 nits/True Black 400. Samsung has no 240-280Hz 27\" QHD OLED in this generation; G60SD is 360Hz (included per brief; it overlaps segment B). GO27Q24A/G and GO27Q24 are 'limited-brightness' QD-OLED tier (200/400 nits). Measured input lag (Tom's Hardware, same methodology): FO27Q2 13 ms < MO27Q28G 14 ms < AW2725D 17 ms < Samsung G6 G60SD 18 ms < XG27AQWMG 20 ms. TechSpot names Gigabyte MO27Q28GR the top 240-280Hz value pick (≈$480-499 vs XG27AQWMG $650) and AW2725D the best QD-OLED value at ~$400. Gaps: RTINGS pages did not render numeric data via WebFetch (blocked/JS) and TFTCentral/PCMonitors reviews are video-based, so no measured numbers from them; no reputable reviews found for AORUS ELITE FO27Q28G or FO27Q24G (FO27Q28G likely shares MO27Q28G's panel); no measured benchmark found for LG 27GX700A-B or MSI X28 beyond qualitative notes. KitGuru/Profesional Review used where listed sources lacked data."
+}

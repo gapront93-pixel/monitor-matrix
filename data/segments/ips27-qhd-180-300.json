@@ -1,0 +1,242 @@
+{
+  "segment_id": "ips27-qhd-180-300",
+  "segment_name_vi": "Màn hình gaming IPS 27 inch QHD (2560x1440) 180-300Hz phổ thông",
+  "criteria": "27-inch, 2560x1440, IPS-type panel, 180-300Hz native refresh, mainstream gaming price band (~US$150-350)",
+  "gigabyte_models": ["m27q2-qd", "g27q20", "g27q2", "m27qa", "gs27qxa", "m27q3", "g27q3"],
+  "competitors": [
+    {
+      "brand": "ASUS",
+      "model": "ROG Strix XG27ACS",
+      "spec_url": "https://rog.asus.com/us/monitors/27-to-31-5-inches/rog-strix-xg27acs/spec/",
+      "specs": {
+        "size": "27\"",
+        "panel": "Fast IPS, anti-glare",
+        "resolution": "2560x1440",
+        "refresh_hz": 180,
+        "response_time": "1ms GTG",
+        "brightness_sdr": "350 cd/m2",
+        "brightness_hdr_peak": "400 cd/m2",
+        "hdr_cert": "VESA DisplayHDR 400",
+        "dci_p3": "97% DCI-P3 / 133% sRGB",
+        "contrast": "1000:1",
+        "ports": "1x DP 1.4, 1x HDMI 2.0, 1x USB-C (DP Alt), headphone jack",
+        "usb_c_pd_w": "7.5W",
+        "ergonomics": "Tilt +20/-5, height 0-120mm (swivel/pivot not listed); VESA 100x100",
+        "speakers": "None listed",
+        "warranty": "Not stated on spec page",
+        "msrp_usd": "~$290 at TechSpot review (Jul 2024); not an official MSRP"
+      },
+      "kvm": "No (TechSpot: no USB hub or KVM)"
+    },
+    {
+      "brand": "MSI",
+      "model": "MAG 274QRF QD E2",
+      "spec_url": "https://storage-asset.msi.com/datasheet/monitor/hk/MAG-274QRF-QD-E2.pdf",
+      "specs": {
+        "size": "27\"",
+        "panel": "Rapid IPS, Quantum Dot, anti-glare",
+        "resolution": "2560x1440",
+        "refresh_hz": 180,
+        "response_time": "1ms GTG",
+        "brightness_sdr": "400 (unit not stated on datasheet)",
+        "brightness_hdr_peak": "",
+        "hdr_cert": "VESA DisplayHDR 400",
+        "dci_p3": "98% DCI-P3 / 150% sRGB / 94% Adobe RGB",
+        "contrast": "1000:1",
+        "ports": "1x DP 1.4a (180Hz), 2x HDMI 2.0b (144Hz), 1x USB-C (DP Alt, 180Hz), USB-B up, 2x USB-A 2.0, headphone out",
+        "usb_c_pd_w": "65W",
+        "ergonomics": "Tilt -5/20, swivel +/-45, pivot +/-90, height 0-130mm; VESA 75x75",
+        "speakers": "None",
+        "warranty": "Not stated on datasheet",
+        "msrp_usd": "~$250 street per PCMonitors (Feb 2025); official MSRP not found"
+      },
+      "kvm": "Yes"
+    },
+    {
+      "brand": "Samsung",
+      "model": "Odyssey G5 G50D (S27DG50)",
+      "spec_url": "https://pcmonitors.info/samsung/samsung-odyssey-g5-g50d-s27dg50-180hz-qhd-ips/",
+      "specs": {
+        "size": "27\"",
+        "panel": "IPS, matte",
+        "resolution": "2560x1440",
+        "refresh_hz": 180,
+        "response_time": "1ms GTG",
+        "brightness_sdr": "350 cd/m2",
+        "brightness_hdr_peak": "400 cd/m2",
+        "hdr_cert": "VESA DisplayHDR 400",
+        "dci_p3": "99% sRGB (DCI-P3 not specified); 8-bit",
+        "contrast": "1000:1",
+        "ports": "HDMI 2.0, DP 1.2a, headphone jack (counts not given)",
+        "usb_c_pd_w": "None",
+        "ergonomics": "Height 120mm, pivot (fully adjustable); VESA 100x100",
+        "speakers": "Not mentioned",
+        "warranty": "",
+        "msrp_usd": "~$330 (listed price per PCMonitors, Apr 2024)"
+      },
+      "kvm": "No",
+      "spec_source_note": "Samsung.com page not reachable; specs from PCMonitors news/spec overview"
+    },
+    {
+      "brand": "LG",
+      "model": "UltraGear 27GS75Q-B",
+      "spec_url": "https://pcmonitors.info/lg/lg-ultragear-27gs75q-b-180hz-qhd-ips/",
+      "specs": {
+        "size": "27\"",
+        "panel": "IPS, matte",
+        "resolution": "2560x1440",
+        "refresh_hz": 180,
+        "response_time": "1ms GTG (200Hz OC available)",
+        "brightness_sdr": "300 cd/m2",
+        "brightness_hdr_peak": "",
+        "hdr_cert": "HDR10 only (no DisplayHDR)",
+        "dci_p3": "99% sRGB (DCI-P3 not specified); 8-bit",
+        "contrast": "1000:1",
+        "ports": "1x DP 1.4, 2x HDMI 2.0, headphone jack; external PSU",
+        "usb_c_pd_w": "None",
+        "ergonomics": "Tilt, height, pivot; VESA 100x100",
+        "speakers": "Not mentioned",
+        "warranty": "",
+        "msrp_usd": "~$300 (per PCMonitors, Jun 2024)"
+      },
+      "kvm": "No",
+      "spec_source_note": "LG.com page not reached; specs via PCMonitors. Alternative 240Hz LG: 27GR83Q-B (RTINGS reviewed; data gated)"
+    },
+    {
+      "brand": "Dell",
+      "model": "G2725D",
+      "spec_url": "https://pcmonitors.info/dell/dell-g2725d-180hz-qhd-ips/",
+      "specs": {
+        "size": "27\"",
+        "panel": "IPS-type (BOE ADS)",
+        "resolution": "2560x1440",
+        "refresh_hz": 180,
+        "response_time": "1ms GTG",
+        "brightness_sdr": "400 cd/m2",
+        "brightness_hdr_peak": "",
+        "hdr_cert": "None listed",
+        "dci_p3": "99% sRGB (no DCI-P3 claim); 10-bit",
+        "contrast": "1000:1",
+        "ports": "2x HDMI 2.0, 1x DP 1.4, headphone jack; internal PSU",
+        "usb_c_pd_w": "None",
+        "ergonomics": "Tilt only; VESA 100x100",
+        "speakers": "Not mentioned",
+        "warranty": "",
+        "msrp_usd": "~$200 (per PCMonitors); often under $200 street"
+      },
+      "kvm": "No"
+    }
+  ],
+  "benchmarks": [
+    {
+      "brand": "GIGABYTE",
+      "model": "GS27QXA (240Hz)",
+      "source": "Tom's Hardware",
+      "url": "https://www.tomshardware.com/monitors/gaming-monitors/gigabyte-gs27qxa-27-inch-240-hz-qhd-ips-gaming-monitor-review-serious-value-and-high-performance",
+      "date": "2025-03-31",
+      "metrics": {
+        "total input lag (ms)": "21",
+        "uniformity deviation (%)": "7.90",
+        "max SDR brightness (nits)": "433",
+        "black level (nits)": "0.3250",
+        "static contrast": "1334.2:1",
+        "ANSI contrast calibrated": "1255.9:1",
+        "HDR10 peak (nits)": ">500",
+        "DCI-P3 coverage (%)": "~92",
+        "price at review (USD)": "~269"
+      },
+      "verdict": "Tom's calls it a no-frills value 240Hz gamer with unusually high IPS contrast (>1,300:1); tilt-only stand, no USB."
+    },
+    {
+      "brand": "GIGABYTE",
+      "model": "M27QA ICE (180Hz)",
+      "source": "Tom's Hardware",
+      "url": "https://www.tomshardware.com/monitors/gaming-monitors/gigabyte-m27qa-ice-27-inch-180-hz-qhd-gaming-monitor-review",
+      "date": "2024-12-27",
+      "metrics": {
+        "total input lag (ms)": "19 (lowest of its comparison group; Lenovo G27q-30 25ms)",
+        "max SDR brightness (nits)": "just over 350 (calibrated User mode)",
+        "calibrated contrast @200 nits": "1378.5:1",
+        "grayscale error default (dE)": "3.11 (1.02 calibrated)",
+        "gamma": "2.14",
+        "color gamut error (dE)": "1.78; sRGB mode 1.4",
+        "DCI-P3 / sRGB volume (%)": "95 / 95",
+        "price at review (USD)": "~280-306"
+      },
+      "verdict": "Value 180Hz QHD that 'acts like a premium gaming monitor': fastest input lag in its test group, ~30% above-average contrast, KVM and height-adjust stand."
+    },
+    {
+      "brand": "ASUS",
+      "model": "ROG Strix XG27ACS",
+      "source": "Tom's Hardware",
+      "url": "https://www.tomshardware.com/monitors/gaming-monitors/asus-rog-strix-xg27acs-qhd-180-hz-gaming-monitor-review",
+      "date": "2024-07-03",
+      "metrics": {
+        "screen draw time (ms)": "6",
+        "total input lag (ms)": "23",
+        "max SDR brightness (nits)": ">440",
+        "contrast max backlight": "1005.7:1",
+        "ANSI contrast calibrated": "941.8:1",
+        "grayscale error (dE)": "0.85",
+        "gamma avg": "2.17",
+        "color gamut error (dE)": "1.37",
+        "DCI-P3 volume (%)": "just over 90",
+        "sRGB volume (%)": "just under 100"
+      },
+      "verdict": "Exceptional out-of-box accuracy (top percentile) but ordinary ~1,000:1 contrast; slower lag than M27QA ICE in Tom's tests."
+    },
+    {
+      "brand": "ASUS",
+      "model": "ROG Strix XG27ACS",
+      "source": "Monitors Unboxed / TechSpot",
+      "url": "https://www.techspot.com/review/2858-asus-rog-strix-xg27acs/",
+      "date": "2024-07-10",
+      "metrics": {
+        "avg GtG response @180Hz OD10 (ms)": "4.5 (cumulative deviation ~400); 3.5 at OD15 with inverse ghosting",
+        "processing input lag @max Hz (ms)": "0.5",
+        "max brightness (nits)": "~390",
+        "contrast": "1117:1",
+        "DCI-P3 coverage (%)": "96",
+        "Rec.2020 coverage (%)": "74",
+        "TechSpot score": "90",
+        "price at review (USD)": "290"
+      },
+      "verdict": "Best motion tuning at its price per Monitors Unboxed; ~30% better cumulative deviation than Gigabyte M27Q P and ~20% better than MSI G274QPF-QD; weak contrast, no real HDR, no USB hub/KVM."
+    },
+    {
+      "brand": "MSI",
+      "model": "MAG 274QRF QD E2",
+      "source": "PCMonitors (forum review vs Dell G2725D)",
+      "url": "https://forum.pcmonitors.info/topic/dell-g2725d-review-and-comparison-with-msi-mag-274qrf-qd-e2/",
+      "date": "2025-02-09",
+      "metrics": {
+        "brightness range (nits)": "54-511"
+      },
+      "verdict": "PCMonitors rates it superior to the Dell G2725D: wider QD gamut with emulation modes, brighter, better tuned responses at max Hz, strobe, KVM, full stand."
+    },
+    {
+      "brand": "Dell",
+      "model": "G2725D",
+      "source": "PCMonitors (forum review vs MSI 274QRF QD E2)",
+      "url": "https://forum.pcmonitors.info/topic/dell-g2725d-review-and-comparison-with-msi-mag-274qrf-qd-e2/",
+      "date": "2025-02-09",
+      "metrics": {
+        "brightness range (nits)": "87-405"
+      },
+      "verdict": "Good budget IPS responses and very low input lag, slightly stronger static contrast than the MSI, but no colour-space emulation, no HDR, tilt-only; wins on price (~$150-200)."
+    },
+    {
+      "brand": "LG",
+      "model": "27GR83Q (240Hz)",
+      "source": "Monitors Unboxed / TechSpot (Best 1440p monitors)",
+      "url": "https://www.techspot.com/bestof/1440p-gaming-monitors-25/",
+      "date": "2025-05-29",
+      "metrics": {
+        "TechSpot Metascore": "82",
+        "price listed (USD)": "270"
+      },
+      "verdict": "Named best budget high-refresh LCD for slightly better response tuning, colour accuracy and calibration options; TechSpot XG27ACS review notes similar avg response but higher overshoot than XG27ACS."
+    }
+  ],
+  "notes": "RTINGS review pages (M27Q rev2, 27GR83Q-B, G2725D, etc.) exist but RTINGS content was gated/blocked from this environment (proxy refused rtings.com; WebFetch returned only metadata), so NO RTINGS numbers were recorded. No third-party lab review found for M27Q3/G27Q3 (PCMonitors spec page says 300Hz native + factory OC to 320Hz, 2x HDMI 2.1, DP1.4, USB-C 18W, KVM, 2x5W speakers, ~GBP330), M27Q2 QD, or G27Q20/G27Q2. Samsung G50D and LG 27GS75Q have no measured reviews in the sources searched (PCMonitors only has spec overviews). Samsung/LG/Dell specs came from PCMonitors spec pages because official sites were not fetched. MSRPs are street/listed prices at the time of the cited article, not verified launch MSRPs. Tom's Hardware input-lag (total, ms) and TechSpot processing lag (ms) use different methodologies and are not directly comparable."
+}

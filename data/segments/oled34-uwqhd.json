@@ -1,0 +1,247 @@
+{
+  "segment_id": "oled34-uwqhd",
+  "segment_name_vi": "Màn hình OLED cong 34 inch UWQHD (3440x1440)",
+  "criteria": "34 inch 21:9, 3440x1440, curved OLED (QD-OLED primary; LG/ASUS WOLED 800R included as cross-tech rivals), 175-360Hz.",
+  "gigabyte_models": ["mo34wqc2", "mo34wqc36", "mo34wqc"],
+  "competitors": [
+    {
+      "brand": "ASUS",
+      "model": "ROG Swift OLED PG34WCDN (current, 360Hz QD-OLED)",
+      "spec_url": "https://rog.asus.com/ca-en/monitors/32-to-34-inches/rog-swift-oled-pg34wcdn/spec/",
+      "specs": {
+        "size": "34 inch, 1800R",
+        "panel": "Tandem RGB-stripe QD-OLED (BlackShield anti-reflection film)",
+        "resolution": "3440x1440",
+        "refresh_hz": 360,
+        "response_time": "0.03ms GtG",
+        "brightness_sdr": "300 nits full field (Tom's Hardware spec table)",
+        "brightness_hdr_peak": "1300 nits",
+        "hdr_cert": "VESA DisplayHDR True Black 500",
+        "dci_p3": "99%",
+        "contrast": "1,500,000:1",
+        "ports": "1x DP 2.1 (UHBR20), 2x HDMI 2.1, 1x USB-C (DP Alt), 3x USB 3.2 Gen1 Type-A, earphone jack; KVM: yes",
+        "usb_c_pd_w": "90W (Tom's Hardware; ASUS page lists no wattage)",
+        "ergonomics": "Tilt +20/-3, swivel +/-30, height 0-110mm, VESA 100x100, tripod socket",
+        "speakers": "None",
+        "warranty": "3 years incl. panel burn-in",
+        "msrp_usd": "$1,299 (Tom's Hardware conclusion; ~$1,500 at time of writing)"
+      }
+    },
+    {
+      "brand": "ASUS",
+      "model": "ROG Swift OLED PG34WCDM (2024, WOLED)",
+      "spec_url": "https://rog.asus.com/monitors/32-to-34-inches/rog-swift-oled-pg34wcdm/spec",
+      "specs": {
+        "size": "33.94 inch, 800R",
+        "panel": "WOLED (LG Display), anti-glare",
+        "resolution": "3440x1440",
+        "refresh_hz": 240,
+        "response_time": "0.03ms GtG",
+        "brightness_sdr": "450 nits (Tom's Hardware spec table)",
+        "brightness_hdr_peak": "1300 nits",
+        "hdr_cert": "VESA DisplayHDR True Black 400",
+        "dci_p3": "99%",
+        "contrast": "1,500,000:1",
+        "ports": "1x DP 1.4 (DSC), 2x HDMI 2.1 (FRL), 1x USB-C (DP Alt), 2x USB 3.2 Gen1 + 1x USB 2.0 Type-A, earphone, S/PDIF; KVM: yes",
+        "usb_c_pd_w": "90W",
+        "ergonomics": "Tilt +20/-5, swivel +/-15, height 0-110mm, VESA 100x100",
+        "speakers": "None",
+        "warranty": "2 years incl. panel burn-in",
+        "msrp_usd": "~$1,300 (Tom's Hardware)"
+      }
+    },
+    {
+      "brand": "MSI",
+      "model": "MPG 341CQPX QD-OLED",
+      "spec_url": "https://storage-asset.msi.com/specSheet/de/monitor/MPG%20341CQPX%20QD-OLED.pdf",
+      "specs": {
+        "size": "34.18 inch, 1800R",
+        "panel": "QD-OLED (Samsung 2nd-gen 240Hz panel)",
+        "resolution": "3440x1440",
+        "refresh_hz": 240,
+        "response_time": "0.03ms GtG",
+        "brightness_sdr": "250 nits",
+        "brightness_hdr_peak": "1000 nits",
+        "hdr_cert": "VESA DisplayHDR True Black 400",
+        "dci_p3": "110.8% CIE1976 / 109.7% CIE1931 coverage",
+        "contrast": "1,500,000:1",
+        "ports": "2x HDMI 2.1 (HDCP 2.3), 1x DP 1.4a, 1x USB-C (DP Alt), 2x USB 2.0 Type-A, 1x USB 2.0 Type-B, headphone out; KVM: yes",
+        "usb_c_pd_w": "98W",
+        "ergonomics": "Tilt -5/+20, swivel +/-30, height 0-100mm, VESA 100x100",
+        "warranty": "36 months, OLED burn-in covered",
+        "msrp_usd": "$899.99 (PCWorld price when reviewed)"
+      }
+    },
+    {
+      "brand": "Samsung",
+      "model": "Odyssey OLED G8 G85SB (S34BG85)",
+      "spec_url": "https://www.samsung.com/latin_en/monitors/gaming/odyssey-oled-g8-g85sb-34-inch-175hz-curved-ultra-wqhd-ls34bg850slxzp",
+      "specs": {
+        "size": "34 inch, 1800R",
+        "panel": "QD-OLED (1st gen)",
+        "resolution": "3440x1440",
+        "refresh_hz": 175,
+        "response_time": "0.03ms GtG",
+        "brightness_sdr": "250 nits",
+        "hdr_cert": "VESA DisplayHDR True Black 400; HDR10+ / HDR10+ Gaming",
+        "dci_p3": "99%",
+        "contrast": "1,000,000:1",
+        "ports": "1x micro-HDMI 2.1, 1x mini-DP, 2x USB-C; no full-size HDMI/DP, no USB hub, no headphone jack; Wi-Fi 5 + BT 5.2, Smart TV",
+        "usb_c_pd_w": "65W",
+        "ergonomics": "HAS 120mm, tilt -2/+20, pivot +/-3, VESA 100x100",
+        "speakers": "Yes (Adaptive Sound)"
+      }
+    },
+    {
+      "brand": "LG",
+      "model": "UltraGear 34GS95QE-B",
+      "spec_url": "https://www.notebookcheck.net/LG-UltraGear-OLED-34GS95QE-Pricing-announced-for-CES-2024-Innovation-Award-winner.809168.0.html",
+      "specs": {
+        "size": "34 inch, 800R",
+        "panel": "WOLED (LG Display)",
+        "resolution": "3440x1440",
+        "refresh_hz": 240,
+        "response_time": "0.03ms GtG",
+        "brightness_sdr": "275 nits",
+        "brightness_hdr_peak": "1300 nits at 1% window (hardware-journal.de spec table); Notebookcheck lists 400 nits HDR typical",
+        "hdr_cert": "VESA DisplayHDR True Black 400",
+        "dci_p3": "98.5%",
+        "contrast": "1,500,000:1 (hardware-journal.de)",
+        "ports": "2x HDMI 2.1, 1x DP 1.4, 2x USB-A, 1x USB-B, 3.5mm; no USB-C listed",
+        "msrp_usd": "$1,299.99"
+      }
+    },
+    {
+      "brand": "Dell",
+      "model": "Alienware AW3425DW",
+      "spec_url": "https://tftcentral.co.uk/news/dell-alienware-aw3425dw-officially-released-with-34-ultrawide-240hz-qd-oled-panel",
+      "specs": {
+        "size": "34 inch, 1800R",
+        "panel": "QD-OLED (Samsung Gen 2)",
+        "resolution": "3440x1440",
+        "refresh_hz": 240,
+        "response_time": "0.03ms GtG",
+        "brightness_sdr": "250 nits",
+        "brightness_hdr_peak": "1000 nits (3% APL)",
+        "hdr_cert": "VESA DisplayHDR True Black 400",
+        "dci_p3": "99.3%",
+        "contrast": "1,500,000:1",
+        "ports": "1x DP 1.4 (DSC), 2x HDMI 2.1 (FRL/VRR), 1x USB-A + 1x USB-C downstream, USB-B upstream; PiP/PbP; no headphone jack (Tom's)",
+        "usb_c_pd_w": "15W (data/charging only, no video in)",
+        "ergonomics": "Tilt, height, swivel",
+        "speakers": "None (Tom's Hardware)",
+        "warranty": "3 years (Dell includes burn-in coverage)",
+        "msrp_usd": "$799"
+      }
+    }
+  ],
+  "benchmarks": [
+    {
+      "brand": "GIGABYTE", "model": "MO34WQC2", "source": "Tom's Hardware",
+      "url": "https://www.tomshardware.com/monitors/gigabyte-mo34wqc2-240-hz-oled-gaming-monitor-review",
+      "date": "2024-11-11",
+      "metrics": {
+        "Input lag total (ms)": "22",
+        "SDR peak brightness, APL Stabilize High (nits)": "434+",
+        "HDR peak, 25% window (nits)": "442",
+        "DCI-P3 coverage (%)": "110+",
+        "Award": "Editor's Choice"
+      },
+      "verdict": "Stands out among OLEDs with a wider gamut than competitors, very accurate out of the box, KVM and very low input lag; only con is price."
+    },
+    {
+      "brand": "GIGABYTE", "model": "MO34WQC", "source": "PCWorld",
+      "url": "https://www.pcworld.com/article/2427854/gigabyte-mo34wqc-review.html",
+      "date": "2024-08-23",
+      "metrics": {
+        "SDR sustained max (nits)": "245",
+        "HDR 10% window (nits)": "402",
+        "DCI-P3 coverage (%)": "98",
+        "sRGB (%)": "100",
+        "Adobe RGB (%)": "94",
+        "Default gamma": "2.4",
+        "Default color temp (K)": "6100"
+      },
+      "verdict": "A generically great QD-OLED with dull design; strong pick only at $750 or less."
+    },
+    {
+      "brand": "ASUS", "model": "ROG Swift PG34WCDN", "source": "Tom's Hardware",
+      "url": "https://www.tomshardware.com/monitors/gaming-monitors/asus-rog-swift-pg34wcdn-34-inch-qd-oled-360-hz-gaming-monitor-review",
+      "date": "2026-03-28",
+      "metrics": {
+        "Input lag total (ms)": "10.3",
+        "Draw time (ms)": "0.24",
+        "SDR brightness, 25% window, Uniform Brightness off (nits)": "500",
+        "HDR peak (nits)": "approaching 1300 (observed)",
+        "DCI-P3 coverage (%)": "~106-107",
+        "Award": "Editor's Choice"
+      },
+      "verdict": "The very best 34-inch 21:9 OLED available: RGB-stripe sharpness, 360Hz and record-low input lag, at a high price."
+    },
+    {
+      "brand": "ASUS", "model": "ROG Swift PG34WCDM", "source": "Tom's Hardware",
+      "url": "https://www.tomshardware.com/monitors/gaming-monitors/asus-rog-swift-pg34wcdm-240-hz-oled-gaming-monitor-review",
+      "date": "2024-05-14",
+      "metrics": {
+        "HDR peak, 25% window (nits)": "700+",
+        "DCI-P3 coverage (%)": "97.61",
+        "Award": "Editor's Choice"
+      },
+      "verdict": "Nearly flawless for gaming with accurate color and premium image; no internal speakers."
+    },
+    {
+      "brand": "MSI", "model": "MPG 341CQPX QD-OLED", "source": "PCWorld",
+      "url": "https://www.pcworld.com/article/2436015/msi-mpg-341cqpx-review.html",
+      "date": "2024-08-28",
+      "metrics": {
+        "HDR 10% window, Peak 1000 mode (nits)": "1012",
+        "HDR 50% window (nits)": "354",
+        "HDR full screen (nits)": "268",
+        "DCI-P3 coverage (%)": "98",
+        "Adobe RGB (%)": "95",
+        "Default gamma": "2.3",
+        "Award": "Editors' Choice"
+      },
+      "verdict": "Stands out with better HDR, 240Hz and 98W USB-C PD; oversized stand and mediocre SDR brightness are drawbacks."
+    },
+    {
+      "brand": "MSI", "model": "MPG 341CQPX QD-OLED", "source": "TFTCentral",
+      "url": "https://tftcentral.co.uk/reviews/msi-mpg-341cqpx-qd-oled",
+      "date": "2024-07-03",
+      "metrics": {"Format": "video review (FW.020); numbers not in page text"},
+      "verdict": "Asks whether it is the best 34-inch ultrawide OLED available; measurements only in video."
+    },
+    {
+      "brand": "Dell", "model": "Alienware AW3425DW", "source": "Tom's Hardware",
+      "url": "https://www.tomshardware.com/monitors/gaming-monitors/alienware-aw3425dw-wqhd-qd-oled-review",
+      "date": "2025-07-27",
+      "metrics": {
+        "Input lag total (ms)": "18",
+        "Response time (ms)": "4",
+        "HDR peak (nits)": "459",
+        "DCI-P3 coverage (%)": "just under 108",
+        "Award": "Editor's Choice"
+      },
+      "verdict": "Not perfect but leaves almost nothing out while being good value; no speakers or headphone jack."
+    },
+    {
+      "brand": "Dell", "model": "Alienware AW3425DW", "source": "Monitors Unboxed / TechSpot",
+      "url": "https://www.techspot.com/review/2999-dell-alienware-aw3425dw/",
+      "date": "2025-06-18",
+      "metrics": {
+        "Response time avg (ms)": "~0.3",
+        "Processing latency (ms)": "<1",
+        "SDR full-screen max (nits)": "246",
+        "HDR True Black mode cap (nits)": "450",
+        "HDR Peak 1000 mode, dark scenes (nits)": "up to 1000",
+        "DCI-P3 coverage (%)": "99.4",
+        "Adobe RGB (%)": "98",
+        "Rec.2020 (%)": "81.6",
+        "Text clarity": "Some pink-green fringing",
+        "TechSpot score": "85"
+      },
+      "verdict": "The best 34-inch ultrawide OLED you can get; beats the same-panel Gigabyte MO34WQC2 on design, HDR, tuning and SDR accuracy at a slightly higher price."
+    }
+  ],
+  "notes": "RTINGS reviews exist (PG34WCDM, PG34WCDN, 341CQPX, G85SB, 34GS95QE, AW3425DW) but pages could not be read by the fetch tool, so no RTINGS numbers recorded. No reputable lab numbers found for LG 34GS95QE or Samsung G85SB/G85SD, and none for MO34WQC36 (pcmonitors.info Jan 2026 article is spec-only: 360Hz V-stripe RGB QD-OLED, DisplayHDR TB500, 300/1300 nits, DP 2.1 UHBR20, USB-C 18W PD, KVM, 2x3W speakers, 3yr burn-in warranty). Tom's input lag is end-to-end (10-22ms); TechSpot is processing-only (<1ms). PG34WCDM and 34GS95QE are WOLED 800R, not QD-OLED. Newer rivals as of 2026: MSI MPG 341CQR X36 and ASUS PG34WCDN (TechSpot May 2026 top picks, 360Hz), Alienware AW3426DW (Tom's reviewed; ~$800, 280Hz per TechSpot), Samsung G85SD. MO34WQC36 is the direct GIGABYTE answer to PG34WCDN/341CQR X36. GIGABYTE MO34WQC2 advantages per Tom's: widest gamut (110%+), KVM, speakers; weakness vs AW3425DW per TechSpot: HDR tuning and SDR accuracy, though it often sells cheaper ($660)."
+}

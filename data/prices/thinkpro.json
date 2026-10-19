@@ -1,0 +1,40 @@
+{
+ "retailer": "ThinkPro",
+ "retailer_id": "thinkpro",
+ "site": "https://thinkpro.vn",
+ "fetched": "2026-10-18",
+ "status": "ok",
+ "note": "Substitute for Ben Computer. Brand page https://thinkpro.vn/man-hinh-gigabyte rendered 0 products (JS); only 3 product pages found via search, all Hết hàng with no price.",
+ "source_pages": [
+  "https://thinkpro.vn/man-hinh-gigabyte",
+  "https://thinkpro.vn/man-hinh/man-hinh-gigabyte-g27q-ek-27ips144hzqhd",
+  "https://thinkpro.vn/man-hinh/man-hinh-cong-gigabyte-g27qca-ek-27va165hzqhd",
+  "https://thinkpro.vn/man-hinh/man-hinh-gigabye-aorus-fi27qp-27ips144hzqhd"
+ ],
+ "items": [
+  {
+   "slug": "G27Q",
+   "name_on_site": "Màn hình GIGABYTE G27Q-EK (27\"/IPS/144hz/QHD)",
+   "price_vnd": null,
+   "list_price_vnd": null,
+   "url": "https://thinkpro.vn/man-hinh/man-hinh-gigabyte-g27q-ek-27ips144hzqhd",
+   "note": "Hết hàng"
+  },
+  {
+   "slug": "G27QC-A",
+   "name_on_site": "Màn hình cong GIGABYTE G27QCA-EK (27\"/VA/165hz/QHD)",
+   "price_vnd": null,
+   "list_price_vnd": null,
+   "url": "https://thinkpro.vn/man-hinh/man-hinh-cong-gigabyte-g27qca-ek-27va165hzqhd",
+   "note": "Hết hàng"
+  },
+  {
+   "slug": null,
+   "name_on_site": "Màn hình GIGABYTE AORUS FI27QP (27\"/IPS/144Hz/QHD)",
+   "price_vnd": null,
+   "list_price_vnd": null,
+   "url": "https://thinkpro.vn/man-hinh/man-hinh-gigabye-aorus-fi27qp-27ips144hzqhd",
+   "note": "Hết hàng; FI27QP not in slug list"
+  }
+ ]
+}

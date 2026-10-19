@@ -1,0 +1,10 @@
+{
+ "retailer": "Ben Computer",
+ "retailer_id": "bencomputer",
+ "site": "https://bencomputer.vn",
+ "fetched": "2026-10-18",
+ "status": "unreachable",
+ "note": "WebFetch blocked by robots.txt; search engine returned no bencomputer.vn pages. Khóa Vàng site not identifiable. Substituted ThinkPro.",
+ "source_pages": [],
+ "items": []
+}

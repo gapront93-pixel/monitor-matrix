@@ -1,0 +1,188 @@
+// Schema của monitor-matrix. Sau khi sửa: npm run db:migrate (máy dev) hoặc npm run db:deploy (VPS)
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum PriceType {
+  retail // giá bán lẻ
+  dealer // giá sỉ / đại lý: không tính vào giá thấp nhất
+}
+
+enum StockStatus {
+  in_stock
+  out_of_stock
+  discontinued
+  contact // không ghi giá, phải liên hệ
+  unknown
+}
+
+model Segment {
+  id           String      @id // "oled27-qhd-240-280"
+  nameVi       String
+  criteria     String      @db.Text
+  conclusionVi String?     @db.Text // kết luận tiếng Việt (TOM-TAT-SO-SANH.md)
+  notes        String?     @db.Text // ghi chú gốc từ file phân khúc
+  sortOrder    Int
+  products     Product[]
+  benchmarks   Benchmark[]
+}
+
+model Product {
+  id         Int     @id @default(autoincrement())
+  slug       String  @unique // GO27Q32 | asus-rog-strix-oled-xg27aqwmg
+  brand      String
+  isGigabyte Boolean
+  model      String
+  series     String? // GAMING / AORUS
+  line       String? // GS, M, MO, ...
+  segmentId  String?
+
+  sizeIn                Float?
+  panel                 String?
+  shape                 String? // Flat / Curve
+  resolution            String? // "2560x1440"
+  refreshHz             Int?
+  responseMs            Float?
+  brightnessSdrNits     Int?
+  brightnessHdrPeakNits Int?
+  hdr                   String?
+  dciP3Pct              Float?
+  srgbPct               Float?
+  contrast              String?
+  bitDepth              String?
+  hdmiVer               String?
+  dpVer                 String?
+  usbC                  Boolean?
+  usbCPdW               Float?
+  kvm                   Boolean?
+  heightAdjMm           Int?
+  pivot                 Boolean?
+  speaker               String?
+  warranty              String?
+  msrpUsd               String?
+
+  url       String? // trang specs chính hãng
+  rawSpecs  Json // bảng specs gốc
+  aliases   String[] // tên khác dùng khi khớp file giá / benchmark (viết thường, không dấu cách)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  segment    Segment?        @relation(fields: [segmentId], references: [id])
+  prices     PriceSnapshot[]
+  benchmarks Benchmark[]
+
+  @@unique([brand, model])
+  @@index([segmentId])
+}
+
+model Benchmark {
+  id        Int       @id @default(autoincrement())
+  productId Int? // null: bài so sánh nhiều máy, chỉ gắn với phân khúc
+  segmentId String
+  subject   String // tên mẫu đúng như trong bài review
+  source    String // Tom's Hardware, TechSpot, ...
+  url       String
+  date      DateTime? @db.Date
+  dateText  String? // ngày như trong nguồn: "2024-03-11", "2021-04", "2026"
+  metric    String
+  value     String // "~330", "4.63 / 0.43"
+  valueNum  Float? // số tách từ value, để so sánh
+  verdict   String?   @db.Text
+
+  product Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  segment Segment  @relation(fields: [segmentId], references: [id])
+
+  @@unique([segmentId, subject, source, url, metric])
+  @@index([productId])
+}
+
+model Dealer {
+  id        String    @id // "nguyencong"
+  name      String
+  website   String?
+  sortOrder Int
+  isKey     Boolean   @default(false) // đại lý trọng điểm
+  priceType PriceType @default(retail)
+  status    String    @default("ok") // ok | unreachable | no_website | no_gigabyte_monitors
+  visible   Boolean   @default(true) // hiện cột trên bảng giá
+  note      String?   @db.Text
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  prices    PriceSnapshot[]
+  imports   PriceImportDealer[]
+  unmatched UnmatchedPrice[]
+}
+
+// Mỗi lần nhập giá (seed hoặc admin bấm Áp dụng) là một bản ghi
+model PriceImport {
+  id         Int      @id @default(autoincrement())
+  capturedAt DateTime // ngày của bảng giá
+  source     String // "seed" | "admin"
+  fileName   String?
+  summary    Json? // số dòng mới / đổi giá / bỏ / chưa khớp
+  createdAt  DateTime @default(now())
+
+  dealers   PriceImportDealer[]
+  snapshots PriceSnapshot[]
+  unmatched UnmatchedPrice[]
+}
+
+// Lần nhập này có những đại lý nào. Giá của một đại lý tại ngày X = lần nhập gần nhất (<= X) có đại lý đó
+model PriceImportDealer {
+  importId Int
+  dealerId String
+
+  import PriceImport @relation(fields: [importId], references: [id], onDelete: Cascade)
+  dealer Dealer      @relation(fields: [dealerId], references: [id], onDelete: Cascade)
+
+  @@id([importId, dealerId])
+  @@index([dealerId])
+}
+
+model PriceSnapshot {
+  id           Int         @id @default(autoincrement())
+  importId     Int
+  productId    Int
+  dealerId     String
+  priceVnd     Int? // null = Liên hệ
+  listPriceVnd Int?
+  inStock      Boolean? // null = không rõ
+  stockStatus  StockStatus
+  note         String?
+  nameOnSite   String?
+  url          String?
+  capturedAt   DateTime
+
+  import  PriceImport @relation(fields: [importId], references: [id], onDelete: Cascade)
+  product Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  dealer  Dealer      @relation(fields: [dealerId], references: [id], onDelete: Cascade)
+
+  @@unique([importId, productId, dealerId])
+  @@index([productId, dealerId, capturedAt])
+  @@index([dealerId, capturedAt])
+}
+
+// Dòng giá không khớp mẫu nào trong danh sách (vd FI27Q, KD25F): giữ lại để admin xem
+model UnmatchedPrice {
+  id         Int      @id @default(autoincrement())
+  importId   Int
+  dealerId   String
+  nameOnSite String
+  slugInFile String?
+  priceVnd   Int?
+  url        String?
+  note       String?
+  capturedAt DateTime
+
+  import PriceImport @relation(fields: [importId], references: [id], onDelete: Cascade)
+  dealer Dealer      @relation(fields: [dealerId], references: [id], onDelete: Cascade)
+
+  @@index([importId])
+}

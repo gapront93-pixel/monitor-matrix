@@ -1,0 +1,3 @@
+{"retailer":"An Phát","retailer_id":"anphat","site":"https://www.anphatpc.com.vn","fetched":"2026-10-18","status":"unreachable","source_pages":["https://www.anphatpc.com.vn/man-hinh-gigabyte_dm1850.html","https://www.anphatpc.com.vn/ad.php?id=3822","https://www.anphatpc.com.vn/brand/gigabyte?page=4","https://www.anphatpc.com.vn/man-hinh-gaming-gigabyte-gs27qa.html"],
+"note":"Pages load but the fetched text (~58k chars) is cut off inside the navigation menu before any product grid or price, on both the category and product pages. Search shows product pages exist (GS25F14, GS27F, GS27FC, GS27FA, GS27QA, GS25F2, GS25F2A, G25F2A, GS24F14, M27QA, G34WQC2, G32QC A, G27F 2, G24F 2) but no prices could be read.",
+"items":[]}

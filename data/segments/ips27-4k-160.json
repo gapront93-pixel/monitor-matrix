@@ -1,0 +1,268 @@
+{
+  "segment_id": "ips27-4k-160",
+  "segment_name_vi": "Màn hình gaming IPS 27 inch 4K UHD (3840x2160) 144-160Hz",
+  "criteria": "27-28 inch, 3840x2160, IPS-type panel, 144-180Hz native refresh, LCD (non-Mini-LED and non-OLED) gaming monitors",
+  "gigabyte_models": ["m27up", "g27u", "g27up", "m27ua", "gs27u", "m27u", "m28u"],
+  "competitors": [
+    {
+      "brand": "ASUS",
+      "model": "ROG Strix XG27UCS",
+      "spec_url": "https://rog.asus.com/uk/monitors/27-to-31-5-inches/rog-strix-xg27ucs/spec",
+      "specs": {
+        "size": "27\"",
+        "panel": "Fast IPS, anti-glare",
+        "resolution": "3840x2160",
+        "refresh_hz": 160,
+        "response_time": "1ms GTG",
+        "brightness_sdr": "400 cd/m2",
+        "brightness_hdr_peak": "450 cd/m2",
+        "hdr_cert": "VESA DisplayHDR 400",
+        "dci_p3": "95% DCI-P3 / 130% sRGB",
+        "contrast": "1000:1",
+        "ports": "1x DP 1.4, 1x HDMI 2.1, 1x USB-C (DP Alt), headphone jack",
+        "usb_c_pd_w": "15W",
+        "ergonomics": "Tilt +20/-5, swivel +/-45, pivot +/-90, height 0-120mm",
+        "speakers": "None",
+        "warranty": "Not stated on spec page",
+        "msrp_usd": ""
+      },
+      "kvm": "Not listed"
+    },
+    {
+      "brand": "MSI",
+      "model": "MAG 274UPF E2",
+      "spec_url": "https://storage-asset.msi.com/specSheet/hu/monitor/MAG%20274UPF%20E2.pdf",
+      "specs": {
+        "size": "27\"",
+        "panel": "Rapid IPS, anti-glare, 10-bit (8+FRC)",
+        "resolution": "3840x2160",
+        "refresh_hz": 160,
+        "response_time": "0.5ms GtG (min) / 1ms MPRT",
+        "brightness_sdr": "400 nits",
+        "brightness_hdr_peak": "400 nits",
+        "hdr_cert": "VESA DisplayHDR 400",
+        "dci_p3": "98% DCI-P3 (CIE1976) / 96% (CIE1931); 99% sRGB coverage",
+        "contrast": "1000:1",
+        "ports": "2x HDMI 2.1, 1x DP 1.4a, 1x USB-C (DP Alt), headphone out",
+        "usb_c_pd_w": "15W",
+        "ergonomics": "Tilt -5/20, swivel +/-30, pivot +/-90, height 0-130mm; VESA 75x75",
+        "speakers": "None listed",
+        "warranty": "36 months",
+        "msrp_usd": ""
+      },
+      "kvm": "Not listed on E2 datasheet (original 144Hz MAG 274UPF had KVM + 65W USB-C per PCMonitors)"
+    },
+    {
+      "brand": "Samsung",
+      "model": "Odyssey G7 G70D 27\" (LS27DG702ENXZA)",
+      "spec_url": "https://www.bhphotovideo.com/c/product/1860777-REG/samsung_ls27dg702enxza_odyssey_g7_g70d_27.html",
+      "specs": {
+        "size": "27\"",
+        "panel": "IPS, flat, anti-glare",
+        "resolution": "3840x2160",
+        "refresh_hz": 144,
+        "response_time": "1ms GtG",
+        "brightness_sdr": "350 nits",
+        "brightness_hdr_peak": "",
+        "hdr_cert": "VESA DisplayHDR 400, HDR10+",
+        "dci_p3": "99% sRGB (DCI-P3 not stated)",
+        "contrast": "1000:1",
+        "ports": "2x HDMI 2.1, 1x DP 1.4, 2x USB-A 3.x, USB-B up, RJ45; Wi-Fi 5, BT 5.2 (Smart TV platform)",
+        "usb_c_pd_w": "None",
+        "ergonomics": "Tilt -2/25, swivel +/-30, pivot +/-92, height ~119mm; VESA 100x100",
+        "speakers": "2x 10W",
+        "warranty": "3 years (limited)",
+        "msrp_usd": "$699.99 list (B&H 'regular' price; sale $399.99)"
+      },
+      "kvm": "Not listed",
+      "spec_source_note": "Retailer (B&H) page; samsung.com not fetched"
+    },
+    {
+      "brand": "LG",
+      "model": "UltraGear 27GR93U-B",
+      "spec_url": "https://www.comx-computers.co.za/27GR93U-B-specifications-327399.htm",
+      "specs": {
+        "size": "27\"",
+        "panel": "IPS, anti-glare",
+        "resolution": "3840x2160",
+        "refresh_hz": 144,
+        "response_time": "1ms GtG (Faster)",
+        "brightness_sdr": "400 cd/m2 typ (320 min)",
+        "brightness_hdr_peak": "",
+        "hdr_cert": "VESA DisplayHDR 400",
+        "dci_p3": "95% DCI-P3 typ (90% min)",
+        "contrast": "1000:1 typ (700 min)",
+        "ports": "2x HDMI (2.1 compatible), 1x DP 1.4, USB 3.0 hub (2 down/1 up), 4-pole headphone",
+        "usb_c_pd_w": "None",
+        "ergonomics": "Tilt, height, pivot; VESA 100x100",
+        "speakers": "None (DTS Headphone:X)",
+        "warranty": "",
+        "msrp_usd": "$630 cheapest at PC Gamer review (Nov 2023); launch MSRP not verified"
+      },
+      "kvm": "No",
+      "spec_source_note": "Retailer spec sheets (Comx, Adorama); listed as no longer available at Adorama; RTINGS/TechSpot treat it as discontinued-era benchmark"
+    },
+    {
+      "brand": "Dell",
+      "model": "Alienware AW2725QF (4K 180Hz / FHD 360Hz dual-mode)",
+      "spec_url": "https://www.tomshardware.com/monitors/gaming-monitors/alienware-aw2725qf-27-inch-4k-dual-mode-gaming-monitor-review",
+      "specs": {
+        "size": "27\"",
+        "panel": "IPS, W-LED edge, 24 dimming zones",
+        "resolution": "3840x2160 (dual-mode 1920x1080 @360Hz)",
+        "refresh_hz": 180,
+        "response_time": "0.5ms GtG",
+        "brightness_sdr": "400 nits",
+        "brightness_hdr_peak": "600 nits",
+        "hdr_cert": "VESA DisplayHDR 600, Dolby Vision",
+        "dci_p3": "95% DCI-P3 (Guru3D)",
+        "contrast": "1000:1",
+        "ports": "1x DP 1.4, 2x HDMI 2.1, USB 3.2 hub (1 up, 3 down incl. 1 front USB-C), headphone out",
+        "usb_c_pd_w": "Not stated",
+        "ergonomics": "Tilt 5/21, swivel 20, height 4.3in (~110mm)",
+        "speakers": "None",
+        "warranty": "3 years",
+        "msrp_usd": "$599 launch (Guru3D/Tom's); $399.99 street by review"
+      },
+      "kvm": "Not listed",
+      "spec_source_note": "Specs from Tom's Hardware review spec table + Guru3D launch news; dell.com not fetched. Chosen as Dell's closest 4K IPS gaming 27\"."
+    }
+  ],
+  "benchmarks": [
+    {
+      "brand": "GIGABYTE",
+      "model": "M27U",
+      "source": "PCMonitors",
+      "url": "https://pcmonitors.info/reviews/gigabyte-m27u/",
+      "date": "2023-10-27",
+      "metrics": {
+        "input lag @160Hz (ms)": "3.80",
+        "max white luminance SDR (cd/m2)": "424",
+        "contrast avg / peak": "991:1 / 1015:1",
+        "HDR peak white (cd/m2)": "~591-606 (Local Dimming High, 8 zones)",
+        "sRGB / DCI-P3 / Adobe RGB coverage (%)": "99 / 91 / 87",
+        "avg deltaE sRGB mode": "1.74 (max 3.63)",
+        "gamma avg": "2.3",
+        "luminance uniformity max / avg deviation (%)": "9 / 7",
+        "price as reviewed (USD)": "530"
+      },
+      "verdict": "Vibrant, fast 4K 160Hz with very low input lag, KVM and USB-C 18W; weak 8-zone dimming/HDR and gamma runs slightly dark (2.3)."
+    },
+    {
+      "brand": "GIGABYTE",
+      "model": "GS27U",
+      "source": "Tom's Hardware",
+      "url": "https://www.tomshardware.com/monitors/gaming-monitors/gigabyte-gs27u-27-inch-ultra-hd-160-hz-gaming-monitor-review",
+      "date": "2025-04-15",
+      "metrics": {
+        "screen draw time (ms)": "6",
+        "total input lag (ms)": "24",
+        "max SDR brightness (nits)": "383",
+        "contrast max": "951.5:1",
+        "contrast calibrated / ANSI": "963.7:1 / 911.8:1",
+        "HDR peak (nits)": "473",
+        "grayscale error default (dE)": "5.19 (0.47 calibrated)",
+        "gamma avg": "2.22",
+        "color gamut error (dE)": "1.22",
+        "DCI-P3 / sRGB volume (%)": "92.32 / 100.30",
+        "price at review (USD)": "~300-330"
+      },
+      "verdict": "Premium image quality and gaming performance for ~$300; tilt-only stand, no USB, green-tinted grayscale out of box."
+    },
+    {
+      "brand": "GIGABYTE",
+      "model": "M27UP",
+      "source": "PCMonitors (forum review)",
+      "url": "https://forum.pcmonitors.info/topic/gigabyte-m27up-review-and-some-thoughts-on-mpg-274urf-qd/",
+      "date": "2025-08-01",
+      "metrics": {
+        "MSRP (USD)": "300",
+        "USB-C PD (W)": "15"
+      },
+      "verdict": "'Sets the benchmark for 4K UHD gaming price to performance'; average contrast/colour, unimpressive HDR, competent responses with some overshoot (no numbers published in text)."
+    },
+    {
+      "brand": "GIGABYTE",
+      "model": "M27UP",
+      "source": "Monitors Unboxed / TechSpot (Best 4K gaming monitors 2026)",
+      "url": "https://www.techspot.com/bestof/4k-gaming-monitors-26/",
+      "date": "2026",
+      "metrics": {
+        "MSRP (USD)": "380 (usually ~330)"
+      },
+      "verdict": "TechSpot's budget SDR 4K IPS pick, performing similar to other 4K IPS LCDs tested; ASUS XG27UCG ~ $50 more as alternative."
+    },
+    {
+      "brand": "GIGABYTE",
+      "model": "M27U / M27UA / M28U",
+      "source": "Monitors Unboxed / TechSpot (Best 4K gaming monitors 2025)",
+      "url": "https://www.techspot.com/bestof/4k-gaming-monitors-25/",
+      "date": "2025-05-15",
+      "metrics": {},
+      "verdict": "M27U/M27UA 'closely matched' with LG 27GR93U and ASUS XG27UCS ('no definitive winner'); M28U cheap but dimmer, more power-hungry and lower DCI-P3 than M27U family."
+    },
+    {
+      "brand": "ASUS",
+      "model": "ROG Strix XG27UCS",
+      "source": "Tom's Hardware",
+      "url": "https://www.tomshardware.com/monitors/gaming-monitors/asus-rog-strix-xg27ucs-4k-gaming-monitor-review",
+      "date": "2024-11-26",
+      "metrics": {
+        "screen draw time (ms)": "6",
+        "total input lag (ms)": "23",
+        "uniformity deviation (%)": "8.45",
+        "max SDR brightness (nits)": "428",
+        "contrast": "865.6:1",
+        "grayscale error default (dE)": "0.58 (0.47 calibrated)",
+        "gamma": "2.24",
+        "sRGB color error (dE)": "0.79 (also cited as 1.06 in comparison text)",
+        "DCI-P3 / sRGB coverage": "both within 1% of 100% (per text)"
+      },
+      "verdict": "Accurate colour and great value, but contrast below most rivals (~866:1)."
+    },
+    {
+      "brand": "Dell",
+      "model": "Alienware AW2725QF",
+      "source": "Tom's Hardware",
+      "url": "https://www.tomshardware.com/monitors/gaming-monitors/alienware-aw2725qf-27-inch-4k-dual-mode-gaming-monitor-review",
+      "date": "2024-09-12",
+      "metrics": {
+        "draw time / total input lag in FHD 360Hz mode (ms)": "3 / 17",
+        "total input lag 4K 180Hz (ms)": "~22 (GS27U review: 2ms lower than GS27U's 24ms)",
+        "max SDR brightness (nits)": "almost 500",
+        "contrast max backlight": "1176.2:1",
+        "contrast calibrated / ANSI": "944.3:1 / 839.8:1",
+        "grayscale error default (dE)": "3.48",
+        "gamma": "2.17",
+        "color error default (dE)": "2.56 (1.83 calibrated; 1.51 sRGB mode)",
+        "sRGB volume (%)": "98.62",
+        "DCI-P3 coverage (%)": "just over 90"
+      },
+      "verdict": "Editor's Choice: flexible 4K180/FHD360 dual mode at unmatched value; SDR contrast only average."
+    },
+    {
+      "brand": "LG",
+      "model": "UltraGear 27GR93U",
+      "source": "PC Gamer",
+      "url": "https://www.pcgamer.com/lg-ultragear-27gr93u-review/",
+      "date": "2023-11-10",
+      "metrics": {
+        "score (/100)": "85",
+        "price at review (USD)": "630"
+      },
+      "verdict": "144Hz 4K 'stunner' with beautifully calibrated panel and speedy response, but too expensive; fastest overdrive overshoots (no lab numbers)."
+    },
+    {
+      "brand": "LG",
+      "model": "UltraGear 27GR93U",
+      "source": "Monitors Unboxed / TechSpot (Best 4K gaming monitors 2025)",
+      "url": "https://www.techspot.com/bestof/4k-gaming-monitors-25/",
+      "date": "2025-05-15",
+      "metrics": {
+        "typical price cited (USD)": "~450"
+      },
+      "verdict": "Leading 27\" 4K 144Hz IPS pick with well-tuned performance; XG27UCS close with slightly better sRGB calibration."
+    }
+  ],
+  "notes": "RTINGS has reviews for M27U, M28U, 27GR93U-B and MAG 274UPF, but rtings.com was blocked/gated from this environment, so no RTINGS figures were recorded. No measured third-party data found for M27UA, G27U, G27UP, MSI MAG 274UPF E2 (160Hz), or Samsung G70D 27\". MSI E2 datasheet lists USB-C 15W and no KVM, unlike the original 144Hz MAG 274UPF (65W + KVM). Samsung G70D and LG 27GR93U specs are from retailers; Alienware specs from Tom's review table. MSRP fields are often street/list prices from the cited article rather than verified launch MSRP. Tom's 'total input lag' and PCMonitors input lag use different methods (PCMonitors excludes some chain latency), so do not compare across sources."
+}

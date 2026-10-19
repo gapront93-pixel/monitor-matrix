@@ -1,0 +1,6 @@
+{"retailer":"Trí Việt","retailer_id":"triviet","site":"https://trivietpc.vn","site_confidence":"medium","fetched":"2026-10-18","status":"ok","note":"Chose Trí Việt Computer (trivietpc.vn; showrooms 277-279 Phố Vọng, Hà Nội and 338 Cộng Hòa, HCMC; 20+ yrs). Ambiguous: another Trí Việt PC site (trivietpc.com.vn) also lists Gigabyte monitors (G27Q-EK, GS27QA, GS27FC) but blocks fetching, so its prices were not read. Other namesakes: triviet247.com, vitinhtriviet.com. Gigabyte brand page shows only 3 monitors.","source_pages":["https://trivietpc.vn/mh-gigabyte/"],
+ "items":[
+  {"slug":"G24F-2","name_on_site":"Màn Hình Gaming Gigabyte G24F 2 (23.8 inch/IPS/FHD/165Hz/1ms/300 nits) HDMI+DP","price_vnd":2470000,"list_price_vnd":3769000,"url":"https://trivietpc.vn/man-hinh-gaming-gigabyte-g24f-2-23-8-inch-fhd-ips-165hz-1ms-300nits-hdmidp/","note":""},
+  {"slug":"GS24F14","name_on_site":"Màn Hình Gaming Gigabyte GS24F14 (23.8 inch/IPS/FHD/144Hz/1ms) HDMI+ DP","price_vnd":2000000,"list_price_vnd":2339000,"url":"https://trivietpc.vn/man-hinh-gaming-gigabyte-gs24f14-23-8-inch-ips-fhd-144hz-1ms-hdmi-dp/","note":""},
+  {"slug":"GS25F2A","name_on_site":"Màn Hình Gaming Gigabyte GS25F2A (25 inch/IPS/Full HD/240Hz/1ms GtG/300nits) 2xHDMI + DP","price_vnd":2500000,"list_price_vnd":3699000,"url":"https://trivietpc.vn/man-hinh-gaming-gigabyte-gs25f2a/","note":"Hết hàng"}
+ ]}

@@ -1,0 +1,297 @@
+{
+  "segment_id": "va34-uwqhd-curved",
+  "segment_name_vi": "Màn hình cong 34 inch UWQHD (3440x1440) tấm nền VA 120-200Hz",
+  "criteria": "34 inch, 3440x1440 (21:9), curved VA panel, 120-200Hz native, mainstream gaming/productivity ultrawide.",
+  "gigabyte_models": ["g34wqc2", "g34wqcp", "gs34wqca", "g34wqc-a"],
+  "competitors": [
+    {
+      "brand": "ASUS",
+      "model": "TUF Gaming VG34VQL3A",
+      "spec_url": "https://asus.com/mx/displays-desktops/monitors/tuf-gaming/tuf-gaming-vg34vql3a/techspec",
+      "specs": {
+        "size": "34\" 1500R",
+        "panel": "VA, anti-glare",
+        "resolution": "3440x1440",
+        "refresh_hz": 180,
+        "response_time": "1ms GTG",
+        "brightness_sdr": "400 nits",
+        "brightness_hdr_peak": "400 nits",
+        "hdr_cert": "VESA DisplayHDR 400",
+        "dci_p3": "not listed (125% sRGB)",
+        "contrast": "4000:1",
+        "ports": "2x DP 1.4, 2x HDMI 2.0, 3x USB 3.2 Gen1 Type-A hub, headphone jack",
+        "usb_c_pd_w": "",
+        "ergonomics": "Tilt +20/-5, swivel +/-10, height 0-130mm",
+        "speakers": "2x 2W",
+        "warranty": "",
+        "msrp_usd": ""
+      }
+    },
+    {
+      "brand": "MSI",
+      "model": "MAG 345CQR",
+      "spec_url": "https://storage-asset.msi.com/datasheet/monitor/br/MAG-345CQR.pdf",
+      "specs": {
+        "size": "34\" 1000R",
+        "panel": "VA, anti-glare",
+        "resolution": "3440x1440",
+        "refresh_hz": 180,
+        "response_time": "1ms MPRT",
+        "brightness_sdr": "300 nits",
+        "brightness_hdr_peak": "",
+        "hdr_cert": "HDR Ready (no VESA cert)",
+        "dci_p3": "95% (sRGB 120%, Adobe RGB 90%)",
+        "contrast": "3000:1",
+        "ports": "1x DP 1.4a (180Hz), 2x HDMI 2.0b (100Hz), headphone out",
+        "usb_c_pd_w": "",
+        "ergonomics": "Tilt -5/+20, swivel +/-30, height 0-100mm, VESA 100",
+        "speakers": "",
+        "warranty": "",
+        "msrp_usd": ""
+      }
+    },
+    {
+      "brand": "Samsung",
+      "model": "Odyssey G5 C34G55T (LC34G55T)",
+      "spec_url": "https://www.samsung.com/vn/monitors/gaming/odyssey-g5-34-inch-165hz-curved-ultra-wqhd-lc34g55twwexxv",
+      "specs": {
+        "size": "34\" 1000R",
+        "panel": "VA",
+        "resolution": "3440x1440",
+        "refresh_hz": 165,
+        "response_time": "1ms MPRT",
+        "brightness_sdr": "250 nits",
+        "brightness_hdr_peak": "",
+        "hdr_cert": "HDR10 (no VESA cert)",
+        "dci_p3": "not listed (72% NTSC 1976)",
+        "contrast": "2500:1",
+        "ports": "1x DP 1.4, 1x HDMI 2.0, headphone; no USB",
+        "usb_c_pd_w": "",
+        "ergonomics": "Tilt -2/+18 only, VESA 75x75",
+        "speakers": "None",
+        "warranty": "",
+        "msrp_usd": ""
+      }
+    },
+    {
+      "brand": "LG",
+      "model": "UltraGear 34GP63A-B",
+      "spec_url": "https://www.lg.com/us/monitors/lg-34gp63a-b-gaming-monitor",
+      "specs": {
+        "size": "34\" 1800R",
+        "panel": "VA (per retailer listings; LG page does not state)",
+        "resolution": "3440x1440",
+        "refresh_hz": 160,
+        "response_time": "5ms GtG",
+        "brightness_sdr": "",
+        "brightness_hdr_peak": "",
+        "hdr_cert": "HDR10 (no VESA cert)",
+        "dci_p3": "not listed (99% sRGB)",
+        "contrast": "",
+        "ports": "2x HDMI, 1x DP, headphone",
+        "usb_c_pd_w": "",
+        "ergonomics": "Tilt, height, swivel",
+        "speakers": "Built-in (MaxxAudio)",
+        "warranty": "",
+        "msrp_usd": ""
+      }
+    },
+    {
+      "brand": "Dell",
+      "model": "S3422DWG",
+      "spec_url": "https://directcomputers.co.uk/products/dell-s3422dwg-34-inch-wqhd-3440x1440-21-9-1800r-curved-gaming-monitor-144hz-va-1ms-mprt-amd-freesync-premium-pro-hdr-400-displayport-2x-hdmi-5x-usb-3-year-warranty-black",
+      "specs": {
+        "size": "34\" 1800R",
+        "panel": "VA, anti-glare",
+        "resolution": "3440x1440",
+        "refresh_hz": 144,
+        "response_time": "1ms MPRT",
+        "brightness_sdr": "400 nits",
+        "brightness_hdr_peak": "",
+        "hdr_cert": "VESA DisplayHDR 400",
+        "dci_p3": "90% (99% sRGB)",
+        "contrast": "3000:1",
+        "ports": "1x DP 1.4, 2x HDMI 2.0, USB 3.2 Gen1 hub (1 up / 4 down), headphone/audio out",
+        "usb_c_pd_w": "",
+        "ergonomics": "Tilt -5/+21, height 100mm, no swivel/pivot, VESA 100",
+        "speakers": "None",
+        "warranty": "3 years (per retailer listing title)",
+        "msrp_usd": ""
+      }
+    },
+    {
+      "brand": "Dell",
+      "model": "S3425DW (productivity, 120Hz)",
+      "spec_url": "https://www.ampronix.com/products/dell-s3425dw",
+      "specs": {
+        "size": "34\" curved",
+        "panel": "VA (per retailer titles; spec page does not state)",
+        "resolution": "3440x1440",
+        "refresh_hz": 120,
+        "response_time": "",
+        "brightness_sdr": "",
+        "brightness_hdr_peak": "",
+        "hdr_cert": "",
+        "dci_p3": "",
+        "contrast": "",
+        "ports": "USB-C (video/data/power), others not listed",
+        "usb_c_pd_w": "",
+        "ergonomics": "",
+        "speakers": "",
+        "warranty": "",
+        "msrp_usd": ""
+      }
+    }
+  ],
+  "benchmarks": [
+    {
+      "brand": "GIGABYTE",
+      "model": "G34WQC (144Hz; G34WQC A is the refreshed variant)",
+      "source": "Tom's Hardware",
+      "url": "https://www.tomshardware.com/reviews/gigabyte-g34wqc/2",
+      "date": "2020-11-02",
+      "metrics": {
+        "Max brightness SDR (nits)": ">386",
+        "Max brightness HDR (nits)": ">500",
+        "Native contrast": ">3130:1",
+        "Calibrated contrast (200 nits)": "3478.6:1",
+        "Calibrated black level (nits)": "0.0577"
+      },
+      "verdict": "High-contrast, immersive ultrawide that sets a high bar for budget ultrawide gaming."
+    },
+    {
+      "brand": "GIGABYTE",
+      "model": "G34WQC",
+      "source": "Tom's Hardware",
+      "url": "https://www.tomshardware.com/reviews/gigabyte-g34wqc/3",
+      "date": "2020-11-02",
+      "metrics": {
+        "Color error Standard mode (dE)": "2.18",
+        "Color error calibrated (dE)": "1.65",
+        "DCI-P3 gamut volume (%)": "~85",
+        "Gamma": "~2.17 (1.36% off 2.2)"
+      },
+      "verdict": "Accurate out of the box with a barely visible green tint in default mode."
+    },
+    {
+      "brand": "GIGABYTE",
+      "model": "G34WQC",
+      "source": "Tom's Hardware",
+      "url": "https://www.tomshardware.com/reviews/gigabyte-g34wqc/5",
+      "date": "2020-11-02",
+      "metrics": {
+        "Response time (ms)": "7",
+        "Total control lag (ms)": "27"
+      },
+      "verdict": "Typical 144Hz-class pixel response and input lag."
+    },
+    {
+      "brand": "GIGABYTE",
+      "model": "G34WQC",
+      "source": "Hardware Unboxed (relayed in PCMonitors forum)",
+      "url": "https://forum.pcmonitors.info/topic/confused-about-inter-va-panel-variations-va-to-va-comparison/",
+      "date": "2021-04",
+      "metrics": {
+        "Dark-transition response @144Hz Speed OD (ms)": "~10.67 (secondhand)",
+        "Lowest dark-transition response @100Hz (ms)": "~7.6 (secondhand)"
+      },
+      "verdict": "Secondhand: typical VA dark-transition slowness (black smearing) at 144Hz."
+    },
+    {
+      "brand": "GIGABYTE",
+      "model": "G34WQCP (190Hz)",
+      "source": "3DTested (Christian Eberle, ex-Tom's Hardware reviewer)",
+      "url": "https://www.3dtested.com/monitors/gaming-monitors/gigabyte-g34wqcp-34-inch-wqhd-va-190-hz-curved-gaming-monitor-review/3",
+      "date": "",
+      "metrics": {
+        "Max brightness SDR (nits)": "436",
+        "Native contrast": "5029.9:1",
+        "ANSI contrast": "3778:1"
+      },
+      "verdict": "Editor's Choice: superb 'everything you need, nothing you don't' gaming monitor."
+    },
+    {
+      "brand": "GIGABYTE",
+      "model": "G34WQCP (190Hz)",
+      "source": "3DTested (Christian Eberle)",
+      "url": "https://www.3dtested.com/monitors/gaming-monitors/gigabyte-g34wqcp-34-inch-wqhd-va-190-hz-curved-gaming-monitor-review/4",
+      "date": "",
+      "metrics": {
+        "Grayscale error default (dE)": "1.69",
+        "Color error (dE)": "1.60",
+        "DCI-P3 coverage (%)": ">90",
+        "sRGB coverage (%)": "95.59"
+      },
+      "verdict": "Accurate out of the box; calibration not needed."
+    },
+    {
+      "brand": "GIGABYTE",
+      "model": "G34WQCP (190Hz)",
+      "source": "3DTested (Christian Eberle)",
+      "url": "https://www.3dtested.com/monitors/gaming-monitors/gigabyte-g34wqcp-34-inch-wqhd-va-190-hz-curved-gaming-monitor-review/6",
+      "date": "",
+      "metrics": {
+        "Total input lag (ms)": "20"
+      },
+      "verdict": "Low lag, ~5000:1 contrast; Editor's Choice."
+    },
+    {
+      "brand": "GIGABYTE",
+      "model": "GS34WQC (120Hz, OC 135Hz; GS34WQCA is the A-variant)",
+      "source": "Tom's Hardware",
+      "url": "https://www.tomshardware.com/monitors/gaming-monitors/gigabyte-gs34wqc-34-inch-curved-gaming-monitor-review",
+      "date": "2024-08-22",
+      "metrics": {
+        "DCI-P3 coverage (%)": ">91",
+        "Price at review (USD)": "280"
+      },
+      "verdict": "Color accuracy, contrast and gaming performance are so good that the lack of peripheral features is irrelevant."
+    },
+    {
+      "brand": "GIGABYTE / Samsung",
+      "model": "G34WQC vs Odyssey G55T C34G55T",
+      "source": "RTINGS",
+      "url": "https://www.rtings.com/monitor/tools/compare/gigabyte-g34wqc-vs-samsung-odyssey-g5-c34g55t/17023/22248",
+      "date": "",
+      "metrics": {},
+      "verdict": "RTINGS: similar gaming performance; Gigabyte better for HDR (wider gamut, brighter) and has a height-adjustable stand (qualitative, numbers not readable)."
+    },
+    {
+      "brand": "GIGABYTE / Dell",
+      "model": "G34WQC vs S3422DWG",
+      "source": "RTINGS",
+      "url": "https://www.rtings.com/monitor/tools/compare/gigabyte-g34wqc-vs-dell-s3422dwg/17023/24247",
+      "date": "",
+      "metrics": {},
+      "verdict": "RTINGS: Dell slightly better overall (black uniformity, HDR gamut, slightly faster response, USB hub)."
+    },
+    {
+      "brand": "Samsung / Dell",
+      "model": "Odyssey G55T C34G55T vs S3422DWG",
+      "source": "RTINGS",
+      "url": "https://www.rtings.com/monitor/tools/compare/samsung-odyssey-g55t-c34g55t-vs-dell-s3422dwg/22248/24247",
+      "date": "",
+      "metrics": {},
+      "verdict": "RTINGS: Dell better (ergonomics, much faster response); Samsung has better contrast."
+    },
+    {
+      "brand": "ASUS / Dell",
+      "model": "TUF VG34VQL1B (predecessor of VG34VQL3A) vs S3422DWG",
+      "source": "RTINGS",
+      "url": "https://www.rtings.com/monitor/tools/compare/asus-tuf-gaming-vg34vql1b-vs-dell-s3422dwg/22299/24247",
+      "date": "",
+      "metrics": {},
+      "verdict": "RTINGS: ASUS slightly better overall (contrast, refresh); Dell better black uniformity and 60Hz response."
+    },
+    {
+      "brand": "MSI",
+      "model": "MAG 345CQR",
+      "source": "PCMonitors (forum review by PCM2)",
+      "url": "https://forum.pcmonitors.info/topic/msi-mag-345cqr-review/",
+      "date": "2024-04-06",
+      "metrics": {},
+      "verdict": "Qualitative: contrast, colour and responsiveness similar to AOC CU34G2X but worse gamma calibration; G34WQC A named as alternative."
+    }
+  ],
+  "notes": "No measured reviews found for G34WQC2 (200Hz; PCMonitors has only a spec news piece dated 2025-07-10: 450 nits, 4000:1, 95% DCI-P3, 2x HDMI 2.0 + 2x DP 1.4, 130mm height, 2x2W speakers). RTINGS review pages expose no numbers via fetch; only qualitative compare summaries were usable. No Tom's/TFTCentral/PCMonitors numeric reviews found for VG34VQL3A, MAG 345CQR, C34G55T, 34GP63A-B or S3422DWG. GS34WQC Tom's review gives few numbers (brightness/contrast not quantified in text). 3DTested is not on the core reviewer list but is authored by Tom's Hardware's former monitor reviewer using the same methodology. LG 34GS60QC official page not found; 34GP63A-B used. Dell S3425DW is a 120Hz productivity model with USB-C; S3422DWG (144Hz, DisplayHDR 400) is the closer gaming rival. MSRPs not found on official pages."
+}

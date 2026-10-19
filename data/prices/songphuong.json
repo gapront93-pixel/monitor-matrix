@@ -1,0 +1,178 @@
+{
+ "retailer": "Song Phương",
+ "retailer_id": "songphuong",
+ "site": "https://songphuong.vn",
+ "fetched": "2026-10-18",
+ "status": "ok",
+ "note": "Listings truncated by fetcher; category says 42 products (lcd-gigabyte) but only ~20 unique read via several tag pages. No stock words shown on listings. Some old models (FO48U, FV43U, FI32U, M32U) still listed with prices - may be stale.",
+ "source_pages": [
+  "https://songphuong.vn/product-tag/man-hinh-gigabyte/",
+  "https://songphuong.vn/lcd-gigabyte/page/2",
+  "https://songphuong.vn/product-tag/man-hinh-gigabyte-2k/",
+  "https://songphuong.vn/product-tag/lcd-gigabyte-27-inch/",
+  "https://songphuong.vn/product-tag/man-hinh-gigabyte-144hz/",
+  "https://songphuong.vn/product-tag/lcd-gigabyte-nha-trang/"
+ ],
+ "items": [
+  {
+   "slug": "AORUS-ELITE-FO27Q28G",
+   "name_on_site": "Màn hình LCD Gigabyte AORUS ELITE FO27Q28G 280Hz",
+   "price_vnd": 16490000,
+   "list_price_vnd": null,
+   "url": "https://songphuong.vn/product/man-hinh-lcd-gigabyte-aorus-elite-fo27q28g/",
+   "note": ""
+  },
+  {
+   "slug": "AORUS-ELITE-FO27Q24G",
+   "name_on_site": "Màn hình LCD Gigabyte AORUS ELITE FO27Q24G 240Hz",
+   "price_vnd": null,
+   "list_price_vnd": null,
+   "url": "https://songphuong.vn/product/man-hinh-lcd-gigabyte-aorus-elite-fo27q24g/",
+   "note": "Liên hệ"
+  },
+  {
+   "slug": "MO32U24",
+   "name_on_site": "Màn hình LCD Gigabyte MO32U24 OLED 240Hz",
+   "price_vnd": null,
+   "list_price_vnd": null,
+   "url": "https://songphuong.vn/product/man-hinh-lcd-gigabyte-mo32u24-oled-240hz/",
+   "note": "Liên hệ"
+  },
+  {
+   "slug": "G34WQC-A",
+   "name_on_site": "Màn hình Gigabyte G34WQC A 2K",
+   "price_vnd": 8390000,
+   "list_price_vnd": 10560000,
+   "url": "https://songphuong.vn/product/man-hinh-gigabyte-g34wqc-a/",
+   "note": ""
+  },
+  {
+   "slug": "G27F-2",
+   "name_on_site": "Màn Hình Gigabyte G27F 2 165Hz",
+   "price_vnd": 3490000,
+   "list_price_vnd": 4789000,
+   "url": "https://songphuong.vn/product/man-hinh-gigabyte-g27f-2/",
+   "note": ""
+  },
+  {
+   "slug": "M32QC",
+   "name_on_site": "Màn hình Gigabyte M32QC 2K",
+   "price_vnd": 7690000,
+   "list_price_vnd": 8745000,
+   "url": "https://songphuong.vn/product/man-hinh-gigabyte-m32qc/",
+   "note": ""
+  },
+  {
+   "slug": "G27FC-A",
+   "name_on_site": "Màn hình Cong Gigabyte G27FC A/ AP 170Hz",
+   "price_vnd": 4650000,
+   "list_price_vnd": 5005000,
+   "url": "https://songphuong.vn/product/man-hinh-gigabyte-g27fc-a-ap/",
+   "note": ""
+  },
+  {
+   "slug": "G32QC-A",
+   "name_on_site": "Màn hình Gigabyte G32QC A 2K",
+   "price_vnd": 6990000,
+   "list_price_vnd": 8635000,
+   "url": "https://songphuong.vn/product/man-hinh-gigabyte-g32qc-a/",
+   "note": ""
+  },
+  {
+   "slug": "G27QC-A",
+   "name_on_site": "Màn hình cong Gigabyte G27QC A 2K",
+   "price_vnd": 8350000,
+   "list_price_vnd": 8550000,
+   "url": "https://songphuong.vn/product/man-hinh-gigabyte-g27qc-a/",
+   "note": ""
+  },
+  {
+   "slug": "G27Q",
+   "name_on_site": "Màn hình Gigabyte G27Q 2K",
+   "price_vnd": 4990000,
+   "list_price_vnd": 6820000,
+   "url": "https://songphuong.vn/product/man-hinh-gigabyte-g27q/",
+   "note": ""
+  },
+  {
+   "slug": "GS27F",
+   "name_on_site": "Màn hình LCD Gigabyte GS27F IPS 170 Hz",
+   "price_vnd": 3790000,
+   "list_price_vnd": 4890000,
+   "url": "https://songphuong.vn/product/man-hinh-lcd-gigabyte-gs27f-ips-170-hz/",
+   "note": ""
+  },
+  {
+   "slug": "GS27FA",
+   "name_on_site": "Màn hình LCD Gigabyte GS27FA IPS 180 Hz",
+   "price_vnd": 3790000,
+   "list_price_vnd": 4690000,
+   "url": "https://songphuong.vn/product/man-hinh-lcd-gigabyte-gs27fa-ips-180-hz/",
+   "note": ""
+  },
+  {
+   "slug": null,
+   "name_on_site": "Màn hình Gigabyte G27F 144Hz",
+   "price_vnd": 6600000,
+   "list_price_vnd": 6790000,
+   "url": "https://songphuong.vn/product/man-hinh-gigabyte-g27f/",
+   "note": "older G27F"
+  },
+  {
+   "slug": "M34WQ",
+   "name_on_site": "Màn hình Gigabyte M34WQ-EK 144Hz",
+   "price_vnd": null,
+   "list_price_vnd": null,
+   "url": "https://songphuong.vn/product/man-hinh-gigabyte-m34wq-ek-144hz/",
+   "note": "Liên hệ"
+  },
+  {
+   "slug": "M28U",
+   "name_on_site": "Màn hình Gigabyte M28U 4K",
+   "price_vnd": 17950000,
+   "list_price_vnd": 18550000,
+   "url": "https://songphuong.vn/product/man-hinh-gigabyte-m28u/",
+   "note": ""
+  },
+  {
+   "slug": "M32Q",
+   "name_on_site": "Màn hình Gigabyte M32Q 2K",
+   "price_vnd": 12250000,
+   "list_price_vnd": 12450000,
+   "url": "https://songphuong.vn/product/man-hinh-gigabyte-m32q/",
+   "note": ""
+  },
+  {
+   "slug": "M32U",
+   "name_on_site": "Màn hình Gigabyte M32U 4K",
+   "price_vnd": 25950000,
+   "list_price_vnd": null,
+   "url": "https://songphuong.vn/product/man-hinh-gigabyte-m32u/",
+   "note": ""
+  },
+  {
+   "slug": "AORUS-FI32U",
+   "name_on_site": "Màn hình Gigabyte Aorus FI32U 4K",
+   "price_vnd": 28900000,
+   "list_price_vnd": null,
+   "url": "https://songphuong.vn/product/man-hinh-gigabyte-aorus-fi32u-4k/",
+   "note": ""
+  },
+  {
+   "slug": "AORUS-FO48U",
+   "name_on_site": "Màn hình Gigabyte Aorus FO48U 4K",
+   "price_vnd": 47500000,
+   "list_price_vnd": null,
+   "url": "https://songphuong.vn/product/man-hinh-gigabyte-aorus-fo48u-4k/",
+   "note": ""
+  },
+  {
+   "slug": "AORUS-FV43U",
+   "name_on_site": "Màn hình Gigabyte Aorus FV43U 4K",
+   "price_vnd": 34000000,
+   "list_price_vnd": null,
+   "url": "https://songphuong.vn/product/man-hinh-gigabyte-aorus-fv43u/",
+   "note": ""
+  }
+ ]
+}
