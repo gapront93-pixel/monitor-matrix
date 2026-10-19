@@ -5,7 +5,7 @@ import { classifyStock, parseBangGiaCsv, parseDealerJson, vnDate } from "./price
 
 describe("parseCsv", () => {
   it("handles BOM, quotes, escaped quotes, commas and CRLF", () => {
-    const rows = parseCsv('﻿model,size\r\n"AORUS FO32U2P","31.5"" QD-OLED, 4K"\r\nG27Q20,27\r\n\r\n');
+    const rows = parseCsv('\uFEFFmodel,size\r\n"AORUS FO32U2P","31.5"" QD-OLED, 4K"\r\nG27Q20,27\r\n\r\n');
     expect(rows).toEqual([
       ["model", "size"],
       ["AORUS FO32U2P", '31.5" QD-OLED, 4K'],

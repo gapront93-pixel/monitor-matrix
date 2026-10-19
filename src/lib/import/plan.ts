@@ -224,7 +224,7 @@ export function planImport(
 export async function applyPlan(
   db: Db,
   plan: ImportPlan,
-  meta: { source: "seed" | "admin"; fileName: string | null },
+  meta: { source: "seed" | "admin"; fileName: string | null; uploadedById?: number | null },
 ): Promise<number> {
   return db.$transaction(
     async (tx) => {
@@ -242,6 +242,7 @@ export async function applyPlan(
           capturedAt: plan.capturedAt,
           source: meta.source,
           fileName: meta.fileName,
+          uploadedById: meta.uploadedById ?? null,
           summary: { ...plan.counts, dealers: plan.dealers.map((d) => d.id), format: plan.format },
         },
       });

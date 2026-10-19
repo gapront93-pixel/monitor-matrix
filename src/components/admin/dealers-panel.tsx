@@ -20,7 +20,7 @@ const STATUS: Record<string, string> = {
 const inputCls = "h-8 w-full rounded-ctl border border-line bg-app px-2 text-[12.5px] text-fg";
 
 /** Edits save as soon as a field loses focus or a toggle changes; the order here is the column order of the price grid */
-export function DealersPanel({ dealers }: { dealers: AdminDealer[] }) {
+export function DealersPanel({ dealers, canDelete }: { dealers: AdminDealer[]; canDelete: boolean }) {
   const { pending, run } = useAction();
   const [adding, setAdding] = useState(false);
   const [draft, setDraft] = useState({ name: "", website: "" });
@@ -141,6 +141,7 @@ export function DealersPanel({ dealers }: { dealers: AdminDealer[] }) {
                     </Button>
                   </td>
                   <td className={cn(td, "text-right")}>
+                    {canDelete && (
                     <button
                       type="button"
                       disabled={pending}
@@ -150,6 +151,7 @@ export function DealersPanel({ dealers }: { dealers: AdminDealer[] }) {
                     >
                       Xoá
                     </button>
+                    )}
                   </td>
                 </tr>
               );

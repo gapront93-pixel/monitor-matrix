@@ -160,9 +160,9 @@ function label(s: string | undefined): string {
   }
 }
 
-export async function applyUpload(form: FormData): Promise<{ importId: number; preview: UploadPreview }> {
+export async function applyUpload(form: FormData, userId: number): Promise<{ importId: number; preview: UploadPreview }> {
   const { plan, preview } = await planUpload(form);
   if (!plan.snapshots.length) throw new UploadError("File không có dòng giá nào khớp mẫu, không có gì để áp dụng.");
-  const importId = await applyPlan(prisma, plan, { source: "admin", fileName: preview.fileName });
+  const importId = await applyPlan(prisma, plan, { source: "admin", fileName: preview.fileName, uploadedById: userId });
   return { importId, preview };
 }

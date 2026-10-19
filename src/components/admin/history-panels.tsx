@@ -38,7 +38,7 @@ export function ImportsList({ imports }: { imports: AdminImport[] }) {
           <table className="w-full min-w-[760px] border-separate border-spacing-0 text-[12.5px]">
             <thead>
               <tr className="text-[11.5px] text-muted">
-                {["Ngày giá", "Tải lên lúc", "Nguồn", "Đại lý", "Giá", "Thay đổi", ""].map((h) => (
+                {["Ngày giá", "Tải lên lúc", "Người tải lên", "Đại lý", "Giá", "Thay đổi", ""].map((h) => (
                   <th key={h} scope="col" className="border-b border-line bg-head px-3 py-2 text-left font-semibold">
                     {h}
                   </th>
@@ -54,7 +54,7 @@ export function ImportsList({ imports }: { imports: AdminImport[] }) {
                     <td className={cn(td, "num font-semibold text-fg")}>{im.day}</td>
                     <td className={cn(td, "num text-muted")}>{im.createdAt}</td>
                     <td className={td}>
-                      <div className="text-fg">{im.source === "seed" ? "Dữ liệu khởi tạo" : "Quản trị"}</div>
+                      <div className="text-fg">{im.source === "seed" ? "Dữ liệu khởi tạo" : (im.uploadedBy ?? "Quản trị")}</div>
                       {im.fileName && <div className="num max-w-[260px] truncate text-[11px] text-faint">{im.fileName}</div>}
                     </td>
                     <td className={cn(td, "num text-fg-2")}>{im.dealers}</td>

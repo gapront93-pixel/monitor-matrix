@@ -2,6 +2,7 @@ import ExcelJS from "exceljs";
 import { type NextRequest } from "next/server";
 import { z } from "zod";
 
+import { userWith } from "@/lib/auth";
 import { getCatalog } from "@/lib/catalog";
 import { fmtDate, isoDay } from "@/lib/format";
 import { isBuyable } from "@/lib/import/prices";
@@ -34,6 +35,7 @@ const C = {
 const xlText = (s: string) => s.replace(/"/g, '""');
 
 export async function GET(req: NextRequest) {
+  if (!(await userWith("view"))) return Response.json({ error: "Chưa đăng nhập" }, { status: 401 });
   const parsed = Query.safeParse(Object.fromEntries(req.nextUrl.searchParams));
   if (!parsed.success) return new Response("Tham số không hợp lệ", { status: 400 });
   const { ngay, m } = parsed.data;

@@ -14,6 +14,12 @@ enum PriceType {
   dealer // giá sỉ / đại lý: không tính vào giá thấp nhất
 }
 
+enum UserRole {
+  admin // mọi quyền, quản lý người dùng
+  mod // cập nhật giá, đại lý, phân khúc
+  viewer // chỉ xem
+}
+
 enum SegmentVerdict {
   lead // GIGABYTE dẫn đầu
   even // Ngang
@@ -29,13 +35,13 @@ enum StockStatus {
 }
 
 model Segment {
-  id           String      @id // "oled27-qhd-240-280"
+  id           String          @id // "oled27-qhd-240-280"
   nameVi       String
   shortName    String? // tên ngắn trên thẻ: 'OLED 27" QHD 240–280Hz'
   verdict      SegmentVerdict? // nhãn kết luận, sửa được trong admin
-  criteria     String      @db.Text
-  conclusionVi String?     @db.Text // kết luận tiếng Việt (TOM-TAT-SO-SANH.md)
-  notes        String?     @db.Text // ghi chú gốc từ file phân khúc
+  criteria     String          @db.Text
+  conclusionVi String?         @db.Text // kết luận tiếng Việt (TOM-TAT-SO-SANH.md)
+  notes        String?         @db.Text // ghi chú gốc từ file phân khúc
   sortOrder    Int
   products     Product[]
   benchmarks   Benchmark[]
@@ -130,12 +136,15 @@ model Dealer {
 
 // Mỗi lần nhập giá (seed hoặc admin bấm Áp dụng) là một bản ghi
 model PriceImport {
-  id         Int      @id @default(autoincrement())
-  capturedAt DateTime // ngày của bảng giá
-  source     String // "seed" | "admin"
-  fileName   String?
-  summary    Json? // số dòng mới / đổi giá / bỏ / chưa khớp
-  createdAt  DateTime @default(now())
+  id           Int      @id @default(autoincrement())
+  capturedAt   DateTime // ngày của bảng giá
+  source       String // "seed" | "admin"
+  fileName     String?
+  summary      Json? // số dòng mới / đổi giá / bỏ / chưa khớp
+  createdAt    DateTime @default(now())
+  uploadedById Int? // người bấm Áp dụng (null: seed)
+
+  uploadedBy User? @relation(fields: [uploadedById], references: [id], onDelete: SetNull)
 
   dealers   PriceImportDealer[]
   snapshots PriceSnapshot[]
@@ -193,4 +202,19 @@ model UnmatchedPrice {
   dealer Dealer      @relation(fields: [dealerId], references: [id], onDelete: Cascade)
 
   @@index([importId])
+}
+
+model User {
+  id             Int       @id @default(autoincrement())
+  email          String    @unique // lưu chữ thường
+  name           String
+  role           UserRole  @default(viewer)
+  passwordHash   String // scrypt, không đọc ngược được
+  active         Boolean   @default(true)
+  sessionVersion Int       @default(1) // tăng lên = mọi phiên đăng nhập cũ của người này hết hiệu lực
+  lastLoginAt    DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  imports PriceImport[]
 }

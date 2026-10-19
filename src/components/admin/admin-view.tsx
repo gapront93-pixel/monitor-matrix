@@ -8,18 +8,23 @@ import { cn } from "@/lib/utils";
 import { DealersPanel } from "./dealers-panel";
 import { ImportsList, UnmatchedPanel } from "./history-panels";
 import { SegmentsPanel } from "./segments-panel";
-import type { AdminDealer, AdminImport, AdminSegment, AdminUnmatched } from "./types";
+import type { AdminDealer, AdminImport, AdminSegment, AdminUnmatched, AdminUser } from "./types";
+import { UsersPanel } from "./users-panel";
 import { UploadPanel } from "./upload-panel";
 
-type Tab = "gia" | "dai-ly" | "phan-khuc";
+type Tab = "gia" | "dai-ly" | "phan-khuc" | "nguoi-dung";
 const TABS: { id: Tab; label: string }[] = [
   { id: "gia", label: "Cập nhật giá" },
   { id: "dai-ly", label: "Đại lý" },
   { id: "phan-khuc", label: "Phân khúc" },
+  { id: "nguoi-dung", label: "Người dùng" },
 ];
 
 export function AdminView({
   initialTab,
+  perms,
+  meId,
+  users,
   dealers,
   segments,
   imports,
@@ -27,6 +32,9 @@ export function AdminView({
   products,
 }: {
   initialTab: Tab;
+  perms: { deleteDealer: boolean; users: boolean };
+  meId: number;
+  users: AdminUser[];
   dealers: AdminDealer[];
   segments: AdminSegment[];
   imports: AdminImport[];
@@ -42,7 +50,7 @@ export function AdminView({
   return (
     <>
       <div role="tablist" aria-label="Quản trị" className="mb-4 flex border-b border-line">
-        {TABS.map((t) => (
+        {TABS.filter((t) => t.id !== "nguoi-dung" || perms.users).map((t) => (
           <button
             key={t.id}
             role="tab"
@@ -64,8 +72,9 @@ export function AdminView({
           <UnmatchedPanel rows={unmatched} products={products} />
         </div>
       )}
-      {tab === "dai-ly" && <DealersPanel dealers={dealers} />}
+      {tab === "dai-ly" && <DealersPanel dealers={dealers} canDelete={perms.deleteDealer} />}
       {tab === "phan-khuc" && <SegmentsPanel segments={segments} />}
+      {tab === "nguoi-dung" && perms.users && <UsersPanel users={users} meId={meId} />}
     </>
   );
 }

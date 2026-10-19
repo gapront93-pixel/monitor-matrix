@@ -7,6 +7,7 @@ import { useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
 
 import { QuickSearch } from "./quick-search";
+import { UserMenu, type HeaderUser } from "./user-menu";
 
 const TABS = [
   { href: "/", label: "Tổng quan" },
@@ -30,8 +31,9 @@ export function Logo() {
   );
 }
 
-export function Header() {
+export function Header({ user, showAdmin }: { user: HeaderUser; showAdmin: boolean }) {
   const pathname = usePathname();
+  const tabs = showAdmin ? TABS : TABS.filter((t) => t.href !== "/admin");
   const nav = useRef<HTMLElement>(null);
   // On phones the tab row scrolls sideways: bring the current tab into view
   useEffect(() => {
@@ -43,7 +45,7 @@ export function Header() {
         <div className="flex h-[46px] min-w-0 flex-1 items-center gap-5 md:h-full md:flex-initial">
           <Logo />
           <nav ref={nav} aria-label="Màn hình" className="no-scrollbar -mx-1 flex h-full min-w-0 overflow-x-auto">
-            {TABS.map((t) => {
+            {tabs.map((t) => {
               const active = isActive(pathname, t.href);
               return (
                 <Link
@@ -62,8 +64,11 @@ export function Header() {
             })}
           </nav>
         </div>
-        <div className="w-full pb-2.5 md:ml-auto md:w-[270px] md:min-w-[160px] md:shrink md:pb-0">
-          <QuickSearch />
+        <div className="flex w-full items-center gap-2 pb-2.5 md:ml-auto md:w-auto md:pb-0">
+          <div className="min-w-0 flex-1 md:w-[270px] md:min-w-[160px] md:flex-initial md:shrink">
+            <QuickSearch />
+          </div>
+          <UserMenu user={user} />
         </div>
       </div>
     </header>

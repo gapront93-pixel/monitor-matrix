@@ -66,7 +66,7 @@ type DealerJson = {
 export function parseDealerJson(text: string): ParsedPriceFile {
   let data: unknown;
   try {
-    data = JSON.parse(text.replace(/^﻿/, ""));
+    data = JSON.parse(text.replace(/^\uFEFF/, ""));
   } catch {
     throw new Error("File JSON không hợp lệ (không đọc được).");
   }

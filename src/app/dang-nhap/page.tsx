@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 import { Logo } from "@/components/layout/header";
 
-import { ViewerLoginForm } from "./form";
+import { LoginForm } from "./form";
 
 export const metadata: Metadata = { title: "Đăng nhập" };
 
@@ -14,7 +14,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
         <Logo />
       </header>
       <main className="flex flex-1 items-start justify-center px-3.5 pt-[70px]">
-        <ViewerLoginForm next={next ?? "/"} />
+        <LoginForm next={next ?? "/"} />
       </main>
     </div>
   );

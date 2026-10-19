@@ -3,7 +3,7 @@
 Công cụ nội bộ cho team Marketing GIGABYTE Việt Nam: tra cứu thông số 99 màn hình GIGABYTE, so sánh với 44 mẫu đối thủ theo 8 phân khúc, xem số đo review (kèm link nguồn) và theo dõi giá tại các đại lý Việt Nam theo thời gian.
 
 - Địa chỉ: **https://monitor.vnpromotion.com**
-- Cả trang cần đăng nhập. Mật khẩu xem trang là `VIEW_PASSWORD`; trang **Quản trị** dùng `ADMIN_EMAIL` + `ADMIN_PASSWORD` (đều nằm trong file `.env`, xem mục 6).
+- Mỗi người đăng nhập bằng **tài khoản riêng** (email + mật khẩu) do Admin tạo. Có 3 vai trò: **Admin**, **Mod**, **Viewer** (xem mục 3).
 
 | Trang | Dùng để |
 |---|---|
@@ -21,7 +21,7 @@ Công cụ nội bộ cho team Marketing GIGABYTE Việt Nam: tra cứu thông s
 
 Mọi việc làm trên web, không cần vào VPS.
 
-1. Mở **https://monitor.vnpromotion.com/admin**, đăng nhập bằng email + mật khẩu Quản trị.
+1. Đăng nhập bằng tài khoản **Mod** hoặc **Admin**, mở **https://monitor.vnpromotion.com/admin**.
 2. Tab **Cập nhật giá** → kéo thả file vào ô, hoặc bấm **Chọn file**.
 3. Xem trước: app so file với giá hiện tại và liệt kê **Tăng giá** (đỏ), **Giảm giá** (xanh), **Mới**, **Đổi tình trạng**, **Bỏ niêm yết**, **Lỗi**. Lúc này chưa có gì được lưu.
 4. Bấm **Áp dụng (n)**. Giá mới hiện ngay ở mọi trang; ngày giá mới xuất hiện trong ô "Ngày giá" ở Bảng giá, và biểu đồ lịch sử giá có thêm một điểm.
@@ -71,20 +71,53 @@ Tin đăng của đại lý không khớp mẫu nào (mẫu cũ như FI27Q, ho�
 
 ## 2. Thêm hoặc sửa đại lý
 
-Trang **Quản trị → tab Đại lý**. Mọi thay đổi được lưu ngay.
+Trang **Quản trị → tab Đại lý** (Mod hoặc Admin). Mọi thay đổi được lưu ngay.
 
 - **Thêm đại lý** → nhập tên + website → Lưu. App báo lại **mã** đại lý (ví dụ `cuahangabc`); dùng tên hoặc mã này trong cột `dealer` của file giá.
 - **Thứ tự cột** trong Bảng giá = thứ tự trong danh sách; đổi bằng nút ▲ ▼.
 - **Trọng điểm**: tên đại lý hiện màu xanh dương ở Bảng giá.
 - **Loại giá Lẻ / Sỉ**: giá sỉ hiện in nghiêng và không tính vào giá thấp nhất.
 - **Hiện cột**: tắt để ẩn đại lý khỏi Bảng giá mà vẫn giữ lịch sử.
-- **Xoá**: chỉ xoá được đại lý chưa có giá nào trong lịch sử. Đại lý đã có giá thì tắt "Hiện cột" thay vì xoá.
+- **Xoá** (chỉ Admin): chỉ xoá được đại lý chưa có giá nào trong lịch sử. Đại lý đã có giá thì tắt "Hiện cột" thay vì xoá.
 
 Nhãn **Dẫn đầu / Ngang / Yếu hơn** và đoạn kết luận của 8 phân khúc sửa ở tab **Phân khúc**.
 
 ---
 
-## 3. Khởi động lại app
+## 3. Người dùng và phân quyền
+
+| Quyền | Viewer | Mod | Admin |
+|---|:-:|:-:|:-:|
+| Xem mọi trang, xuất Excel | ✓ | ✓ | ✓ |
+| Tải file giá, Áp dụng, huỷ lần tải lên | | ✓ | ✓ |
+| Gắn / bỏ qua dòng chưa khớp, sửa phân khúc | | ✓ | ✓ |
+| Sửa đại lý (thêm, tên, website, thứ tự, trọng điểm, lẻ/sỉ, ẩn/hiện) | | ✓ | ✓ |
+| Xoá đại lý | | | ✓ |
+| Quản lý người dùng | | | ✓ |
+
+**Thêm người dùng** (Admin): **Quản trị → tab Người dùng → Thêm người dùng**, nhập họ tên, email, vai trò và mật khẩu (ít nhất 8 ký tự, có chữ và số), rồi gửi email + mật khẩu cho họ qua kênh riêng. Họ tự đổi mật khẩu ở **menu tài khoản (góc phải trên) → Tài khoản · đổi mật khẩu**.
+
+Trong tab Người dùng, Admin có thể:
+- **Đổi vai trò** (Admin / Mod / Viewer): người đó phải đăng nhập lại.
+- **Tắt "Hoạt động"** để khoá tài khoản (ví dụ khi nhân viên nghỉ): người đó bị đăng xuất ngay.
+- **Đặt lại mật khẩu** khi họ quên.
+- **Xoá**: các lần tải giá của họ vẫn được giữ.
+
+Không ai tự khoá, tự hạ quyền hay tự xoá chính mình; luôn phải còn ít nhất một Admin.
+
+**Quên mật khẩu Admin** (không còn ai đăng nhập được Admin): trên VPS chạy
+
+```bash
+sudo -u deploy -H bash -c 'cd /var/www/monitor-matrix && npm run user -- reset email@cua-admin.com'
+```
+
+Lệnh in ra một mật khẩu mới (và mở khoá tài khoản nếu đang bị khoá). Các lệnh khác: `npm run user -- list` (xem danh sách), `npm run user -- create <email> <admin|mod|viewer> "<Họ tên>"`.
+
+Đăng nhập sai quá 8 lần trong 15 phút (theo IP hoặc theo email) sẽ bị chặn 15 phút. Phiên đăng nhập kéo dài: Viewer 30 ngày, Mod 7 ngày, Admin 12 giờ.
+
+---
+
+## 4. Khởi động lại app
 
 Đăng nhập VPS bằng SSH rồi chạy (app chạy bằng user `deploy`, tên PM2 là `monitor-matrix`):
 
@@ -94,11 +127,11 @@ sudo -u deploy pm2 status                      # xem trạng thái các app
 sudo -u deploy pm2 logs monitor-matrix --lines 100   # xem log khi có lỗi
 ```
 
-- Sửa `.env` (đổi mật khẩu…) → chỉ cần `pm2 restart monitor-matrix`, không cần build lại.
+- Sửa `.env` → chỉ cần `pm2 restart monitor-matrix`, không cần build lại.
 - VPS khởi động lại → PM2 tự bật app (đã `pm2 save`).
 - Lệnh trên chỉ khởi động lại app này; vnpromotion, sample-manager, promotion-hub không bị ảnh hưởng.
 
-## 4. Cập nhật code (sau khi sửa code)
+## 5. Cập nhật code (sau khi sửa code)
 
 ```bash
 sudo -u deploy -H /var/www/monitor-matrix/scripts/deploy.sh
@@ -114,7 +147,7 @@ Script làm lần lượt:
 
 Build mất khoảng 1 phút và dùng khoảng 750MB RAM. VPS chỉ có 2GB, nên tránh build lúc đang build app khác.
 
-## 5. Nạp lại dữ liệu gốc (`data/`)
+## 6. Nạp lại dữ liệu gốc (`data/`)
 
 Khi có bản mới của `gigabyte-specs.json`, `segments/*.json` hay `data/prices/`, chép đè vào `/var/www/monitor-matrix/data`, rồi chạy:
 
@@ -129,20 +162,17 @@ Seed chạy lại bao nhiêu lần cũng được, không tạo bản ghi trùng
   - Các lần tải giá từ Quản trị.
   - Các mẫu bạn đã "Gắn".
 
-## 6. Cấu hình và bảo mật
+## 7. Cấu hình và bảo mật
 
 File `/var/www/monitor-matrix/.env` (chỉ user deploy đọc được, không đưa lên git):
 
 | Biến | Ý nghĩa |
 |---|---|
 | `DATABASE_URL` | PostgreSQL `monitor_matrix_db`, user riêng `monitor_user` (chỉ có quyền trên database này) |
-| `VIEW_PASSWORD` | Mật khẩu xem trang |
-| `ADMIN_EMAIL`, `ADMIN_PASSWORD` | Đăng nhập Quản trị |
 | `SESSION_SECRET` | Khoá ký cookie đăng nhập. Đổi khoá = mọi người phải đăng nhập lại |
+| `ADMIN_EMAIL` (+ `ADMIN_NAME`, `ADMIN_PASSWORD`) | Chỉ dùng một lần để tạo Admin đầu tiên (`npm run user -- bootstrap`) khi database chưa có tài khoản nào |
 
-Xem mật khẩu: `sudo cat /var/www/monitor-matrix/.env`. Đổi mật khẩu: sửa file rồi `sudo -u deploy pm2 restart monitor-matrix`.
-
-Đăng nhập sai quá 8 lần trong 15 phút (theo IP) sẽ bị chặn 15 phút. Trang có header `noindex` để Google không đưa lên kết quả tìm kiếm.
+Mật khẩu người dùng **không** nằm trong `.env`: chúng được mã hoá một chiều (scrypt) trong database, không ai đọc lại được, kể cả Admin. Trang có header `noindex` để Google không đưa lên kết quả tìm kiếm.
 
 **Sao lưu database** (nên làm trước khi nạp dữ liệu lớn):
 
@@ -150,7 +180,7 @@ Xem mật khẩu: `sudo cat /var/www/monitor-matrix/.env`. Đổi mật khẩu: 
 sudo -u postgres pg_dump -Fc monitor_matrix_db > ~/monitor_matrix_$(date +%F).dump
 ```
 
-## 7. Hạ tầng trên VPS
+## 8. Hạ tầng trên VPS
 
 | Thành phần | Giá trị |
 |---|---|
@@ -160,11 +190,12 @@ sudo -u postgres pg_dump -Fc monitor_matrix_db > ~/monitor_matrix_$(date +%F).du
 | SSL | Let's Encrypt, Certbot tự gia hạn (`certbot renew`) |
 | DNS | Cloudflare, bản ghi A `monitor` → 157.66.24.196, **Proxied** (tường lửa VPS chỉ nhận cổng 80/443 từ Cloudflare) |
 
-## 8. Cho lập trình viên
+## 9. Cho lập trình viên
 
 - **Stack:** Next.js 16 (App Router) + TypeScript, Tailwind CSS 4 (token màu trong `src/app/globals.css`, bảng màu mặc định bị tắt), component kiểu shadcn trên Base UI, TanStack Table + Virtual (bảng giá), Recharts, Prisma 7 + PostgreSQL, Papa Parse, exceljs (xuất .xlsx có tô màu), Vitest.
 - **Cấu trúc chính:**
-  - `prisma/schema.prisma`: Product, Segment, Benchmark, Dealer, PriceImport, PriceImportDealer, PriceSnapshot, UnmatchedPrice.
+  - `prisma/schema.prisma`: Product, Segment, Benchmark, Dealer, PriceImport, PriceImportDealer, PriceSnapshot, UnmatchedPrice, User.
+  - `src/lib/permissions.ts`: bảng quyền theo vai trò; `src/lib/auth.ts`: phiên đăng nhập (cookie ký HMAC, kiểm tra lại tài khoản trong database ở mỗi request).
   - `scripts/seed.ts`: nạp `data/`.
   - `src/lib/import/`: đọc file giá, so sánh, áp dụng (dùng chung cho seed và Quản trị).
   - `src/lib/catalog.ts`: dữ liệu và giá tại một ngày bất kỳ.
@@ -174,7 +205,7 @@ sudo -u postgres pg_dump -Fc monitor_matrix_db > ~/monitor_matrix_$(date +%F).du
 - **Lệnh thường dùng:**
 
   ```bash
-  npm test             # 32 test: giá thấp nhất, diff khi tải file, đọc CSV/JSON, so sánh
+  npm test             # 38 test: giá thấp nhất, diff khi tải file, đọc CSV/JSON, so sánh, phân quyền, mật khẩu
   npm run typecheck
   npm run lint
   npm run db:deploy    # chạy migration
@@ -184,7 +215,7 @@ sudo -u postgres pg_dump -Fc monitor_matrix_db > ~/monitor_matrix_$(date +%F).du
 - **Chạy thử trên máy khác:** cần PostgreSQL. Chép `.env.example` thành `.env` rồi điền giá trị, sau đó:
 
   ```bash
-  npm i && npx prisma migrate deploy && npm run seed && npm run dev
+  npm i && npx prisma migrate deploy && npm run seed && npm run user -- bootstrap && npm run dev
   ```
 
   Mở http://127.0.0.1:3003. Muốn tạo migration mới thì dùng `npx prisma migrate dev`; lệnh này cần quyền tạo database tạm.

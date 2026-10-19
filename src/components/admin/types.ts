@@ -17,6 +17,7 @@ export type AdminImport = {
   createdAt: string;
   source: string;
   fileName: string | null;
+  uploadedBy: string | null;
   prices: number;
   dealers: number;
   unmatched: number;
@@ -32,4 +33,15 @@ export type AdminUnmatched = {
   url: string | null;
   note: string | null;
   day: string;
+};
+
+export type AdminUser = {
+  id: number;
+  name: string;
+  email: string;
+  role: "admin" | "mod" | "viewer";
+  active: boolean;
+  lastLogin: string | null;
+  created: string;
+  uploads: number;
 };

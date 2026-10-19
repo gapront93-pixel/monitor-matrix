@@ -1,33 +1,47 @@
 import type { Metadata } from "next";
 
 import { AdminView } from "@/components/admin/admin-view";
-import { Button } from "@/components/ui/button";
+import { ButtonLink } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/panel";
-import { getSession } from "@/lib/auth";
+import { EmptyState } from "@/components/ui/states";
+import { requireUser } from "@/lib/auth";
 import { fmtDate, fmtDateTime } from "@/lib/format";
+import { can, canManage, roleLabel } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
-
-import { adminLogout } from "./actions";
-import { AdminLoginForm } from "./login-form";
 
 export const metadata: Metadata = { title: "Quản trị" };
 
 export default async function AdminPage({ searchParams }: { searchParams: Promise<{ tab?: string }> }) {
-  const session = await getSession();
-  if (session?.role !== "admin") return <AdminLoginForm />;
+  const me = await requireUser();
+  if (!canManage(me.role)) {
+    return (
+      <EmptyState
+        title="Bạn không có quyền vào Quản trị"
+        action={
+          <ButtonLink href="/" variant="primary" size="sm">
+            Về Tổng quan
+          </ButtonLink>
+        }
+      >
+        Tài khoản của bạn có vai trò {roleLabel(me.role)}. Cần vai trò Mod hoặc Admin để cập nhật giá; liên hệ Admin nếu bạn cần quyền này.
+      </EmptyState>
+    );
+  }
   const { tab } = await searchParams;
+  const manageUsers = can(me.role, "users");
 
-  const [dealers, used, segments, imports, unmatched, products] = await Promise.all([
+  const [dealers, used, segments, imports, unmatched, products, users] = await Promise.all([
     prisma.dealer.findMany({ orderBy: { sortOrder: "asc" } }),
     prisma.priceSnapshot.groupBy({ by: ["dealerId"], _count: { _all: true } }),
     prisma.segment.findMany({ orderBy: { sortOrder: "asc" } }),
     prisma.priceImport.findMany({
       orderBy: [{ createdAt: "desc" }],
       take: 15,
-      include: { _count: { select: { snapshots: true, dealers: true, unmatched: true } } },
+      include: { _count: { select: { snapshots: true, dealers: true, unmatched: true } }, uploadedBy: { select: { name: true } } },
     }),
     prisma.unmatchedPrice.findMany({ orderBy: [{ capturedAt: "desc" }, { id: "desc" }], take: 400, include: { dealer: { select: { name: true } } } }),
     prisma.product.findMany({ where: { isGigabyte: true }, select: { id: true, model: true }, orderBy: { model: "asc" } }),
+    manageUsers ? prisma.user.findMany({ orderBy: [{ active: "desc" }, { role: "asc" }, { name: "asc" }], include: { _count: { select: { imports: true } } } }) : Promise.resolve([]),
   ]);
   const usedBy = new Map(used.map((u) => [u.dealerId, u._count._all]));
 
@@ -42,20 +56,11 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
 
   return (
     <>
-      <PageHeader
-        eyebrow="Quản trị"
-        title="Dữ liệu giá và đại lý"
-        actions={
-          <form action={adminLogout} className="flex items-center gap-3">
-            <span className="text-[12.5px] text-muted">{session.email}</span>
-            <Button type="submit" size="sm">
-              Đăng xuất
-            </Button>
-          </form>
-        }
-      />
+      <PageHeader eyebrow="Quản trị" title="Dữ liệu giá và đại lý" sub={`${me.name} · ${roleLabel(me.role)}`} />
       <AdminView
-        initialTab={tab === "dai-ly" || tab === "phan-khuc" ? tab : "gia"}
+        initialTab={tab === "dai-ly" || tab === "phan-khuc" || (tab === "nguoi-dung" && manageUsers) ? tab : "gia"}
+        perms={{ deleteDealer: can(me.role, "dealers.delete"), users: manageUsers }}
+        meId={me.id}
         dealers={dealers.map((d) => ({
           id: d.id,
           name: d.name,
@@ -73,6 +78,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
           createdAt: fmtDateTime(i.createdAt),
           source: i.source,
           fileName: i.fileName,
+          uploadedBy: i.uploadedBy?.name ?? null,
           prices: i._count.snapshots,
           dealers: i._count.dealers,
           unmatched: i._count.unmatched,
@@ -89,6 +95,16 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
           day: fmtDate(u.capturedAt),
         }))}
         products={products}
+        users={users.map((u) => ({
+          id: u.id,
+          name: u.name,
+          email: u.email,
+          role: u.role,
+          active: u.active,
+          lastLogin: u.lastLoginAt ? fmtDateTime(u.lastLoginAt) : null,
+          created: fmtDate(u.createdAt),
+          uploads: u._count.imports,
+        }))}
       />
     </>
   );

@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 
-import { isAdmin } from "@/lib/auth";
+import { userWith } from "@/lib/auth";
 import { getCatalog } from "@/lib/catalog";
 import { isoDay } from "@/lib/format";
 import { gridDealers, gridRows, hasPrice } from "@/lib/price-table";
@@ -11,7 +11,7 @@ const csvCell = (v: string | number | null | undefined) => {
   const s = v === null || v === undefined ? "" : String(v);
   return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 };
-const csv = (rows: (string | number | null | undefined)[][]) => "﻿" + rows.map((r) => r.map(csvCell).join(",")).join("\r\n") + "\r\n";
+const csv = (rows: (string | number | null | undefined)[][]) => "\uFEFF" + rows.map((r) => r.map(csvCell).join(",")).join("\r\n") + "\r\n";
 
 function file(body: string, name: string, type: string) {
   return new Response(body, { headers: { "Content-Type": type, "Content-Disposition": `attachment; filename="${name}"`, "Cache-Control": "no-store" } });
@@ -19,7 +19,8 @@ function file(body: string, name: string, type: string) {
 
 // Templates for the price upload, filled from the current prices so they are realistic
 export async function GET(req: NextRequest) {
-  if (!(await isAdmin())) return NextResponse.json({ error: "Cần đăng nhập Quản trị." }, { status: 403 });
+  const user = await userWith("prices");
+  if (!user) return NextResponse.json({ error: "Bạn không có quyền cập nhật giá." }, { status: 403 });
   const loai = req.nextUrl.searchParams.get("loai");
   const catalog = await getCatalog();
   const dealers = gridDealers(catalog);

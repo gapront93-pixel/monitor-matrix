@@ -1,11 +1,13 @@
 // Signed session cookie (HMAC-SHA256 with SESSION_SECRET). Web Crypto only, so proxy.ts can verify it too.
 
+import type { Role } from "./permissions";
+
 export const SESSION_COOKIE = "mm_session";
 
-export type Role = "viewer" | "admin";
-export type Session = { role: Role; email?: string; exp: number };
+/** uid + v (the user's sessionVersion) are checked against the database on every request; role is a hint for the proxy */
+export type Session = { uid: number; v: number; role: Role; exp: number };
 
-export const SESSION_TTL = { viewer: 30 * 24 * 3600, admin: 12 * 3600 } as const;
+export const SESSION_TTL: Record<Role, number> = { viewer: 30 * 24 * 3600, mod: 7 * 24 * 3600, admin: 12 * 3600 };
 
 const enc = new TextEncoder();
 
@@ -41,7 +43,7 @@ export async function verifySession(value: string | undefined): Promise<Session 
     if (!ok) return null;
     const s = JSON.parse(new TextDecoder().decode(fromB64url(body))) as Session;
     if (typeof s.exp !== "number" || s.exp * 1000 < Date.now()) return null;
-    if (s.role !== "viewer" && s.role !== "admin") return null;
+    if (typeof s.uid !== "number" || typeof s.v !== "number" || !["viewer", "mod", "admin"].includes(s.role)) return null;
     return s;
   } catch {
     return null;

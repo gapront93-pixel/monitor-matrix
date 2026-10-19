@@ -3,15 +3,16 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
-import { isAdmin } from "@/lib/auth";
+import { userWith } from "@/lib/auth";
+import type { Permission } from "@/lib/permissions";
 import { classifyStock } from "@/lib/import/prices";
 import { normKey } from "@/lib/normalize";
 import { prisma } from "@/lib/prisma";
 
 export type ActionResult = { ok: true; message?: string } | { ok: false; error: string };
 
-async function guard(): Promise<ActionResult | null> {
-  return (await isAdmin()) ? null : { ok: false, error: "Phiên Quản trị đã hết hạn. Đăng nhập lại." };
+async function guard(perm: Permission): Promise<ActionResult | null> {
+  return (await userWith(perm)) ? null : { ok: false, error: "Bạn không có quyền làm việc này (hoặc phiên đăng nhập đã hết hạn)." };
 }
 
 function done(message?: string): ActionResult {
@@ -38,7 +39,7 @@ const DealerPatch = z.object({
 });
 
 export async function updateDealer(id: string, patch: z.input<typeof DealerPatch>): Promise<ActionResult> {
-  const denied = await guard();
+  const denied = await guard("dealers.edit");
   if (denied) return denied;
   const p = DealerPatch.safeParse(patch);
   if (!p.success) return fail(p.error.issues[0].message);
@@ -49,7 +50,7 @@ export async function updateDealer(id: string, patch: z.input<typeof DealerPatch
 
 /** Swap with the neighbour; order numbers are rewritten 1..n so they stay contiguous */
 export async function moveDealer(id: string, dir: -1 | 1): Promise<ActionResult> {
-  const denied = await guard();
+  const denied = await guard("dealers.edit");
   if (denied) return denied;
   const all = await prisma.dealer.findMany({ orderBy: { sortOrder: "asc" }, select: { id: true } });
   const i = all.findIndex((d) => d.id === id);
@@ -66,7 +67,7 @@ const NewDealer = z.object({
 });
 
 export async function addDealer(input: z.input<typeof NewDealer>): Promise<ActionResult> {
-  const denied = await guard();
+  const denied = await guard("dealers.edit");
   if (denied) return denied;
   const p = NewDealer.safeParse(input);
   if (!p.success) return fail(p.error.issues[0].message);
@@ -82,7 +83,7 @@ export async function addDealer(input: z.input<typeof NewDealer>): Promise<Actio
 
 /** Only dealers without any price history can be deleted; the others are hidden instead */
 export async function deleteDealer(id: string): Promise<ActionResult> {
-  const denied = await guard();
+  const denied = await guard("dealers.delete");
   if (denied) return denied;
   const used = await prisma.priceSnapshot.count({ where: { dealerId: id } });
   if (used) return fail(`Đại lý này có ${used} giá trong lịch sử. Tắt "Hiện cột" để ẩn thay vì xoá, để giữ lịch sử giá.`);
@@ -98,7 +99,7 @@ const SegmentPatch = z.object({
 });
 
 export async function updateSegment(id: string, patch: z.input<typeof SegmentPatch>): Promise<ActionResult> {
-  const denied = await guard();
+  const denied = await guard("segments");
   if (denied) return denied;
   const p = SegmentPatch.safeParse(patch);
   if (!p.success) return fail(p.error.issues[0].message);
@@ -113,7 +114,7 @@ export async function updateSegment(id: string, patch: z.input<typeof SegmentPat
  * turns the stored unmatched rows with the same name into real prices.
  */
 export async function mapUnmatched(unmatchedId: number, productId: number): Promise<ActionResult> {
-  const denied = await guard();
+  const denied = await guard("unmatched");
   if (denied) return denied;
   const [u, product] = await Promise.all([
     prisma.unmatchedPrice.findUnique({ where: { id: unmatchedId } }),
@@ -138,7 +139,7 @@ export async function mapUnmatched(unmatchedId: number, productId: number): Prom
 }
 
 export async function dismissUnmatched(unmatchedId: number): Promise<ActionResult> {
-  const denied = await guard();
+  const denied = await guard("unmatched");
   if (denied) return denied;
   const u = await prisma.unmatchedPrice.findUnique({ where: { id: unmatchedId } });
   if (u) await prisma.unmatchedPrice.deleteMany({ where: { nameOnSite: u.nameOnSite, dealerId: u.dealerId } });
@@ -149,7 +150,7 @@ export async function dismissUnmatched(unmatchedId: number): Promise<ActionResul
 
 /** Undo an upload made from this screen (the seed import stays) */
 export async function deleteImport(importId: number): Promise<ActionResult> {
-  const denied = await guard();
+  const denied = await guard("prices");
   if (denied) return denied;
   const imp = await prisma.priceImport.findUnique({ where: { id: importId }, select: { source: true } });
   if (!imp) return fail("Không tìm thấy lần tải lên này.");

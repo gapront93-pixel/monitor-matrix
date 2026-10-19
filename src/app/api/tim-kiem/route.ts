@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { z } from "zod";
 
+import { userWith } from "@/lib/auth";
 import { getCatalog } from "@/lib/catalog";
 import { resLabel, specLine } from "@/lib/format";
 import { normKey } from "@/lib/normalize";
@@ -9,6 +10,7 @@ const Query = z.object({ q: z.string().trim().min(1).max(60) });
 
 // Quick search in the header: model code, slug or brand + model
 export async function GET(req: NextRequest) {
+  if (!(await userWith("view"))) return Response.json({ error: "Chưa đăng nhập" }, { status: 401 });
   const parsed = Query.safeParse({ q: req.nextUrl.searchParams.get("q") ?? "" });
   if (!parsed.success) return NextResponse.json({ hits: [] });
   const key = normKey(parsed.data.q);
