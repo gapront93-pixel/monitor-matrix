@@ -1,0 +1,155 @@
+import "server-only";
+
+import { connection } from "next/server";
+import { cache } from "react";
+
+import { getPriceState } from "./import/plan";
+import { endOfVnDay } from "./format";
+import { prisma } from "./prisma";
+import { inStockCount, lowestPrice, type PriceCell } from "./pricing";
+
+export type DealerView = {
+  id: string;
+  name: string;
+  website: string | null;
+  sortOrder: number;
+  isKey: boolean;
+  priceType: "retail" | "dealer";
+  visible: boolean;
+  status: string;
+};
+
+export type ProductView = {
+  id: number;
+  slug: string;
+  brand: string;
+  isGigabyte: boolean;
+  model: string;
+  series: string | null;
+  line: string | null;
+  segmentId: string | null;
+  sizeIn: number | null;
+  panel: string | null;
+  shape: string | null;
+  resolution: string | null;
+  refreshHz: number | null;
+  responseMs: number | null;
+  brightnessSdrNits: number | null;
+  brightnessHdrPeakNits: number | null;
+  hdr: string | null;
+  dciP3Pct: number | null;
+  contrast: string | null;
+  hdmiVer: string | null;
+  dpVer: string | null;
+  usbC: boolean | null;
+  usbCPdW: number | null;
+  kvm: boolean | null;
+  heightAdjMm: number | null;
+  pivot: boolean | null;
+  url: string | null;
+  prices: PriceCell[]; // in dealer column order
+  minPrice: number | null;
+  minDealerIds: string[];
+  inStock: number; // retail dealers that sell it now
+  sellers: number; // dealers listing it at all
+};
+
+export type SegmentView = {
+  id: string;
+  nameVi: string;
+  shortName: string;
+  verdict: "lead" | "even" | "weak" | null;
+  criteria: string;
+  conclusionVi: string | null;
+  notes: string | null;
+  sortOrder: number;
+};
+
+export type ImportView = { id: number; capturedAt: Date; createdAt: Date; source: string; fileName: string | null };
+
+export type Catalog = {
+  products: ProductView[];
+  bySlug: Map<string, ProductView>;
+  dealers: DealerView[]; // all, in column order
+  segments: SegmentView[];
+  imports: ImportView[]; // newest first
+  asOf: Date | null; // newest capturedAt among the prices shown
+};
+
+/** Everything the screens need, priced as of `day` (YYYY-MM-DD, Vietnam time) or now. One query set per request. */
+export const getCatalog = cache(async (day?: string): Promise<Catalog> => {
+  await connection();
+  const at = day ? (endOfVnDay(day) ?? undefined) : undefined;
+  const [products, dealers, segments, imports, state] = await Promise.all([
+    prisma.product.findMany({ orderBy: [{ isGigabyte: "desc" }, { model: "asc" }], omit: { rawSpecs: true, aliases: true } }),
+    prisma.dealer.findMany({ orderBy: { sortOrder: "asc" } }),
+    prisma.segment.findMany({ orderBy: { sortOrder: "asc" } }),
+    prisma.priceImport.findMany({
+      orderBy: [{ capturedAt: "desc" }, { createdAt: "desc" }],
+      select: { id: true, capturedAt: true, createdAt: true, source: true, fileName: true },
+    }),
+    getPriceState(prisma, at),
+  ]);
+
+  const dealerViews: DealerView[] = dealers.map((d) => ({
+    id: d.id,
+    name: d.name,
+    website: d.website,
+    sortOrder: d.sortOrder,
+    isKey: d.isKey,
+    priceType: d.priceType,
+    visible: d.visible,
+    status: d.status,
+  }));
+
+  let asOf: Date | null = null;
+  for (const s of state.values()) if (!asOf || s.capturedAt > asOf) asOf = s.capturedAt;
+
+  const views: ProductView[] = products.map((p) => {
+    const prices: PriceCell[] = [];
+    for (const d of dealerViews) {
+      const s = state.get(d.id)?.snaps.get(p.id);
+      if (!s) continue;
+      prices.push({
+        dealerId: d.id,
+        priceVnd: s.priceVnd,
+        listPriceVnd: s.listPriceVnd,
+        stockStatus: s.stockStatus,
+        priceType: d.priceType,
+        url: s.url,
+        nameOnSite: s.nameOnSite,
+        note: s.note,
+      });
+    }
+    const low = lowestPrice(prices);
+    const { createdAt: _c, updatedAt: _u, ...rest } = p;
+    void _c;
+    void _u;
+    return {
+      ...rest,
+      prices,
+      minPrice: low.price,
+      minDealerIds: low.dealerIds,
+      inStock: inStockCount(prices),
+      sellers: prices.length,
+    };
+  });
+
+  return {
+    products: views,
+    bySlug: new Map(views.map((v) => [v.slug, v])),
+    dealers: dealerViews,
+    segments: segments.map((s) => ({
+      id: s.id,
+      nameVi: s.nameVi,
+      shortName: s.shortName ?? s.nameVi,
+      verdict: s.verdict,
+      criteria: s.criteria,
+      conclusionVi: s.conclusionVi,
+      notes: s.notes,
+      sortOrder: s.sortOrder,
+    })),
+    imports,
+    asOf,
+  };
+});

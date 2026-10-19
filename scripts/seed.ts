@@ -38,6 +38,18 @@ const SEGMENT_ORDER = [
   "va34-uwqhd-curved",
 ];
 
+// Card titles and verdict tags (from TOM-TAT-SO-SANH.md). The verdict is only set when the segment is new: the admin owns it after that
+const SEGMENT_META: Record<string, { shortName: string; verdict: "lead" | "even" | "weak" }> = {
+  "oled27-qhd-240-280": { shortName: 'OLED 27" QHD 240–280Hz', verdict: "lead" },
+  "oled27-qhd-360-500": { shortName: 'OLED 27" QHD 360–500Hz', verdict: "even" },
+  "oled32-4k-240": { shortName: 'OLED 32" 4K 240Hz', verdict: "even" },
+  "oled34-uwqhd": { shortName: 'OLED 34" Ultrawide', verdict: "even" },
+  "ips27-qhd-180-300": { shortName: 'IPS 27" QHD 180–300Hz', verdict: "even" },
+  "ips27-4k-160": { shortName: 'IPS 27" 4K 144–160Hz', verdict: "even" },
+  "fhd-esports-24-27": { shortName: 'FHD eSports 24–27"', verdict: "weak" },
+  "va34-uwqhd-curved": { shortName: 'VA 34" Ultrawide cong', verdict: "lead" },
+};
+
 // Names in segments/*.json that differ from the slug in gigabyte-specs.json
 const SEGMENT_MODEL_ALIASES: Record<string, string[]> = {
   "m27q2-qd": ["M27Q2"],
@@ -197,7 +209,13 @@ async function main() {
       notes: cleanStr(s.notes),
       sortOrder: order >= 0 ? order + 1 : 100,
     };
-    await prisma.segment.upsert({ where: { id: s.segment_id }, create: { id: s.segment_id, ...data }, update: data });
+    const meta = SEGMENT_META[s.segment_id];
+    await prisma.segment.upsert({
+      where: { id: s.segment_id },
+      create: { id: s.segment_id, ...data, shortName: meta?.shortName ?? null, verdict: meta?.verdict ?? null },
+      update: { ...data, shortName: meta?.shortName ?? null },
+    });
+    if (meta) await prisma.segment.updateMany({ where: { id: s.segment_id, verdict: null }, data: { verdict: meta.verdict } });
   }
 
   // --- GIGABYTE products ---

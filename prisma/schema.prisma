@@ -14,6 +14,12 @@ enum PriceType {
   dealer // giá sỉ / đại lý: không tính vào giá thấp nhất
 }
 
+enum SegmentVerdict {
+  lead // GIGABYTE dẫn đầu
+  even // Ngang
+  weak // Yếu hơn
+}
+
 enum StockStatus {
   in_stock
   out_of_stock
@@ -25,6 +31,8 @@ enum StockStatus {
 model Segment {
   id           String      @id // "oled27-qhd-240-280"
   nameVi       String
+  shortName    String? // tên ngắn trên thẻ: 'OLED 27" QHD 240–280Hz'
+  verdict      SegmentVerdict? // nhãn kết luận, sửa được trong admin
   criteria     String      @db.Text
   conclusionVi String?     @db.Text // kết luận tiếng Việt (TOM-TAT-SO-SANH.md)
   notes        String?     @db.Text // ghi chú gốc từ file phân khúc
