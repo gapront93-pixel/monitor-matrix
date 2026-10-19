@@ -108,7 +108,8 @@ function blocks(links: NavLink[]): { child: boolean; links: NavLink[] }[] {
 
 export function NavList({ pathname, showAdmin, showSales }: { pathname: string; showAdmin: boolean; showSales: boolean }) {
   const t = useT(shellMessages);
-  const item = ({ href, label, Icon }: NavLink, child: boolean) => {
+  // Every entry, parent or sub-entry, uses the same size: sub-entries differ only by their indent
+  const item = ({ href, label, Icon }: NavLink) => {
     const current = isActive(pathname, href);
     return (
       <Link
@@ -116,12 +117,11 @@ export function NavList({ pathname, showAdmin, showSales }: { pathname: string; 
         href={href}
         aria-current={current ? "page" : undefined}
         className={cn(
-          "flex items-center gap-2.5 rounded-panel px-3 font-semibold transition-colors",
-          child ? "py-1.5 text-[12.5px]" : "py-2 text-[13px]",
+          "flex items-center gap-2.5 rounded-panel px-3 py-2 text-[13px] font-semibold transition-colors",
           current ? "bg-accent text-on-accent" : "text-fg-2 hover:bg-panel hover:text-fg",
         )}
       >
-        <Icon className={cn("shrink-0", child ? "size-3.5" : "size-4")} />
+        <Icon className="size-4 shrink-0" />
         {t.nav[label]}
       </Link>
     );
@@ -137,11 +137,11 @@ export function NavList({ pathname, showAdmin, showSales }: { pathname: string; 
             {blocks(links).map((block) =>
               block.child ? (
                 // Sub-entries sit indented behind one guide line, so they read as part of the entry above
-                <div key={block.links[0].href} className="ml-[21px] flex flex-col gap-0.5 border-l border-line pl-2">
-                  {block.links.map((l) => item(l, true))}
+                <div key={block.links[0].href} className="ml-[21px] flex flex-col gap-1 border-l border-line pl-2">
+                  {block.links.map((l) => item(l))}
                 </div>
               ) : (
-                block.links.map((l) => item(l, false))
+                block.links.map((l) => item(l))
               ),
             )}
           </div>
