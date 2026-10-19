@@ -75,6 +75,12 @@
 
   --font-sans: var(--font-be-vietnam-pro), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-jetbrains-mono), ui-monospace, "Cascadia Mono", Consolas, monospace;
+  /* Headings of the import page (Aldrich, Vietnamese build), as in its design file */
+  --font-aldrich: "Aldrich VN", var(--font-be-vietnam-pro), ui-sans-serif, sans-serif;
+
+  /* Import chart: value bars and units line, the same in both themes */
+  --color-imp-rev: #00a3e0;
+  --color-imp-qty: #e040e8;
 
   --radius-tag: 2px;
   --radius-chip: 4px;
@@ -196,6 +202,12 @@
     --shadow-pop: 0 14px 36px rgba(10, 14, 20, 0.16);
     --shadow-float: 0 16px 40px rgba(10, 14, 20, 0.18);
   }
+}
+
+@font-face {
+  font-family: "Aldrich VN";
+  src: url("/fonts/Aldrich-Regular-Viethoa.ttf") format("truetype");
+  font-display: swap;
 }
 
 @layer base {

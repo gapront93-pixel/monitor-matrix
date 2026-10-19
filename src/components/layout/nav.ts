@@ -1,4 +1,4 @@
-import { BarChart3Icon, GitCompareArrowsIcon, ImageIcon, LayoutDashboardIcon, MonitorIcon, ShieldIcon, SwordsIcon, Table2Icon, type LucideIcon } from "lucide-react";
+import { BarChart3Icon, GitCompareArrowsIcon, ImageIcon, LayoutDashboardIcon, MonitorIcon, ShieldIcon, ShipIcon, SwordsIcon, Table2Icon, type LucideIcon } from "lucide-react";
 
 import type { shellMessages } from "@/lib/i18n/messages/shell";
 
@@ -16,6 +16,7 @@ export const NAV_GROUPS: { label: NavKey; links: NavLink[] }[] = [
       { href: "/so-sanh", label: "compare", Icon: GitCompareArrowsIcon, child: true },
       { href: "/doi-thu", label: "rivals", Icon: SwordsIcon, child: true },
       { href: "/doanh-so", label: "sales", Icon: BarChart3Icon, sales: true, child: true },
+      { href: "/nhap-khau", label: "imports", Icon: ShipIcon, sales: true, child: true },
     ],
   },
   {

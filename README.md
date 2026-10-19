@@ -14,6 +14,7 @@ Công cụ nội bộ cho team Marketing GIGABYTE Việt Nam: tra cứu thông s
 | `/so-sanh?m=mã1,mã2` | So sánh 2–4 mẫu (cả đối thủ), tô giá trị tốt nhất |
 | `/doi-thu` | GIGABYTE so với đối thủ theo từng phân khúc |
 | `/doanh-so` | Doanh số LCD (sell-in) lấy từ dữ liệu vnpromotion, chỉ Mod và Admin xem được (mục 2c) |
+| `/nhap-khau` | Xuất nhập khẩu 2026: số liệu nhập khẩu màn hình vào Việt Nam 2024–2026, chỉ Mod và Admin xem được (mục 2e) |
 | `/admin` | Tải file giá, quản lý đại lý, sửa kết luận phân khúc |
 
 **Giao diện và ngôn ngữ:** hai nút ở góc phải trên. Nút chữ A để đổi **Tiếng Việt / English**. Nút mặt trời để chọn giao diện **Tối / Sáng / Theo máy**. Lựa chọn được lưu trên trình duyệt của từng người. Ở chế độ English, các nhãn và menu chuyển sang tiếng Anh. Nội dung dữ liệu (kết luận phân khúc, trích dẫn review, tên phân khúc) vẫn giữ như bản gốc.
@@ -153,6 +154,27 @@ sudo -u deploy -H bash -c 'cd /var/www/monitor-matrix && npm run lineup'
 ```
 
 Lệnh này cũng tự chạy sau `npm run seed`. Bản sao lưu database trước khi đổi lineup: `/root/monitor_matrix_before_lineup_2026-10-19.dump`.
+
+---
+
+## 2e. Xuất nhập khẩu 2026
+
+Menu **Matrix LCD → Xuất nhập khẩu 2026** (chỉ Mod và Admin). Trang này dựng theo bản thiết kế `LCD-Import-2026-preview.html`. Với cùng bộ lọc, số liệu trên web khớp từng ô với bản preview (đã kiểm tra ở cả 4 tab).
+
+- **Bộ lọc của biểu đồ:**
+  - Chọn tháng T1–T9 và năm 2024 / 2025 / 2026.
+  - Lọc theo Brand, kích thước, tấm nền, độ phân giải, tần số.
+  - Có ô tìm model hoặc nhà nhập khẩu.
+  - Bấm vào một cột của biểu đồ để bật hoặc tắt lọc theo tháng đó.
+- **Biểu đồ gộp:** cột là kim ngạch (USD, trục trái), đường là số lượng (trục phải).
+- **Các tab bảng pivot:**
+  - **Market TAM** và **Gaming Only** tính trực tiếp từ dữ liệu RAW, mỗi bảng có bộ lọc riêng.
+  - **Gaming by Brand** và **Analysis UTD** là bảng tĩnh lấy nguyên từ file Excel. Bấm vào dòng cha để thu gọn hoặc mở dòng con.
+- **Dữ liệu** nằm trong `data/import/`:
+  - `import-raw-2024-2026.json`: dữ liệu RAW đã chuẩn hoá, đến 22/09/2026.
+  - `pivots-static.json`: các bảng pivot tĩnh.
+  - App chỉ trả hai file này cho tài khoản Mod và Admin (`/api/nhap-khau`).
+- **Cập nhật số liệu mới:** thay hai file JSON trên (cùng định dạng), sửa ngày "cập nhật" trong `src/lib/i18n/messages/imports.ts`, rồi chạy `scripts/deploy.sh`.
 
 ---
 
