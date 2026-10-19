@@ -283,7 +283,15 @@ File `/var/www/monitor-matrix/.env` (chỉ user deploy đọc được, không �
 
 Mật khẩu người dùng **không** nằm trong `.env`: chúng được mã hoá một chiều (scrypt) trong database, không ai đọc lại được, kể cả Admin. Trang có header `noindex` để Google không đưa lên kết quả tìm kiếm.
 
-**Sao lưu database** (nên làm trước khi nạp dữ liệu lớn):
+**Sao lưu tự động:** mỗi đêm lúc 02:30 (giờ Việt Nam), `scripts/backup.sh` sao lưu database và thư mục `storage/` (ảnh sản phẩm) vào `/home/deploy/backups/monitor_matrix/`, giữ 14 bản gần nhất. Lịch chạy nằm trong crontab của user `deploy`, log ghi ở `/home/deploy/logs/monitor-matrix-backup.log`.
+
+Khôi phục database từ một bản sao lưu:
+
+```bash
+sudo -u postgres pg_restore --clean --if-exists -d monitor_matrix_db /home/deploy/backups/monitor_matrix/monitor_matrix_db_<ngày>.dump
+```
+
+**Sao lưu tay** (nên làm trước khi nạp dữ liệu lớn):
 
 ```bash
 sudo -u postgres pg_dump -Fc monitor_matrix_db > ~/monitor_matrix_$(date +%F).dump
