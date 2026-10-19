@@ -49,6 +49,18 @@ const vi = {
     badEmail: "Email không hợp lệ.",
     wrong: "Email hoặc mật khẩu không đúng.",
     locked: "Tài khoản này đã bị khoá. Liên hệ Admin.",
+    intro: {
+      eyebrow: "GIGABYTE Việt Nam · Marketing",
+      title: "Dữ liệu màn hình GIGABYTE, gom về một chỗ",
+      lead: "Tra cứu thông số các mẫu đang bán, đặt cạnh đối thủ và theo dõi giá tại các đại lý Việt Nam theo thời gian.",
+      features: [
+        { title: "Ma trận sản phẩm", text: "Toàn bộ thông số GIGABYTE và AORUS, lọc theo kích thước, tấm nền, tần số, độ phân giải." },
+        { title: "So sánh đối thủ", text: "11 phân khúc so với ASUS, MSI, Samsung, LG, AOC, ViewSonic, kèm số đo review có nguồn." },
+        { title: "Bảng giá đại lý", text: "Giá thấp nhất mỗi ngày, lịch sử giá theo đại lý, xuất Excel." },
+        { title: "Doanh số và nhập khẩu", text: "Sell-in LCD và số liệu nhập khẩu màn hình vào Việt Nam, dành cho Mod và Admin." },
+      ],
+      rolesTitle: "Quyền theo tài khoản",
+    },
   },
   account: {
     eyebrow: "Tài khoản",
@@ -143,6 +155,18 @@ const en: typeof vi = {
     badEmail: "Invalid email address.",
     wrong: "Wrong email or password.",
     locked: "This account is locked. Contact an Admin.",
+    intro: {
+      eyebrow: "GIGABYTE Vietnam · Marketing",
+      title: "GIGABYTE monitor data, all in one place",
+      lead: "Look up the specs of every model on sale, set them against rivals and track prices at Vietnamese dealers over time.",
+      features: [
+        { title: "Product matrix", text: "Full GIGABYTE and AORUS specs, filtered by size, panel, refresh rate and resolution." },
+        { title: "Rival comparison", text: "11 segments against ASUS, MSI, Samsung, LG, AOC and ViewSonic, with sourced review measurements." },
+        { title: "Dealer prices", text: "Lowest price each day, price history per dealer, Excel export." },
+        { title: "Sales and imports", text: "LCD sell-in and monitor import data for Vietnam, for Mods and Admins." },
+      ],
+      rolesTitle: "Access by account",
+    },
   },
   account: {
     eyebrow: "Account",
