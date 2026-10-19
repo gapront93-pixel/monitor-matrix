@@ -54,6 +54,8 @@ export type SalesItem = {
   amount: number;
 };
 
+type MonthQA = { qty: number; amount: number };
+
 export type SalesReport = {
   totals: { qty: number; amount: number; models: number; customers: number };
   previous: { qty: number; amount: number } | null; // the same number of months just before
@@ -69,8 +71,11 @@ export type SalesReport = {
   })[];
   unmatched: number; // units whose model is not in the catalog
   segments: (SalesItem & { models: number })[]; // the segment column of the sales sheet
-  customers: (SalesItem & { npp: string | null })[];
-  npps: SalesItem[];
+  // Every dealer of the period (the screen filters by PIC), with the previous period and month by month for both
+  customers: (SalesItem & { npp: string | null; pic: string | null; prevQty: number; prevAmount: number; series: { cur: MonthQA[]; prev: MonthQA[] } })[];
+  npps: (SalesItem & { prevQty: number; prevAmount: number })[];
+  pics: string[];
+  prevMonths: string[]; // months of the previous period, same count as months
 };
 
 function where(f: SalesFilter, start = 1): { sql: string; params: string[] } {
@@ -86,23 +91,30 @@ function where(f: SalesFilter, start = 1): { sql: string; params: string[] } {
 export async function salesReport(f: SalesFilter, catalog: Catalog): Promise<SalesReport> {
   const w = where(f);
   const span = monthsBetween(f.from, f.to);
-  const prev = where({ from: shiftMonth(f.from, -span), to: shiftMonth(f.from, -1), npp: f.npp });
+  const prevFrom = shiftMonth(f.from, -span);
+  const prev = where({ from: prevFrom, to: shiftMonth(f.from, -1), npp: f.npp });
+  // Previous and current period together
+  const both = where({ from: prevFrom, to: f.to, npp: f.npp });
+  const curStart = `$${both.params.length + 1}::date`; // extra parameter: where the current period starts
   const db = pool();
-  const [byModel, byMonth, byCustomer, byNpp, customers, prevTotals, products] = await Promise.all([
+  const [byModel, byMonth, byCustomer, byNpp, customerCount, prevTotals, products] = await Promise.all([
     db.query<Row>(`select model, nullif(trim("soModel"), '') as so_model, nullif(npp, '') as npp, nullif(trim(segment), '') as segment, sum(quantity)::text as qty, sum(amount)::text as amount
        from "SaleRow" where ${w.sql} group by 1, 2, 3, 4`, w.params),
     db.query<{ month: string; qty: string; amount: string }>(
       `select to_char(date, 'YYYY-MM') as month, sum(quantity)::text as qty, sum(amount)::text as amount from "SaleRow" where ${w.sql} group by 1 order by 1`,
       w.params,
     ),
-    db.query<{ name: string; npp: string | null; qty: string; amount: string }>(
-      `select coalesce(nullif("shortName", ''), customer, '?') as name, min(npp) as npp, sum(quantity)::text as qty, sum(amount)::text as amount
-       from "SaleRow" where ${w.sql} group by 1 order by sum(quantity) desc limit 20`,
-      w.params,
+    // Dealer x month over the current and the previous period together
+    db.query<{ name: string; npp: string | null; pic: string | null; month: string; qty: string; amount: string }>(
+      `select coalesce(nullif("shortName", ''), customer, '?') as name, min(npp) as npp, min(nullif("picCpn", '')) as pic,
+              to_char(date, 'YYYY-MM') as month, sum(quantity)::text as qty, sum(amount)::text as amount
+       from "SaleRow" where ${both.sql} group by 1, 4`,
+      both.params,
     ),
-    db.query<{ name: string; qty: string; amount: string }>(
-      `select coalesce(nullif(npp, ''), '?') as name, sum(quantity)::text as qty, sum(amount)::text as amount from "SaleRow" where ${w.sql} group by 1 order by 2 desc`,
-      w.params,
+    db.query<{ name: string; prev: boolean; qty: string; amount: string }>(
+      `select coalesce(nullif(npp, ''), '?') as name, date < ${curStart} as prev, sum(quantity)::text as qty, sum(amount)::text as amount
+       from "SaleRow" where ${both.sql} group by 1, 2`,
+      [...both.params, monthStart(f.from)],
     ),
     db.query<{ n: string }>(`select count(distinct coalesce(nullif("shortName", ''), customer))::text as n from "SaleRow" where ${w.sql}`, w.params),
     db.query<{ qty: string | null; amount: string | null }>(`select sum(quantity)::text as qty, sum(amount)::text as amount from "SaleRow" where ${prev.sql}`, prev.params),
@@ -168,17 +180,71 @@ export async function salesReport(f: SalesFilter, catalog: Catalog): Promise<Sal
     return { month: m, qty: Number(r?.qty ?? 0), amount: Number(r?.amount ?? 0) };
   });
 
+  // Dealers: current period first, previous period beside it, month by month (position i of both periods lines up)
+  const prevMonths = Array.from({ length: span }, (_, i) => shiftMonth(prevFrom, i));
+  const curIdx = new Map(months.map((m, i) => [m.month, i]));
+  const prevIdx = new Map(prevMonths.map((m, i) => [m, i]));
+  const dealers = new Map<string, SalesReport["customers"][number]>();
+  for (const r of byCustomer.rows) {
+    const d = dealers.get(r.name) ?? {
+      key: r.name,
+      label: r.name,
+      productSlug: null,
+      npp: r.npp,
+      pic: r.pic,
+      qty: 0,
+      amount: 0,
+      prevQty: 0,
+      prevAmount: 0,
+      series: { cur: months.map(() => ({ qty: 0, amount: 0 })), prev: prevMonths.map(() => ({ qty: 0, amount: 0 })) },
+    };
+    d.npp ??= r.npp;
+    d.pic ??= r.pic;
+    const q = Number(r.qty), a = Number(r.amount);
+    const ci = curIdx.get(r.month), pi = prevIdx.get(r.month);
+    if (ci !== undefined) {
+      d.qty += q;
+      d.amount += a;
+      d.series.cur[ci].qty += q;
+      d.series.cur[ci].amount += a;
+    } else if (pi !== undefined) {
+      d.prevQty += q;
+      d.prevAmount += a;
+      d.series.prev[pi].qty += q;
+      d.series.prev[pi].amount += a;
+    }
+    dealers.set(r.name, d);
+  }
+  // Dealers that only bought in the previous period are left out (nothing to show for this period)
+  const customers = [...dealers.values()].filter((d) => d.qty !== 0 || d.amount !== 0).sort((a, b) => b.amount - a.amount);
+
+  const nppMap = new Map<string, SalesReport["npps"][number]>();
+  for (const r of byNpp.rows) {
+    const n = nppMap.get(r.name) ?? { key: r.name, label: r.name, productSlug: null, qty: 0, amount: 0, prevQty: 0, prevAmount: 0 };
+    if (r.prev) {
+      n.prevQty += Number(r.qty);
+      n.prevAmount += Number(r.amount);
+    } else {
+      n.qty += Number(r.qty);
+      n.amount += Number(r.amount);
+    }
+    nppMap.set(r.name, n);
+  }
+  const nppRows = [...nppMap.values()].filter((n) => n.qty !== 0 || n.amount !== 0 || n.prevQty !== 0).sort((a, b) => b.amount - a.amount);
+
   const qty = months.reduce((n, m) => n + m.qty, 0);
   const amount = months.reduce((n, m) => n + m.amount, 0);
   const pq = prevTotals.rows[0];
   return {
-    totals: { qty, amount, models: models.filter((m) => m.qty > 0).length, customers: Number(customers.rows[0]?.n ?? 0) },
+    totals: { qty, amount, models: models.filter((m) => m.qty > 0).length, customers: Number(customerCount.rows[0]?.n ?? 0) },
     previous: pq?.qty !== null && pq?.qty !== undefined ? { qty: Number(pq.qty), amount: Number(pq.amount ?? 0) } : null,
     months,
     models,
     unmatched,
     segments,
-    customers: byCustomer.rows.map((c) => ({ key: c.name, label: c.name, productSlug: null, npp: c.npp, qty: Number(c.qty), amount: Number(c.amount) })),
-    npps: byNpp.rows.map((n) => ({ key: n.name, label: n.name, productSlug: null, qty: Number(n.qty), amount: Number(n.amount) })),
+    customers,
+    npps: nppRows,
+    pics: [...new Set(customers.map((c) => c.pic).filter((x): x is string => !!x))].sort(),
+    prevMonths,
   };
 }

@@ -180,8 +180,8 @@ export function SalesView({ report, filter, range, segments }: Props) {
         <EmptyState title={t.noData}>{t.noDataText}</EmptyState>
       ) : (
         <>
-          {/* Units and revenue as the two headline tiles, the rest in a smaller row below */}
-          <div className="grid gap-3 sm:grid-cols-2">
+          {/* One row: units and revenue as the headline tiles (64%), the three smaller figures stacked beside them (36%) */}
+          <div className="grid gap-3 lg:grid-cols-[minmax(0,32fr)_minmax(0,32fr)_minmax(0,36fr)]">
             <HeroKpi
               tone="qty"
               label={t.kpi.qty}
@@ -198,11 +198,11 @@ export function SalesView({ report, filter, range, segments }: Props) {
               note={previous ? t.kpi.vsPrev(span) : t.kpi.noPrev}
               title={`${fmtNum(totals.amount)} VNĐ`}
             />
-          </div>
-          <div className="grid grid-cols-3 gap-3">
-            <SmallKpi label={t.kpi.asp} value={totals.qty > 0 ? fmtNum(Math.round(totals.amount / totals.qty)) : "—"} unit="VNĐ" />
-            <SmallKpi label={t.kpi.models} value={fmtNum(totals.models)} />
-            <SmallKpi label={t.kpi.customers} value={fmtNum(totals.customers)} />
+            <div className="grid gap-2 max-lg:grid-cols-3">
+              <SmallKpi label={t.kpi.asp} value={totals.qty > 0 ? fmtNum(Math.round(totals.amount / totals.qty)) : "—"} unit="VNĐ" />
+              <SmallKpi label={t.kpi.models} value={fmtNum(totals.models)} />
+              <SmallKpi label={t.kpi.customers} value={fmtNum(totals.customers)} />
+            </div>
           </div>
 
           {/* Revenue as bars on the left axis, units as a line on the right axis */}
@@ -240,7 +240,10 @@ export function SalesView({ report, filter, range, segments }: Props) {
             </div>
           </Panel>
 
-          <DonutTable title={t.share.npp} nameHead={t.share.nppCol} rows={report.npps} totals={totals} money={money} />
+          <div className="grid items-stretch gap-3 xl:grid-cols-2">
+            <DonutTable title={t.share.npp} nameHead={t.share.nppCol} rows={report.npps} totals={totals} money={money} />
+            <NppCompare rows={report.npps} months={report.months.map((m) => m.month)} prevMonths={report.prevMonths} money={money} />
+          </div>
 
           <div className="grid items-stretch gap-3 xl:grid-cols-2">
             <SegmentTable rows={segRows} totals={totals} money={money} />
@@ -351,38 +354,7 @@ export function SalesView({ report, filter, range, segments }: Props) {
             </div>
           </Panel>
 
-          <Panel className="overflow-hidden">
-            <h2 className="border-b border-line px-4 py-3 text-[17px] font-bold text-fg">{t.customers.title}</h2>
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[560px] border-separate border-spacing-0 text-[12.5px] whitespace-nowrap">
-                <thead>
-                  <tr className="text-[11.5px] text-muted">
-                    {[t.models.rank, t.customers.name, t.customers.npp, t.share.qty, t.share.qtyShare, t.share.amount, t.share.amountShare].map((h, i) => (
-                      <th key={h} scope="col" className={cn("border-b border-line bg-head px-3 py-2 font-semibold", i >= 3 ? "text-right" : "text-left")}>
-                        {h}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {report.customers.map((c, i) => {
-                    const td = cn("border-b border-line-2 px-3 py-2", i % 2 === 0 ? "bg-row-a" : "bg-row-b");
-                    return (
-                      <tr key={c.key}>
-                        <td className={cn(td, "num w-10 text-faint")}>{i + 1}</td>
-                        <td className={cn(td, "font-semibold text-fg")}>{c.label}</td>
-                        <td className={cn(td, "text-muted")}>{c.npp ?? "—"}</td>
-                        <td className={cn(td, "num text-right font-semibold text-fg")}>{fmtNum(c.qty)}</td>
-                        <td className={cn(td, "num text-right text-muted")}>{pct(c.qty, totals.qty)}</td>
-                        <td className={cn(td, "num text-right text-fg-2")}>{money(c.amount)}</td>
-                        <td className={cn(td, "num text-right text-muted")}>{pct(c.amount, totals.amount)}</td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </Panel>
+          <Dealers report={report} money={money} />
           <p className="text-[12px] text-muted">{t.note}</p>
         </>
       )}
@@ -414,7 +386,7 @@ function HeroKpi({
   title?: string;
 }) {
   return (
-    <div className={cn("flex min-h-28 flex-col gap-1.5 rounded-[14px] px-5 py-4 text-white md:min-h-32 md:px-6 md:py-5", HERO[tone])}>
+    <div className={cn("flex min-h-28 min-w-0 flex-col justify-center gap-1.5 rounded-[14px] px-5 py-4 text-white md:px-6", HERO[tone])}>
       <span className="text-[13.5px] font-medium text-white/85">{label}</span>
       <span className="num text-[30px] leading-tight font-extrabold tracking-[-0.02em] md:text-[40px]" title={title}>
         {value}
@@ -432,11 +404,11 @@ function HeroKpi({
 
 function SmallKpi({ label, value, unit }: { label: string; value: string; unit?: string }) {
   return (
-    <Panel className="px-3.5 py-2.5">
-      <div className="truncate text-[11.5px] text-muted" title={label}>
+    <Panel className="flex min-w-0 items-center justify-between gap-3 px-3.5 py-2 max-lg:flex-col max-lg:items-start max-lg:gap-0.5">
+      <div className="truncate text-[12px] text-muted" title={label}>
         {label}
       </div>
-      <div className="num mt-0.5 text-[16px] leading-tight font-semibold text-fg">
+      <div className="num shrink-0 text-[16px] leading-tight font-semibold text-fg">
         {value}
         {unit && <span className="ml-1 font-sans text-[11px] font-normal text-muted">{unit}</span>}
       </div>
@@ -464,7 +436,7 @@ function DonutTable({
   return (
     <Panel className="overflow-hidden">
       <h2 className="border-b border-line px-4 py-3 text-[17px] font-bold text-fg">{title}</h2>
-      <div className="flex flex-col items-center gap-4 p-4 md:flex-row md:items-start">
+      <div className="flex flex-col items-center gap-4 p-3 sm:flex-row sm:items-center">
         <div className="w-full min-w-0 flex-1 overflow-x-auto">
           <table className="w-full border-separate border-spacing-0 text-[12.5px] whitespace-nowrap">
             <thead>
@@ -516,8 +488,8 @@ function Donut({ model, label: aria, money }: { model: ReturnType<typeof donut>;
   const t = useT(salesMessages);
   if (!model.slices.length) return null;
   return (
-    <figure className="relative size-[170px] shrink-0" aria-label={aria}>
-      <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 170, height: 170 }}>
+    <figure className="relative size-[130px] shrink-0" aria-label={aria}>
+      <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 130, height: 130 }}>
         <PieChart>
           <Tooltip
             contentStyle={tooltipBox}
@@ -528,8 +500,8 @@ function Donut({ model, label: aria, money }: { model: ReturnType<typeof donut>;
             data={model.slices}
             dataKey="amount"
             nameKey="name"
-            innerRadius={56}
-            outerRadius={84}
+            innerRadius={42}
+            outerRadius={64}
             startAngle={90}
             endAngle={-270}
             strokeWidth={0}
@@ -543,7 +515,7 @@ function Donut({ model, label: aria, money }: { model: ReturnType<typeof donut>;
       </ResponsiveContainer>
       <figcaption className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
         <span className="text-[11px] text-muted">{t.share.donutTotal}</span>
-        <span className="num text-[15px] font-extrabold text-fg">{money(model.total)}</span>
+        <span className="num text-[13px] font-extrabold text-fg">{money(model.total)}</span>
       </figcaption>
     </figure>
   );
@@ -645,5 +617,209 @@ function SegmentShare({ rows, money }: { rows: ShareRow[]; money: (n: number) =>
         </ResponsiveContainer>
       </div>
     </Panel>
+  );
+}
+
+const CUR_BAR = "var(--color-accent)";
+const PREV_BAR = "color-mix(in oklab, var(--color-accent) 35%, transparent)";
+const CUR_LINE = "var(--color-aorus)";
+const PREV_LINE = "color-mix(in oklab, var(--color-aorus) 45%, transparent)";
+const range = (ms: string[]) => (ms.length ? (ms.length === 1 ? label(ms[0]) : `${label(ms[0])} – ${label(ms[ms.length - 1])}`) : "");
+
+/** Combo chart of this period against the previous one: revenue bars (left axis), units lines (right axis) */
+function CompareChart({ data, money, height = 250 }: { data: { name: string; amount: number; prevAmount: number; qty: number; prevQty: number }[]; money: (n: number) => string; height?: number }) {
+  const t = useT(salesMessages);
+  return (
+    <div style={{ height }}>
+      <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 600, height }}>
+        <ComposedChart data={data} margin={{ top: 8, right: 4, bottom: 0, left: 0 }} barGap={2}>
+          <CartesianGrid vertical={false} stroke="var(--color-line-2)" />
+          <XAxis dataKey="name" tickLine={false} axisLine={false} tick={{ ...axisTick, fill: "var(--color-fg-2)" }} interval={0} />
+          <YAxis yAxisId="amount" width={76} tickLine={false} axisLine={false} tickFormatter={(v: number) => money(v)} tick={axisTick} />
+          <YAxis yAxisId="qty" orientation="right" width={48} tickLine={false} axisLine={false} tickFormatter={(v: number) => fmtNum(v)} tick={axisTick} />
+          <Tooltip
+            cursor={{ fill: "var(--color-accent-tint)" }}
+            contentStyle={tooltipBox}
+            labelStyle={{ color: "var(--color-fg)", fontWeight: 600 }}
+            itemStyle={{ color: "var(--color-fg-2)", fontFamily: "var(--font-mono)" }}
+            formatter={(v, name) => [name === t.share.amountCur || name === t.share.amountPrev ? `${fmtNum(Number(v))} VNĐ` : fmtNum(Number(v)), name]}
+          />
+          <Legend iconSize={10} wrapperStyle={{ fontSize: 11.5, color: "var(--color-fg-2)" }} />
+          <Bar yAxisId="amount" dataKey="amount" name={t.share.amountCur} fill={CUR_BAR} radius={[3, 3, 0, 0]} maxBarSize={34} isAnimationActive={false} />
+          <Bar yAxisId="amount" dataKey="prevAmount" name={t.share.amountPrev} fill={PREV_BAR} radius={[3, 3, 0, 0]} maxBarSize={34} isAnimationActive={false} />
+          <Line yAxisId="qty" dataKey="qty" name={t.share.qtyCur} stroke={CUR_LINE} strokeWidth={2.5} dot={{ r: 3.5, fill: CUR_LINE, strokeWidth: 0 }} isAnimationActive={false} />
+          <Line
+            yAxisId="qty"
+            dataKey="prevQty"
+            name={t.share.qtyPrev}
+            stroke={PREV_LINE}
+            strokeWidth={2}
+            strokeDasharray="4 3"
+            dot={{ r: 3, fill: PREV_LINE, strokeWidth: 0 }}
+            isAnimationActive={false}
+          />
+        </ComposedChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
+
+function Delta({ cur, prev }: { cur: number; prev: number }) {
+  if (!prev) return <span className="text-faint">—</span>;
+  const d = ((cur - prev) / Math.abs(prev)) * 100;
+  return <span className={cn("num font-semibold", d >= 0 ? "text-best" : "text-up")}>{fmtPct(d)}</span>;
+}
+
+/** Distributors, this period against the previous one */
+function NppCompare({
+  rows,
+  months,
+  prevMonths,
+  money,
+}: {
+  rows: SalesReport["npps"];
+  months: string[];
+  prevMonths: string[];
+  money: (n: number) => string;
+}) {
+  const t = useT(salesMessages);
+  return (
+    <Panel className="flex flex-col overflow-hidden">
+      <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-line px-4 py-3">
+        <h2 className="text-[17px] font-bold text-fg">{t.share.compareTitle}</h2>
+        <span className="num text-[11.5px] text-muted">{t.share.periods(range(months), range(prevMonths))}</span>
+      </div>
+      <div className="flex-1 p-3">
+        <CompareChart data={rows.map((r) => ({ name: r.label, amount: r.amount, prevAmount: r.prevAmount, qty: r.qty, prevQty: r.prevQty }))} money={money} />
+      </div>
+    </Panel>
+  );
+}
+
+/** Dealers (filter by PIC; units and revenue only) and, beside them, the selected dealer against the previous period */
+function Dealers({ report, money }: { report: SalesReport; money: (n: number) => string }) {
+  const t = useT(salesMessages);
+  const [pic, setPic] = useState("");
+  const [picked, setPicked] = useState<string | null>(null);
+  const [all, setAll] = useState(false);
+  const list = report.customers.filter((c) => !pic || c.pic === pic);
+  const shown = all ? list : list.slice(0, 20);
+  const sel = list.find((c) => c.key === picked) ?? list[0] ?? null;
+  const months = report.months.map((m) => m.month);
+  const chart = sel
+    ? months.map((m, i) => ({
+        name: t.share.monthPair(Number(m.slice(5)), Number(report.prevMonths[i]?.slice(5) ?? 0)),
+        amount: sel.series.cur[i]?.amount ?? 0,
+        prevAmount: sel.series.prev[i]?.amount ?? 0,
+        qty: sel.series.cur[i]?.qty ?? 0,
+        prevQty: sel.series.prev[i]?.qty ?? 0,
+      }))
+    : [];
+  return (
+    <div className="grid items-stretch gap-3 xl:grid-cols-2">
+      <Panel className="flex flex-col overflow-hidden">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line px-4 py-3">
+          <h2 className="text-[17px] font-bold text-fg">{t.customers.title}</h2>
+          <select
+            aria-label={t.share.pic}
+            value={pic}
+            onChange={(e) => {
+              setPic(e.target.value);
+              setPicked(null);
+            }}
+            className={cn("h-8 rounded-ctl border bg-app px-2 text-[13px] text-fg", pic ? "border-accent" : "border-line")}
+          >
+            <option value="">{t.share.allPic}</option>
+            {report.pics.map((p) => (
+              <option key={p} value={p}>
+                {t.share.pic} · {p}
+              </option>
+            ))}
+          </select>
+        </div>
+        {list.length === 0 ? (
+          <p className="px-4 py-6 text-[13px] text-muted">{t.share.noDealer}</p>
+        ) : (
+          <div className="max-h-[560px] flex-1 overflow-auto">
+            <table className="w-full border-separate border-spacing-0 text-[12.5px] whitespace-nowrap">
+              <thead className="sticky top-0 z-[1]">
+                <tr className="text-[11.5px] text-muted">
+                  {[t.models.rank, t.customers.name, t.share.qty, t.share.amount].map((h, i) => (
+                    <th key={h} scope="col" className={cn("border-b border-line bg-head px-3 py-2 font-semibold", i >= 2 ? "text-right" : "text-left")}>
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {shown.map((c, i) => {
+                  const on = sel?.key === c.key;
+                  const td = cn("border-b border-line-2 px-3 py-2", on ? "bg-accent-tint" : i % 2 === 0 ? "bg-row-a" : "bg-row-b");
+                  return (
+                    <tr key={c.key} onClick={() => setPicked(c.key)} aria-selected={on} className="cursor-pointer hover:[&>td]:bg-accent-tint">
+                      <td className={cn(td, "num w-10 text-faint")}>{i + 1}</td>
+                      <td className={cn(td, "font-semibold text-fg")}>
+                        <button type="button" className="text-left hover:underline" onClick={() => setPicked(c.key)}>
+                          {c.label}
+                        </button>
+                      </td>
+                      <td className={cn(td, "num text-right font-semibold text-fg")}>{fmtNum(c.qty)}</td>
+                      <td className={cn(td, "num text-right text-fg-2")} title={`${fmtNum(c.amount)} VNĐ`}>
+                        {money(c.amount)}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+        {list.length > 20 && (
+          <div className="border-t border-line px-4 py-2.5 text-right text-[12px]">
+            <button type="button" onClick={() => setAll((v) => !v)} className="font-semibold text-key hover:underline">
+              {all ? t.models.showLess : t.share.showAllDealers(list.length)}
+            </button>
+          </div>
+        )}
+      </Panel>
+
+      <Panel className="flex flex-col overflow-hidden">
+        <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-line px-4 py-3">
+          <h2 className="min-w-0 truncate text-[17px] font-bold text-fg">{sel ? t.share.dealerCompare(sel.label) : t.share.compareTitle}</h2>
+          <span className="num text-[11.5px] text-muted">{t.share.periods(range(months), range(report.prevMonths))}</span>
+        </div>
+        {sel ? (
+          <div className="flex flex-1 flex-col gap-3 p-3">
+            <div className="grid grid-cols-2 gap-2 text-[12px]">
+              {[
+                { l: t.share.qty, cur: sel.qty, prev: sel.prevQty, f: fmtNum },
+                { l: t.share.amount, cur: sel.amount, prev: sel.prevAmount, f: money },
+              ].map((k) => (
+                <div key={k.l} className="rounded-ctl border border-line bg-app px-3 py-2">
+                  <div className="text-muted">{k.l}</div>
+                  <div className="num mt-0.5 flex flex-wrap items-baseline gap-x-2 text-[16px] font-semibold text-fg">
+                    {k.f(k.cur)}
+                    <span className="text-[12px] font-normal text-muted">
+                      {t.share.prev}: {k.f(k.prev)}
+                    </span>
+                    <span className="text-[12px]">
+                      <Delta cur={k.cur} prev={k.prev} />
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="text-[11.5px] text-muted">
+              {sel.npp ?? "—"}
+              {sel.pic ? ` · ${t.share.pic} ${sel.pic}` : ""}
+            </div>
+            <CompareChart data={chart} money={money} height={280} />
+            <p className="text-[11.5px] text-faint">{t.share.dealerHint}</p>
+          </div>
+        ) : (
+          <p className="px-4 py-6 text-[13px] text-muted">{t.share.noDealer}</p>
+        )}
+      </Panel>
+    </div>
   );
 }
