@@ -1,33 +1,7 @@
-/** Minimal RFC 4180 reader: quoted fields, "" escapes, CRLF or LF, leading BOM */
+import Papa from "papaparse";
+
+/** CSV text to rows (Papa Parse): quoted fields, "" escapes, CRLF or LF, leading BOM, blank lines dropped */
 export function parseCsv(text: string): string[][] {
-  const s = text.replace(/^﻿/, "");
-  const rows: string[][] = [];
-  let row: string[] = [];
-  let field = "";
-  let quoted = false;
-  for (let i = 0; i < s.length; i++) {
-    const ch = s[i];
-    if (quoted) {
-      if (ch === '"' && s[i + 1] === '"') {
-        field += '"';
-        i++;
-      } else if (ch === '"') quoted = false;
-      else field += ch;
-    } else if (ch === '"') quoted = true;
-    else if (ch === ",") {
-      row.push(field);
-      field = "";
-    } else if (ch === "\n" || ch === "\r") {
-      if (ch === "\r" && s[i + 1] === "\n") i++;
-      row.push(field);
-      rows.push(row);
-      row = [];
-      field = "";
-    } else field += ch;
-  }
-  if (field !== "" || row.length) {
-    row.push(field);
-    rows.push(row);
-  }
-  return rows.filter((r) => r.some((c) => c.trim() !== ""));
+  const { data } = Papa.parse<string[]>(text.replace(/^\uFEFF/, ""), { skipEmptyLines: "greedy" });
+  return data.filter((r) => r.some((c) => c.trim() !== ""));
 }

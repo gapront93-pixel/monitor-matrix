@@ -113,15 +113,29 @@ function better(a: PlannedSnapshot, b: PlannedSnapshot): PlannedSnapshot {
   return (b.priceVnd ?? Infinity) < (a.priceVnd ?? Infinity) ? b : a;
 }
 
-export async function buildPlan(db: Db, parsed: ParsedPriceFile, capturedAt: Date): Promise<ImportPlan> {
-  const [products, known] = await Promise.all([
+export type PlanOptions = {
+  /** The file is a partial update: prices the file does not mention are carried over instead of dropped */
+  keepMissing?: boolean;
+};
+
+export async function buildPlan(db: Db, parsed: ParsedPriceFile, capturedAt: Date, opts: PlanOptions = {}): Promise<ImportPlan> {
+  const [products, known, state] = await Promise.all([
     db.product.findMany({ select: { id: true, slug: true, model: true, aliases: true } }),
     db.dealer.findMany({ select: { id: true } }),
+    getPriceState(db),
   ]);
-  const idx = productIndex(products);
-  const knownIds = new Set(known.map((d) => d.id));
-  const state = await getPriceState(db);
+  return planImport(parsed, capturedAt, productIndex(products), state, new Set(known.map((d) => d.id)), opts);
+}
 
+/** The diff itself, without the database: matched rows, unmatched rows and what changes against `state` */
+export function planImport(
+  parsed: ParsedPriceFile,
+  capturedAt: Date,
+  idx: Map<string, number[]>,
+  state: Map<string, DealerState>,
+  knownIds: Set<string>,
+  opts: PlanOptions = {},
+): ImportPlan {
   const unmatched: UnmatchedRow[] = [];
   const chosen = new Map<string, PlannedSnapshot>();
   let duplicates = 0;
@@ -173,7 +187,13 @@ export async function buildPlan(db: Db, parsed: ParsedPriceFile, capturedAt: Dat
   }
   for (const dealerId of covered) {
     for (const [productId, prev] of state.get(dealerId)?.snaps ?? []) {
-      if (!chosen.has(`${dealerId}|${productId}`)) {
+      if (chosen.has(`${dealerId}|${productId}`)) continue;
+      if (opts.keepMissing) {
+        const { capturedAt: _at, ...kept } = prev;
+        void _at;
+        snapshots.push({ ...kept, dealerId });
+        changes.push({ kind: "same", dealerId, productId, before: { priceVnd: prev.priceVnd, stockStatus: prev.stockStatus }, after: { priceVnd: prev.priceVnd, stockStatus: prev.stockStatus } });
+      } else {
         changes.push({
           kind: "removed",
           dealerId,

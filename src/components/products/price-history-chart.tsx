@@ -45,7 +45,7 @@ export function PriceHistoryChart({ points, series }: { points: Point[]; series:
         </div>
       ) : (
         <div className="h-[220px]" role="img" aria-label="Biểu đồ lịch sử giá thấp nhất và giá tại đại lý">
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 640, height: 220 }}>
             <LineChart data={points} margin={{ top: 6, right: 22, bottom: 0, left: 0 }}>
               <CartesianGrid vertical={false} stroke="var(--color-line-2)" />
               <XAxis dataKey="label" tickLine={false} axisLine={false} padding={{ left: 8, right: 8 }} interval="preserveStartEnd" tick={{ fill: "var(--color-faint)", fontSize: 10.5, fontFamily: "var(--font-mono)" }} />

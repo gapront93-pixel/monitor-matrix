@@ -24,7 +24,7 @@ export type PriceRow = {
 };
 
 export type ParsedPriceFile = {
-  format: "dealer-json" | "bang-gia-csv";
+  format: "dealer-json" | "bang-gia-csv" | "long-csv";
   capturedAt: Date | null; // null: the file has no date, the admin picks one
   dealers: DealerInfo[]; // dealers this file covers
   rows: PriceRow[];
@@ -120,19 +120,14 @@ export function parseBangGiaCsv(text: string, knownDealers: { id: string; name: 
   const modelCol = header.findIndex((h) => normKey(h) === "model");
   if (slugCol < 0 && modelCol < 0) throw new Error('File CSV cần có cột "slug" hoặc "model".');
 
-  const byKey = new Map<string, { id: string; name: string }>();
-  for (const d of knownDealers) {
-    byKey.set(normKey(d.id), d);
-    byKey.set(normKey(d.name), d);
-    byKey.set(normKey(stripParens(d.name)), d);
-  }
+  const findDealer = dealerLookup(knownDealers);
   const skip = new Set(["model", "slug", "giathapnhat", "sonoiban", "sonoiconhang"]);
   const out: ParsedPriceFile = { format: "bang-gia-csv", capturedAt: null, dealers: [], rows: [], warnings: [] };
   const cols: { idx: number; dealerId: string }[] = [];
   header.forEach((h, idx) => {
     const k = normKey(h);
     if (!k || skip.has(k)) return;
-    const d = byKey.get(k) ?? byKey.get(normKey(stripParens(h)));
+    const d = findDealer(h);
     if (!d) {
       out.warnings.push(`Cột "${h}" không khớp đại lý nào, đã bỏ qua. Thêm đại lý này ở mục Đại lý trước nếu cần.`);
       return;
@@ -163,9 +158,90 @@ export function parseBangGiaCsv(text: string, knownDealers: { id: string; name: 
   return out;
 }
 
+function dealerLookup(knownDealers: { id: string; name: string }[]) {
+  const byKey = new Map<string, { id: string; name: string }>();
+  for (const d of knownDealers) {
+    byKey.set(normKey(d.id), d);
+    byKey.set(normKey(d.name), d);
+    byKey.set(normKey(stripParens(d.name)), d);
+  }
+  return (v: string) => byKey.get(normKey(v)) ?? byKey.get(normKey(stripParens(v)));
+}
+
+// status column of the long CSV: ok | oos | contact (Vietnamese words accepted too)
+const STATUS_NOTE: [RegExp, string | null][] = [
+  [/^(ok|con hang|còn hàng|in[_ ]?stock|co hang|có hàng)$/i, "Còn hàng"],
+  [/^(oos|out[_ ]?of[_ ]?stock|het hang|hết hàng)$/i, "Hết hàng"],
+  [/^(contact|lien he|liên hệ)$/i, "Liên hệ"],
+  [/^(discontinued|ngung kinh doanh|ngừng kinh doanh|ngung ban|ngừng bán)$/i, "Ngừng kinh doanh"],
+  [/^$/, null],
+];
+
+/** Long CSV, one price per line: model (or slug), dealer, price, status [, url, note, list_price] */
+export function parseLongCsv(text: string, knownDealers: { id: string; name: string }[]): ParsedPriceFile {
+  const table = parseCsv(text);
+  if (table.length < 2) throw new Error("File CSV trống.");
+  const header = table[0].map((h) => normKey(h));
+  const col = (...names: string[]) => header.findIndex((h) => names.includes(h));
+  const c = {
+    model: col("model", "mau", "slug"),
+    dealer: col("dealer", "daily", "dealerid"),
+    price: col("price", "gia", "pricevnd"),
+    status: col("status", "tinhtrang"),
+    url: col("url", "link"),
+    note: col("note", "ghichu"),
+    list: col("listprice", "listpricevnd", "gianiemyet"),
+  };
+  const missing = (["model", "dealer", "price", "status"] as const).filter((k) => c[k] < 0);
+  if (missing.length) throw new Error(`File CSV thiếu cột bắt buộc: ${missing.join(", ")} (cần model, dealer, price, status).`);
+
+  const findDealer = dealerLookup(knownDealers);
+  const out: ParsedPriceFile = { format: "long-csv", capturedAt: null, dealers: [], rows: [], warnings: [] };
+  const seen = new Set<string>();
+  table.slice(1).forEach((r, i) => {
+    const line = i + 2;
+    const model = cleanStr(r[c.model]);
+    const dealerName = cleanStr(r[c.dealer]);
+    if (!model && !dealerName) return;
+    if (!model) return out.warnings.push(`Dòng ${line}: thiếu tên mẫu.`);
+    if (!dealerName) return out.warnings.push(`Dòng ${line}: thiếu đại lý.`);
+    const d = findDealer(dealerName);
+    if (!d) return out.warnings.push(`Dòng ${line}: đại lý "${dealerName}" chưa có trong danh sách. Thêm ở mục Đại lý rồi tải lại.`);
+    const statusRaw = cleanStr(r[c.status]) ?? "";
+    const st = STATUS_NOTE.find(([re]) => re.test(statusRaw.normalize("NFC")));
+    if (!st) return out.warnings.push(`Dòng ${line}: tình trạng "${statusRaw}" không hợp lệ (dùng ok, oos hoặc contact).`);
+    const priceRaw = cleanStr(r[c.price]);
+    const price = parseVnd(priceRaw);
+    if (priceRaw && price === null) return out.warnings.push(`Dòng ${line}: giá "${priceRaw}" không hợp lệ, bỏ qua.`);
+    if (price === null && st[1] !== "Liên hệ" && st[1] !== "Hết hàng" && st[1] !== "Ngừng kinh doanh") {
+      return out.warnings.push(`Dòng ${line}: thiếu giá (để trống giá chỉ khi status là contact).`);
+    }
+    if (!seen.has(d.id)) {
+      seen.add(d.id);
+      out.dealers.push({ id: d.id, name: d.name, website: null, status: "ok", note: null });
+    }
+    const note = [st[1], c.note >= 0 ? cleanStr(r[c.note]) : null].filter(Boolean).join("; ") || null;
+    out.rows.push({
+      dealerId: d.id,
+      slugInFile: model,
+      nameOnSite: model,
+      priceVnd: price,
+      listPriceVnd: c.list >= 0 ? parseVnd(r[c.list]) : null,
+      url: c.url >= 0 ? cleanStr(r[c.url]) : null,
+      note,
+    });
+  });
+  return out;
+}
+
+/** Picks the reader from the extension and, for CSV, from the header (long list or one column per dealer) */
 export function parsePriceFile(fileName: string, text: string, knownDealers: { id: string; name: string }[]): ParsedPriceFile {
   const lower = fileName.toLowerCase();
   if (lower.endsWith(".json")) return parseDealerJson(text);
-  if (lower.endsWith(".csv")) return parseBangGiaCsv(text, knownDealers);
+  if (lower.endsWith(".csv")) {
+    const header = (parseCsv(text)[0] ?? []).map((h) => normKey(h));
+    const long = ["dealer", "daily", "dealerid"].some((k) => header.includes(k)) && ["price", "gia", "pricevnd"].some((k) => header.includes(k));
+    return long ? parseLongCsv(text, knownDealers) : parseBangGiaCsv(text, knownDealers);
+  }
   throw new Error("Chỉ nhận file .json hoặc .csv.");
 }
