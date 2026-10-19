@@ -4,7 +4,7 @@ import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Fragment, useMemo, useState } from "react";
-import { Bar, CartesianGrid, ComposedChart, Legend, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, CartesianGrid, Cell, ComposedChart, LabelList, Legend, Line, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 import { ProductImage } from "@/components/product-image";
 import { Chip } from "@/components/ui/chip";
@@ -13,7 +13,7 @@ import { EmptyState } from "@/components/ui/states";
 import { fmtNum, fmtPct, fmtVndCompact } from "@/lib/format";
 import { useLocale, useT } from "@/lib/i18n/client";
 import { salesMessages } from "@/lib/i18n/messages/sales";
-import type { SalesItem, SalesReport } from "@/lib/sales";
+import type { SalesReport } from "@/lib/sales";
 import { DEFAULT_RANGE, RANGE_PRESETS, type RangePreset } from "@/lib/sales-period";
 import { cn } from "@/lib/utils";
 
@@ -24,8 +24,16 @@ type Props = {
   segments: { id: string; name: string }[];
 };
 
+type ShareRow = { key: string; label: string; qty: number; amount: number };
+
 const label = (m: string) => `${m.slice(5)}/${m.slice(0, 4)}`;
 const pct = (v: number, total: number) => (total ? `${((v / total) * 100).toFixed(1)}%` : "—");
+
+// Donut slices along the cyan -> magenta -> pink steps of the vnpromotion dashboard, largest first; the rest is grey
+const SLICE_COLORS = ["#00c2f0", "#4aa8ff", "#7b7cff", "#a855f7", "#d02fe0", "#ff2bc4", "#ff6fb3"];
+const OTHER_COLOR = "#8894a1";
+const MAX_SLICES = 7;
+const MAX_BARS = 12;
 
 function monthsOf(first: string, last: string): string[] {
   const out: string[] = [];
@@ -41,7 +49,22 @@ function monthsOf(first: string, last: string): string[] {
   return out;
 }
 
+/** Revenue donut: one colour per row by revenue rank, the rest folded into a grey slice */
+function donut(rows: ShareRow[], other: string) {
+  const positive = rows.filter((r) => r.amount > 0).sort((a, b) => b.amount - a.amount);
+  const top = positive.slice(0, MAX_SLICES);
+  const rest = positive.slice(MAX_SLICES);
+  const slices = top.map((r, i) => ({ name: r.label, amount: r.amount, color: SLICE_COLORS[i % SLICE_COLORS.length] }));
+  const colors = new Map(top.map((r, i) => [r.key, SLICE_COLORS[i % SLICE_COLORS.length]]));
+  if (rest.length) {
+    slices.push({ name: other, amount: rest.reduce((n, r) => n + r.amount, 0), color: OTHER_COLOR });
+    for (const r of rest) colors.set(r.key, OTHER_COLOR);
+  }
+  return { slices, colors, total: rows.reduce((n, r) => n + r.amount, 0) };
+}
+
 const axisTick = { fill: "var(--color-faint)", fontSize: 10.5, fontFamily: "var(--font-mono)" };
+const tooltipBox = { background: "var(--color-panel)", border: "1px solid var(--color-line)", borderRadius: 5, fontSize: 12 };
 
 export function SalesView({ report, filter, range, segments }: Props) {
   const t = useT(salesMessages);
@@ -73,13 +96,21 @@ export function SalesView({ report, filter, range, segments }: Props) {
 
   const models = useMemo(() => [...report.models].sort((a, b) => (sort === "qty" ? b.qty - a.qty : b.amount - a.amount)), [report.models, sort]);
   const segName = new Map(segments.map((s) => [s.id, s.name]));
-  const group = (key: (m: SalesReport["models"][number]) => string) => {
-    const g = new Map<string, number>();
-    for (const m of report.models) g.set(key(m), (g.get(key(m)) ?? 0) + m.qty);
-    return [...g.entries()].filter(([, v]) => v > 0).sort((a, b) => b[1] - a[1]);
+  // Size and panel come from the catalog model behind each SO Model (unknown when it is not in the catalog)
+  const group = (key: (m: SalesReport["models"][number]) => string): ShareRow[] => {
+    const g = new Map<string, ShareRow>();
+    for (const m of report.models) {
+      const k = key(m);
+      const row = g.get(k) ?? { key: k, label: k, qty: 0, amount: 0 };
+      row.qty += m.qty;
+      row.amount += m.amount;
+      g.set(k, row);
+    }
+    return [...g.values()].filter((r) => r.qty !== 0 || r.amount !== 0).sort((a, b) => b.amount - a.amount);
   };
   const bySize = group((m) => (m.sizeIn ? `${Math.round(m.sizeIn)}"` : t.unknown));
   const byPanel = group((m) => m.panel ?? t.unknown);
+  const segRows = report.segments.map((s) => (s.label === "?" ? { ...s, label: t.unknown } : s));
   const toggle = (key: string) =>
     setOpen((s) => {
       const n = new Set(s);
@@ -91,6 +122,7 @@ export function SalesView({ report, filter, range, segments }: Props) {
 
   return (
     <div className="flex flex-col gap-4">
+      {/* Period and distributor side by side, on the left */}
       <div className="flex flex-wrap items-center gap-2">
         <select
           aria-label={t.period}
@@ -132,11 +164,9 @@ export function SalesView({ report, filter, range, segments }: Props) {
             </label>
           </>
         ) : (
-          <span className="num text-[12.5px] text-muted">
-            {filter.from === filter.to ? label(filter.from) : `${label(filter.from)} – ${label(filter.to)}`}
-          </span>
+          <span className="num text-[12.5px] text-muted">{filter.from === filter.to ? label(filter.from) : `${label(filter.from)} – ${label(filter.to)}`}</span>
         )}
-        <select aria-label={t.npp} className={cn(selectCls, "ml-auto")} value={filter.npp ?? ""} onChange={(e) => go({ npp: e.target.value || null })}>
+        <select aria-label={t.npp} className={cn(selectCls, filter.npp && "border-accent")} value={filter.npp ?? ""} onChange={(e) => go({ npp: e.target.value || null })}>
           <option value="">{t.allNpp}</option>
           {range.npps.map((n) => (
             <option key={n} value={n}>
@@ -150,17 +180,34 @@ export function SalesView({ report, filter, range, segments }: Props) {
         <EmptyState title={t.noData}>{t.noDataText}</EmptyState>
       ) : (
         <>
-          <div className="grid grid-cols-[repeat(auto-fit,minmax(190px,1fr))] gap-3">
-            <Kpi label={t.kpi.qty} value={fmtNum(totals.qty)} unit={t.kpi.qtyUnit} delta={delta(totals.qty, previous?.qty)} note={previous ? t.kpi.vsPrev(span) : t.kpi.noPrev} />
-            <Kpi label={t.kpi.amount} value={money(totals.amount)} delta={delta(totals.amount, previous?.amount)} note={previous ? t.kpi.vsPrev(span) : t.kpi.noPrev} />
-            <Kpi label={t.kpi.asp} value={totals.qty > 0 ? fmtNum(Math.round(totals.amount / totals.qty)) : "—"} note="VNĐ" />
-            <Kpi label={t.kpi.models} value={fmtNum(totals.models)} />
-            <Kpi label={t.kpi.customers} value={fmtNum(totals.customers)} />
+          {/* Units and revenue as the two headline tiles, the rest in a smaller row below */}
+          <div className="grid gap-3 sm:grid-cols-2">
+            <HeroKpi
+              tone="qty"
+              label={t.kpi.qty}
+              value={fmtNum(totals.qty)}
+              unit={t.kpi.qtyUnit}
+              delta={delta(totals.qty, previous?.qty)}
+              note={previous ? t.kpi.vsPrev(span) : t.kpi.noPrev}
+            />
+            <HeroKpi
+              tone="amount"
+              label={t.kpi.amount}
+              value={money(totals.amount)}
+              delta={delta(totals.amount, previous?.amount)}
+              note={previous ? t.kpi.vsPrev(span) : t.kpi.noPrev}
+              title={`${fmtNum(totals.amount)} VNĐ`}
+            />
+          </div>
+          <div className="grid grid-cols-3 gap-3">
+            <SmallKpi label={t.kpi.asp} value={totals.qty > 0 ? fmtNum(Math.round(totals.amount / totals.qty)) : "—"} unit="VNĐ" />
+            <SmallKpi label={t.kpi.models} value={fmtNum(totals.models)} />
+            <SmallKpi label={t.kpi.customers} value={fmtNum(totals.customers)} />
           </div>
 
           {/* Revenue as bars on the left axis, units as a line on the right axis */}
           <Panel className="p-4">
-            <h2 className="mb-2 text-[14px] font-bold text-fg">{t.chart.title}</h2>
+            <h2 className="mb-2 text-[17px] font-bold text-fg">{t.chart.title}</h2>
             <div className="h-[260px]">
               <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 900, height: 260 }}>
                 <ComposedChart data={report.months} margin={{ top: 8, right: 4, bottom: 0, left: 0 }}>
@@ -170,7 +217,7 @@ export function SalesView({ report, filter, range, segments }: Props) {
                   <YAxis yAxisId="qty" orientation="right" width={52} tickLine={false} axisLine={false} tickFormatter={(v: number) => fmtNum(v)} tick={axisTick} />
                   <Tooltip
                     cursor={{ fill: "var(--color-accent-tint)" }}
-                    contentStyle={{ background: "var(--color-panel)", border: "1px solid var(--color-line)", borderRadius: 5, fontSize: 12 }}
+                    contentStyle={tooltipBox}
                     labelStyle={{ color: "var(--color-fg)", fontWeight: 600 }}
                     itemStyle={{ color: "var(--color-fg-2)", fontFamily: "var(--font-mono)" }}
                     labelFormatter={(m) => label(String(m))}
@@ -193,21 +240,21 @@ export function SalesView({ report, filter, range, segments }: Props) {
             </div>
           </Panel>
 
+          <DonutTable title={t.share.npp} nameHead={t.share.nppCol} rows={report.npps} totals={totals} money={money} />
+
+          <div className="grid items-stretch gap-3 xl:grid-cols-2">
+            <SegmentTable rows={segRows} totals={totals} money={money} />
+            <SegmentShare rows={segRows} money={money} />
+          </div>
+
           <div className="grid items-start gap-3 xl:grid-cols-2">
-            <ShareTable title={t.share.npp} nameHead={t.share.nppCol} rows={report.npps} totals={totals} money={money} />
-            <ShareTable
-              title={t.share.segment}
-              nameHead={t.share.segmentCol}
-              rows={report.segments.map((s) => (s.label === "?" ? { ...s, label: t.unknown } : s))}
-              totals={totals}
-              money={money}
-              withModels
-            />
+            <DonutTable title={t.bySize} nameHead={t.share.sizeCol} rows={bySize} totals={totals} money={money} />
+            <DonutTable title={t.byPanel} nameHead={t.share.panelCol} rows={byPanel} totals={totals} money={money} />
           </div>
 
           <Panel className="overflow-hidden">
             <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line px-4 py-3">
-              <h2 className="text-[14px] font-bold text-fg">{t.models.title}</h2>
+              <h2 className="text-[17px] font-bold text-fg">{t.models.title}</h2>
               <div className="flex gap-1.5">
                 <Chip active={sort === "amount"} onClick={() => setSort("amount")}>
                   {t.models.sortAmount}
@@ -304,15 +351,10 @@ export function SalesView({ report, filter, range, segments }: Props) {
             </div>
           </Panel>
 
-          <div className="grid gap-3 md:grid-cols-2">
-            <Breakdown title={t.bySize} rows={bySize} total={totals.qty} />
-            <Breakdown title={t.byPanel} rows={byPanel} total={totals.qty} />
-          </div>
-
           <Panel className="overflow-hidden">
-            <h2 className="border-b border-line px-4 py-3 text-[14px] font-bold text-fg">{t.customers.title}</h2>
+            <h2 className="border-b border-line px-4 py-3 text-[17px] font-bold text-fg">{t.customers.title}</h2>
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[560px] border-separate border-spacing-0 text-[12.5px]">
+              <table className="w-full min-w-[560px] border-separate border-spacing-0 text-[12.5px] whitespace-nowrap">
                 <thead>
                   <tr className="text-[11.5px] text-muted">
                     {[t.models.rank, t.customers.name, t.customers.npp, t.share.qty, t.share.qtyShare, t.share.amount, t.share.amountShare].map((h, i) => (
@@ -348,53 +390,177 @@ export function SalesView({ report, filter, range, segments }: Props) {
   );
 }
 
-function Kpi({ label, value, unit, delta, note }: { label: string; value: string; unit?: string; delta?: number | null; note?: string }) {
+// Gradient tiles as on the vnpromotion dashboard: units deep cyan -> violet, revenue violet -> magenta -> pink
+const HERO = {
+  qty: "bg-linear-to-br from-[#0086a8] via-[#3b5fd0] to-[#7a2bc8]",
+  amount: "bg-linear-to-br from-[#7a2bc8] via-[#c4008f] to-[#d6337f]",
+} as const;
+
+function HeroKpi({
+  tone,
+  label,
+  value,
+  unit,
+  delta,
+  note,
+  title,
+}: {
+  tone: keyof typeof HERO;
+  label: string;
+  value: string;
+  unit?: string;
+  delta: number | null;
+  note: string;
+  title?: string;
+}) {
   return (
-    <Panel className="px-4 py-3.5">
-      <div className="text-[12.5px] text-fg-2">{label}</div>
-      <div className="num mt-1 text-[26px] leading-tight font-semibold tracking-[-0.02em] text-fg">
+    <div className={cn("flex min-h-28 flex-col gap-1.5 rounded-[14px] px-5 py-4 text-white md:min-h-32 md:px-6 md:py-5", HERO[tone])}>
+      <span className="text-[13.5px] font-medium text-white/85">{label}</span>
+      <span className="num text-[30px] leading-tight font-extrabold tracking-[-0.02em] md:text-[40px]" title={title}>
         {value}
-        {unit && <span className="ml-1 font-sans text-[12px] font-normal text-muted">{unit}</span>}
+        {unit && <span className="ml-1.5 font-sans text-[14px] font-medium text-white/80">{unit}</span>}
+      </span>
+      <span className="text-[12.5px] text-white/85">
+        {delta !== null && (
+          <span className="num mr-1.5 inline-block rounded-full bg-white/20 px-2 py-0.5 font-semibold text-white">{fmtPct(delta)}</span>
+        )}
+        {note}
+      </span>
+    </div>
+  );
+}
+
+function SmallKpi({ label, value, unit }: { label: string; value: string; unit?: string }) {
+  return (
+    <Panel className="px-3.5 py-2.5">
+      <div className="truncate text-[11.5px] text-muted" title={label}>
+        {label}
       </div>
-      {(delta !== undefined || note) && (
-        <div className="mt-0.5 text-[11.5px] text-muted">
-          {delta !== undefined && delta !== null && <span className={cn("num mr-1 font-semibold", delta >= 0 ? "text-best" : "text-up")}>{fmtPct(delta)}</span>}
-          {note}
-        </div>
-      )}
+      <div className="num mt-0.5 text-[16px] leading-tight font-semibold text-fg">
+        {value}
+        {unit && <span className="ml-1 font-sans text-[11px] font-normal text-muted">{unit}</span>}
+      </div>
     </Panel>
   );
 }
 
-/** Units, revenue and both shares per row, with a revenue-share bar; a total row at the bottom */
-function ShareTable({
+/** Units, revenue and revenue share per row, with the revenue donut beside the table (vnpromotion dashboard layout) */
+function DonutTable({
   title,
   nameHead,
   rows,
   totals,
   money,
-  withModels,
 }: {
   title: string;
   nameHead: string;
-  rows: (SalesItem & { models?: number })[];
+  rows: ShareRow[];
   totals: { qty: number; amount: number };
   money: (n: number) => string;
-  withModels?: boolean;
 }) {
   const t = useT(salesMessages);
-  const heads = [nameHead, t.share.qty, t.share.qtyShare, t.share.amount, t.share.amountShare, t.share.asp, ...(withModels ? [t.share.models] : [])];
-  const max = Math.max(1, ...rows.map((r) => r.amount));
-  const foot = "num bg-head px-3 py-2 text-right";
+  const model = donut(rows, t.share.other);
+  const sorted = [...rows].sort((a, b) => b.amount - a.amount);
   return (
     <Panel className="overflow-hidden">
-      <h2 className="border-b border-line px-4 py-3 text-[14px] font-bold text-fg">{title}</h2>
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[560px] border-separate border-spacing-0 text-[12.5px] whitespace-nowrap">
-          <thead>
+      <h2 className="border-b border-line px-4 py-3 text-[17px] font-bold text-fg">{title}</h2>
+      <div className="flex flex-col items-center gap-4 p-4 md:flex-row md:items-start">
+        <div className="w-full min-w-0 flex-1 overflow-x-auto">
+          <table className="w-full border-separate border-spacing-0 text-[12.5px] whitespace-nowrap">
+            <thead>
+              <tr className="text-[11.5px] text-muted">
+                {[nameHead, t.share.qty, t.share.amount, t.models.share].map((h, i) => (
+                  <th key={h} scope="col" className={cn("border-b border-line bg-head px-3 py-2 font-semibold", i ? "text-right" : "text-left")}>
+                    {h}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {sorted.map((r, i) => {
+                const td = cn("border-b border-line-2 px-3 py-2", i % 2 === 0 ? "bg-row-a" : "bg-row-b");
+                return (
+                  <tr key={r.key}>
+                    <td className={cn(td, "font-semibold text-fg")}>
+                      <span className="inline-flex items-center gap-2">
+                        <span aria-hidden className="size-2 shrink-0 rounded-full" style={{ background: model.colors.get(r.key) ?? OTHER_COLOR }} />
+                        {r.label}
+                      </span>
+                    </td>
+                    <td className={cn(td, "num text-right text-fg")}>{fmtNum(r.qty)}</td>
+                    <td className={cn(td, "num text-right font-semibold text-fg")} title={`${fmtNum(r.amount)} VNĐ`}>
+                      {money(r.amount)}
+                    </td>
+                    <td className={cn(td, "num text-right text-key")}>{pct(r.amount, totals.amount)}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+            <tfoot>
+              <tr className="font-semibold">
+                <td className="bg-head px-3 py-2 text-fg">{t.share.total}</td>
+                <td className="num bg-head px-3 py-2 text-right text-fg">{fmtNum(totals.qty)}</td>
+                <td className="num bg-head px-3 py-2 text-right text-fg">{money(totals.amount)}</td>
+                <td className="num bg-head px-3 py-2 text-right text-muted">100%</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+        <Donut model={model} label={t.share.donutLabel(nameHead)} money={money} />
+      </div>
+    </Panel>
+  );
+}
+
+function Donut({ model, label: aria, money }: { model: ReturnType<typeof donut>; label: string; money: (n: number) => string }) {
+  const t = useT(salesMessages);
+  if (!model.slices.length) return null;
+  return (
+    <figure className="relative size-[170px] shrink-0" aria-label={aria}>
+      <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 170, height: 170 }}>
+        <PieChart>
+          <Tooltip
+            contentStyle={tooltipBox}
+            itemStyle={{ color: "var(--color-fg-2)", fontFamily: "var(--font-mono)" }}
+            formatter={(v, name) => [`${fmtNum(Number(v))} VNĐ · ${pct(Number(v), model.total)}`, name]}
+          />
+          <Pie
+            data={model.slices}
+            dataKey="amount"
+            nameKey="name"
+            innerRadius={56}
+            outerRadius={84}
+            startAngle={90}
+            endAngle={-270}
+            strokeWidth={0}
+            isAnimationActive={false}
+          >
+            {model.slices.map((s) => (
+              <Cell key={s.name} fill={s.color} />
+            ))}
+          </Pie>
+        </PieChart>
+      </ResponsiveContainer>
+      <figcaption className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
+        <span className="text-[11px] text-muted">{t.share.donutTotal}</span>
+        <span className="num text-[15px] font-extrabold text-fg">{money(model.total)}</span>
+      </figcaption>
+    </figure>
+  );
+}
+
+/** Segment, units, revenue, share — the dashboard's segment table (one CAT here: LCD) */
+function SegmentTable({ rows, totals, money }: { rows: (ShareRow & { models: number })[]; totals: { qty: number; amount: number }; money: (n: number) => string }) {
+  const t = useT(salesMessages);
+  return (
+    <Panel className="flex flex-col overflow-hidden">
+      <h2 className="border-b border-line px-4 py-3 text-[17px] font-bold text-fg">{t.share.segment}</h2>
+      <div className="max-h-[460px] flex-1 overflow-auto">
+        <table className="w-full border-separate border-spacing-0 text-[12.5px] whitespace-nowrap">
+          <thead className="sticky top-0 z-[1]">
             <tr className="text-[11.5px] text-muted">
-              {heads.map((h, i) => (
-                <th key={h} scope="col" className={cn("border-b border-line bg-head px-3 py-2 font-semibold", i >= 1 ? "text-right" : "text-left")}>
+              {[t.share.segmentCol, t.share.qty, t.share.amount, t.models.share, t.share.models].map((h, i) => (
+                <th key={h} scope="col" className={cn("border-b border-line bg-head px-3 py-2 font-semibold", i ? "text-right" : "text-left")}>
                   {h}
                 </th>
               ))}
@@ -405,33 +571,24 @@ function ShareTable({
               const td = cn("border-b border-line-2 px-3 py-2", i % 2 === 0 ? "bg-row-a" : "bg-row-b");
               return (
                 <tr key={r.key}>
-                  <td className={cn(td, "font-semibold text-fg")}>
-                    <div className="max-w-[220px] truncate" title={r.label}>
-                      {r.label}
-                    </div>
-                    <div className="mt-1 h-1 overflow-hidden rounded-full bg-line-2" aria-hidden>
-                      <div className="h-full rounded-full bg-accent" style={{ width: `${Math.max(2, (r.amount / max) * 100)}%` }} />
-                    </div>
-                  </td>
+                  <td className={cn(td, "font-semibold text-fg")}>{r.label}</td>
                   <td className={cn(td, "num text-right text-fg")}>{fmtNum(r.qty)}</td>
-                  <td className={cn(td, "num text-right text-muted")}>{pct(r.qty, totals.qty)}</td>
-                  <td className={cn(td, "num text-right font-semibold text-fg")}>{money(r.amount)}</td>
-                  <td className={cn(td, "num text-right font-semibold text-key")}>{pct(r.amount, totals.amount)}</td>
-                  <td className={cn(td, "num text-right text-fg-2")}>{r.qty > 0 ? fmtNum(Math.round(r.amount / r.qty)) : "—"}</td>
-                  {withModels && <td className={cn(td, "num text-right text-muted")}>{r.models ?? "—"}</td>}
+                  <td className={cn(td, "num text-right font-semibold text-fg")} title={`${fmtNum(r.amount)} VNĐ`}>
+                    {money(r.amount)}
+                  </td>
+                  <td className={cn(td, "num text-right text-key")}>{pct(r.amount, totals.amount)}</td>
+                  <td className={cn(td, "num text-right text-muted")}>{r.models}</td>
                 </tr>
               );
             })}
           </tbody>
-          <tfoot>
+          <tfoot className="sticky bottom-0">
             <tr className="font-semibold">
               <td className="bg-head px-3 py-2 text-fg">{t.share.total}</td>
-              <td className={cn(foot, "text-fg")}>{fmtNum(totals.qty)}</td>
-              <td className={cn(foot, "text-muted")}>100%</td>
-              <td className={cn(foot, "text-fg")}>{money(totals.amount)}</td>
-              <td className={cn(foot, "text-muted")}>100%</td>
-              <td className={cn(foot, "text-fg-2")}>{totals.qty > 0 ? fmtNum(Math.round(totals.amount / totals.qty)) : "—"}</td>
-              {withModels && <td className="bg-head" />}
+              <td className="num bg-head px-3 py-2 text-right text-fg">{fmtNum(totals.qty)}</td>
+              <td className="num bg-head px-3 py-2 text-right text-fg">{money(totals.amount)}</td>
+              <td className="num bg-head px-3 py-2 text-right text-muted">100%</td>
+              <td className="bg-head" />
             </tr>
           </tfoot>
         </table>
@@ -440,29 +597,53 @@ function ShareTable({
   );
 }
 
-/** Horizontal bars, labelled with units and share (one measure, one colour) */
-function Breakdown({ title, rows, total }: { title: string; rows: [string, number][]; total: number }) {
-  const max = Math.max(1, ...rows.map((r) => r[1]));
+/** Share of each segment in revenue: horizontal bars, the largest 11 and one grey bar for the rest */
+function SegmentShare({ rows, money }: { rows: ShareRow[]; money: (n: number) => string }) {
+  const t = useT(salesMessages);
+  const sold = rows.filter((r) => r.amount > 0).sort((a, b) => b.amount - a.amount);
+  const total = sold.reduce((n, r) => n + r.amount, 0);
+  const shown = sold.length > MAX_BARS ? sold.slice(0, MAX_BARS - 1) : sold;
+  const rest = sold.slice(shown.length);
+  const bars = [
+    ...shown.map((r) => ({ name: r.label, amount: r.amount, share: total ? (r.amount / total) * 100 : 0, other: false })),
+    ...(rest.length ? [{ name: t.share.others(rest.length), amount: rest.reduce((n, r) => n + r.amount, 0), share: 0, other: true }] : []),
+  ].map((b) => (b.other ? { ...b, share: total ? (b.amount / total) * 100 : 0 } : b));
+  const height = Math.max(160, bars.length * 30 + 20);
   return (
-    <Panel className="p-4">
-      <h2 className="mb-3 text-[14px] font-bold text-fg">{title}</h2>
-      <ul className="flex flex-col gap-2">
-        {rows.map(([name, v]) => (
-          <li key={name}>
-            <div className="mb-1 flex items-baseline justify-between gap-2 text-[12.5px]">
-              <span className="min-w-0 truncate text-fg-2" title={name}>
-                {name}
-              </span>
-              <span className="num shrink-0 text-[12px] text-fg">
-                {fmtNum(v)} <span className="text-muted">· {pct(v, total)}</span>
-              </span>
-            </div>
-            <div className="h-1.5 overflow-hidden rounded-full bg-line-2" aria-hidden>
-              <div className="h-full rounded-full bg-accent" style={{ width: `${Math.max(2, (v / max) * 100)}%` }} />
-            </div>
-          </li>
-        ))}
-      </ul>
+    <Panel className="flex flex-col overflow-hidden">
+      <div className="flex items-baseline justify-between gap-2 border-b border-line px-4 py-3">
+        <h2 className="text-[17px] font-bold text-fg">{t.share.segmentShare}</h2>
+        <span className="text-[11.5px] text-muted">{t.share.segmentShareNote}</span>
+      </div>
+      <div className="flex-1 p-3" style={{ minHeight: height }}>
+        <ResponsiveContainer width="100%" height={height} initialDimension={{ width: 600, height }}>
+          <BarChart data={bars} layout="vertical" margin={{ top: 0, right: 48, bottom: 0, left: 0 }}>
+            <CartesianGrid horizontal={false} stroke="var(--color-line-2)" />
+            <XAxis type="number" hide domain={[0, "dataMax"]} />
+            <YAxis
+              type="category"
+              dataKey="name"
+              width={140}
+              tickLine={false}
+              axisLine={false}
+              tick={{ fill: "var(--color-fg-2)", fontSize: 11.5 }}
+              tickFormatter={(v: string) => (v.length > 22 ? `${v.slice(0, 21)}…` : v)}
+            />
+            <Tooltip
+              cursor={{ fill: "var(--color-accent-tint)" }}
+              contentStyle={tooltipBox}
+              itemStyle={{ color: "var(--color-fg-2)", fontFamily: "var(--font-mono)" }}
+              formatter={(_v, _n, item) => [`${money(item.payload.amount)} · ${item.payload.share.toFixed(1)}%`, t.share.amount]}
+            />
+            <Bar dataKey="share" radius={[0, 4, 4, 0]} maxBarSize={18} isAnimationActive={false}>
+              {bars.map((b, i) => (
+                <Cell key={b.name} fill={b.other ? OTHER_COLOR : SLICE_COLORS[Math.min(i, SLICE_COLORS.length - 1)]} />
+              ))}
+              <LabelList dataKey="share" position="right" formatter={(v) => `${Number(v).toFixed(1)}%`} style={{ fill: "var(--color-fg-2)", fontSize: 11, fontFamily: "var(--font-mono)" }} />
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
     </Panel>
   );
 }

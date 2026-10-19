@@ -210,6 +210,14 @@
   font-display: swap;
 }
 
+/* Every heading inside a page uses the import page's title font. Unlayered so it wins over font-bold:
+   Aldrich has a single weight and a synthetic bold would smear it */
+main :is(h1, h2, h3) {
+  font-family: var(--font-aldrich);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}
+
 @layer base {
   html {
     color-scheme: dark;

@@ -194,7 +194,7 @@ export function ImagesManager({ items }: { items: Item[] }) {
     <div className="flex flex-col gap-5">
       <div className="grid items-start gap-3 xl:grid-cols-3">
         <Panel className="p-4">
-          <h2 className="text-[15px] font-bold text-fg">{t.autoTitle}</h2>
+          <h2 className="text-[18px] font-bold text-fg">{t.autoTitle}</h2>
           <p className="mt-1 text-[12.5px] leading-relaxed text-muted">{t.autoHelp}</p>
           <div className="mt-3 flex flex-col gap-2 text-[12.5px] text-fg-2">
             <label className="flex cursor-pointer items-center gap-2">
@@ -243,7 +243,7 @@ export function ImagesManager({ items }: { items: Item[] }) {
         </Panel>
 
         <Panel className="p-4">
-          <h2 className="text-[15px] font-bold text-fg">{t.uploadTitle}</h2>
+          <h2 className="text-[18px] font-bold text-fg">{t.uploadTitle}</h2>
           <div
             onDragOver={(e) => {
               e.preventDefault();
@@ -293,7 +293,7 @@ export function ImagesManager({ items }: { items: Item[] }) {
         </Panel>
 
         <Panel className="p-4">
-          <h2 className="text-[15px] font-bold text-fg">{t.linkTitle}</h2>
+          <h2 className="text-[18px] font-bold text-fg">{t.linkTitle}</h2>
           <p className="mt-1 text-[12.5px] leading-relaxed text-muted">{t.linkHelp}</p>
           <textarea
             value={links}

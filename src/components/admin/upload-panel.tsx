@@ -100,7 +100,7 @@ export function UploadPanel({ dealers }: { dealers: AdminDealer[] }) {
 
   return (
     <section aria-labelledby="upload-title">
-      <h2 id="upload-title" className="mb-2 text-[15px] font-bold text-fg">
+      <h2 id="upload-title" className="mb-2 text-[18px] font-bold text-fg">
         {t.title}
       </h2>
 

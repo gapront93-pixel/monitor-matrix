@@ -23,11 +23,16 @@ export function PageHeader({
   className?: string;
 }) {
   return (
-    <div className={cn("mb-4 flex flex-wrap items-end justify-between gap-3", className)}>
-      <div className="min-w-0">
-        {eyebrow && <div className="eyebrow mb-1.5">{eyebrow}</div>}
-        <h1 className="text-[22px] leading-tight font-bold text-balance text-fg">{title}</h1>
-        {sub && <div className="mt-1 text-[12.5px] text-muted">{sub}</div>}
+    // The page-title style of the import page: gradient eyebrow, Aldrich VN heading, 15px subline
+    <div className={cn("mb-5 flex flex-wrap items-end justify-between gap-4", className)}>
+      <div className="flex min-w-0 flex-col gap-1.5">
+        {eyebrow && (
+          <span className="w-fit bg-(image:--infinity-gradient) bg-clip-text font-aldrich text-[14px] font-semibold tracking-[0.18em] text-transparent uppercase">
+            {eyebrow}
+          </span>
+        )}
+        <h1 className="font-aldrich text-[30px] leading-[1.15] tracking-[0.01em] text-balance text-fg md:text-[44px]">{title}</h1>
+        {sub && <div className="text-[15px] text-muted">{sub}</div>}
       </div>
       {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
     </div>

@@ -15,7 +15,7 @@ export function PasswordForm() {
   const [state, action, pending] = useActionState<PasswordState, FormData>(changePassword, {});
   return (
     <form action={action} noValidate className="flex flex-col gap-3 rounded-panel border border-line bg-panel p-4">
-      <h2 className="text-[15px] font-bold text-fg">{t.changePassword}</h2>
+      <h2 className="text-[18px] font-bold text-fg">{t.changePassword}</h2>
       <LoginField label={t.current} name="current" type="password" autoComplete="current-password" />
       <LoginField label={t.next} name="next" type="password" autoComplete="new-password" />
       <LoginField label={t.again} name="again" type="password" autoComplete="new-password" />

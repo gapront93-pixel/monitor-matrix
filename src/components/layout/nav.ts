@@ -15,8 +15,9 @@ export const NAV_GROUPS: { label: NavKey; links: NavLink[] }[] = [
       { href: "/bang-gia", label: "prices", Icon: Table2Icon, child: true },
       { href: "/so-sanh", label: "compare", Icon: GitCompareArrowsIcon, child: true },
       { href: "/doi-thu", label: "rivals", Icon: SwordsIcon, child: true },
-      { href: "/doanh-so", label: "sales", Icon: BarChart3Icon, sales: true, child: true },
       { href: "/nhap-khau", label: "imports", Icon: ShipIcon, sales: true, child: true },
+      // Its own entry, not part of Matrix LCD
+      { href: "/doanh-so", label: "sales", Icon: BarChart3Icon, sales: true },
     ],
   },
   {

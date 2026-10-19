@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { ImportView } from "@/components/imports/import-view";
 import { ButtonLink } from "@/components/ui/button";
+import { PageHeader } from "@/components/ui/panel";
 import { EmptyState } from "@/components/ui/states";
 import { requireUser } from "@/lib/auth";
 import { importsMessages } from "@/lib/i18n/messages/imports";
@@ -30,16 +31,7 @@ export default async function ImportsPage() {
   }
   return (
     <>
-      <div className="mb-5 flex flex-wrap items-end justify-between gap-4">
-        <div className="flex flex-col gap-1.5">
-          <span className="w-fit bg-(image:--infinity-gradient) bg-clip-text font-aldrich text-[14px] font-semibold tracking-[0.18em] text-transparent">
-            {t.eyebrow}
-          </span>
-          <h1 className="font-aldrich text-[30px] leading-[1.15] tracking-[0.01em] text-fg md:text-[44px]">{t.heading}</h1>
-          <span className="text-[15px] text-muted">{t.sub}</span>
-        </div>
-        <span className="text-[14px] text-muted">{t.source}</span>
-      </div>
+      <PageHeader eyebrow={t.eyebrow} title={t.heading} sub={t.sub} actions={<span className="text-[14px] text-muted">{t.source}</span>} />
       <ImportView />
     </>
   );

@@ -53,7 +53,7 @@ export default async function OverviewPage() {
       </div>
 
       <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
-        <h2 className="text-[15px] font-bold text-fg">{t.segments}</h2>
+        <h2 className="text-[18px] font-bold text-fg">{t.segments}</h2>
         <span className="text-[12px] text-muted">{t.segmentsNote}</span>
       </div>
 

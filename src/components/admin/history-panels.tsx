@@ -31,7 +31,7 @@ export function ImportsList({ imports }: { imports: AdminImport[] }) {
   const t = useT(adminMessages).history;
   return (
     <section aria-labelledby="imports-title">
-      <h2 id="imports-title" className="mb-2 text-[15px] font-bold text-fg">
+      <h2 id="imports-title" className="mb-2 text-[18px] font-bold text-fg">
         {t.title}
       </h2>
       {imports.length === 0 ? (
@@ -98,7 +98,7 @@ export function UnmatchedPanel({ rows, products }: { rows: AdminUnmatched[]; pro
   const [pick, setPick] = useState<Record<number, string>>({});
   return (
     <section aria-labelledby="unmatched-title">
-      <h2 id="unmatched-title" className="mb-1 text-[15px] font-bold text-fg">
+      <h2 id="unmatched-title" className="mb-1 text-[18px] font-bold text-fg">
         {t.title} <span className="num text-[13px] font-normal text-warn">{rows.length}</span>
       </h2>
       <p className="mb-2 max-w-[100ch] text-[12.5px] text-muted">{t.help}</p>
