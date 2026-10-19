@@ -27,7 +27,9 @@ export function PageHeader({
     <div className={cn("mb-5 flex flex-wrap items-end justify-between gap-4", className)}>
       <div className="flex min-w-0 flex-col gap-1.5">
         {eyebrow && (
-          <span className="w-fit bg-(image:--infinity-gradient) bg-clip-text font-aldrich text-[14px] font-semibold tracking-[0.18em] text-transparent uppercase">
+          // One solid colour and the font's own weight: the cyan-to-pink gradient made the first word look heavier
+          // than the last, and Aldrich has no bold so a synthetic one only smears it
+          <span className="w-fit font-aldrich text-[14px] tracking-[0.18em] text-accent uppercase">
             {eyebrow}
           </span>
         )}
