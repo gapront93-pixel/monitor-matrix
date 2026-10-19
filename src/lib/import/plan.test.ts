@@ -92,7 +92,10 @@ describe("planImport (upload diff)", () => {
 
   it("puts unknown or ambiguous models in the unmatched list", () => {
     const plan = planImport(file([row("gearvn", "FI27Q", 11_000_000), row("gearvn", "G34WQCP", 7_000_000)]), day, idx, state, new Set(["gearvn"]));
-    expect(plan.unmatched.map((u) => u.reason)).toEqual(['Không có mẫu "FI27Q"', '"G34WQCP" khớp nhiều mẫu']);
+    expect(plan.unmatched.map((u) => u.reason)).toEqual([
+      { kind: "unknown", value: "FI27Q" },
+      { kind: "ambiguous", value: "G34WQCP" },
+    ]);
   });
 
   it("merges a model listed twice by one dealer, keeping the buyable cheaper one", () => {

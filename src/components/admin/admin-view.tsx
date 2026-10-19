@@ -3,6 +3,8 @@
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 
+import { useT } from "@/lib/i18n/client";
+import { adminMessages } from "@/lib/i18n/messages/admin";
 import { cn } from "@/lib/utils";
 
 import { DealersPanel } from "./dealers-panel";
@@ -13,12 +15,7 @@ import { UsersPanel } from "./users-panel";
 import { UploadPanel } from "./upload-panel";
 
 type Tab = "gia" | "dai-ly" | "phan-khuc" | "nguoi-dung";
-const TABS: { id: Tab; label: string }[] = [
-  { id: "gia", label: "Cập nhật giá" },
-  { id: "dai-ly", label: "Đại lý" },
-  { id: "phan-khuc", label: "Phân khúc" },
-  { id: "nguoi-dung", label: "Người dùng" },
-];
+const TABS: Tab[] = ["gia", "dai-ly", "phan-khuc", "nguoi-dung"];
 
 export function AdminView({
   initialTab,
@@ -41,6 +38,7 @@ export function AdminView({
   unmatched: AdminUnmatched[];
   products: { id: number; model: string }[];
 }) {
+  const t = useT(adminMessages).page;
   const pathname = usePathname();
   const [tab, setTab] = useState<Tab>(initialTab);
   const open = (t: Tab) => {
@@ -49,19 +47,19 @@ export function AdminView({
   };
   return (
     <>
-      <div role="tablist" aria-label="Quản trị" className="mb-4 flex border-b border-line">
-        {TABS.filter((t) => t.id !== "nguoi-dung" || perms.users).map((t) => (
+      <div role="tablist" aria-label={t.title} className="no-scrollbar mb-4 flex overflow-x-auto border-b border-line">
+        {TABS.filter((id) => id !== "nguoi-dung" || perms.users).map((id) => (
           <button
-            key={t.id}
+            key={id}
             role="tab"
             type="button"
-            aria-selected={tab === t.id}
-            onClick={() => open(t.id)}
-            className={cn("relative h-10 px-3.5 text-[13px] font-semibold", tab === t.id ? "text-fg" : "text-fg-2 hover:text-fg")}
+            aria-selected={tab === id}
+            onClick={() => open(id)}
+            className={cn("relative h-10 shrink-0 px-3.5 whitespace-nowrap text-[13px] font-semibold", tab === id ? "text-fg" : "text-fg-2 hover:text-fg")}
           >
-            {t.label}
-            {t.id === "gia" && unmatched.length > 0 && <span className="num ml-1.5 text-[11px] text-warn">{unmatched.length}</span>}
-            {tab === t.id && <span className="absolute inset-x-0 bottom-0 h-0.5 bg-accent" />}
+            {t.tabs[id]}
+            {id === "gia" && unmatched.length > 0 && <span className="num ml-1.5 text-[11px] text-warn">{unmatched.length}</span>}
+            {tab === id && <span className="absolute inset-x-0 bottom-0 h-0.5 bg-accent" />}
           </button>
         ))}
       </div>

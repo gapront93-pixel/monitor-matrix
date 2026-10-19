@@ -13,7 +13,10 @@ Công cụ nội bộ cho team Marketing GIGABYTE Việt Nam: tra cứu thông s
 | `/bang-gia` | Bảng giá theo đại lý, xem giá ngày cũ, xuất Excel |
 | `/so-sanh?m=mã1,mã2` | So sánh 2–4 mẫu (cả đối thủ), tô giá trị tốt nhất |
 | `/doi-thu` | GIGABYTE so với đối thủ theo từng phân khúc |
+| `/doanh-so` | Doanh số LCD (sell-in) lấy từ dữ liệu vnpromotion, chỉ Mod và Admin xem được (mục 2c) |
 | `/admin` | Tải file giá, quản lý đại lý, sửa kết luận phân khúc |
+
+**Giao diện và ngôn ngữ:** hai nút ở góc phải trên. Nút chữ A để đổi **Tiếng Việt / English**. Nút mặt trời để chọn giao diện **Tối / Sáng / Theo máy**. Lựa chọn được lưu trên trình duyệt của từng người. Ở chế độ English, các nhãn và menu chuyển sang tiếng Anh. Nội dung dữ liệu (kết luận phân khúc, trích dẫn review, tên phân khúc) vẫn giữ như bản gốc.
 
 ---
 
@@ -96,9 +99,36 @@ Menu **Quản lý → Ảnh sản phẩm** (Mod hoặc Admin).
   - App tự gắn đúng mẫu, tự thu nhỏ (tối đa 1200px) và nén sang WebP.
   - Ảnh nền trắng là đẹp nhất. Mỗi ảnh tối đa 7.5MB.
   - Muốn đổi ảnh cho một mẫu thì bấm **Đổi** trên thẻ của mẫu đó.
-- **Nguồn ảnh chính hãng:** gigabyte.com chặn truy cập từ máy chủ, nên VPS không lấy ảnh trực tiếp từ hãng được. Muốn dùng ảnh chính hãng, hãy tải ảnh từ gigabyte.com về máy của bạn rồi kéo thả lên.
-- Ảnh bạn **tự tải lên không bao giờ bị thay** bởi lần lấy tự động sau.
+- **Ảnh chính hãng GIGABYTE:** gigabyte.com và aorus.com chặn truy cập từ máy chủ, nên app không tự lấy ảnh từ hãng được. Ảnh tự động là ảnh đại diện trên trang đại lý (thường cũng là ảnh render của hãng).
+  - Nếu một trang đại lý có nhúng ảnh từ `static.gigabyte.com`, app sẽ ưu tiên ảnh đó và ghi "Ảnh chính hãng". Hiện chưa đại lý nào làm vậy.
+  - Muốn dùng đúng ảnh trên gigabyte.com, dùng **Dán link ảnh** (bên dưới) hoặc tải ảnh về máy rồi kéo thả lên.
+  - Đánh dấu **Lấy lại cả ảnh tự động cũ** để lấy lại ảnh cho các mẫu đang có ảnh tự động.
+- **Ảnh đối thủ:** đánh dấu **Thử cả mẫu đối thủ**. App thử trang của hãng trước (link "Trang hãng" của mẫu: ROG/ASUS, Samsung, Dell…), rồi mới đến trang đại lý.
+  - MSI và LG (bản US) chặn máy chủ, nên các mẫu này chỉ lấy được từ đại lý hoặc bằng dán link.
+  - Hiện dữ liệu chưa có mẫu ViewSonic hay AOC. Khi thêm các mẫu này, cách lấy ảnh cũng giống như trên.
+- **Dán link ảnh:** ô **Dán link ảnh**, mỗi dòng một mẫu, dạng `MÃ-MẪU https://link-ảnh` (ví dụ `MO27Q28G https://static.gigabyte.com/...png`). Cũng có thể bấm nút link trên thẻ của từng mẫu. Đây là cách nhanh nhất để dùng ảnh từ gigabyte.com: mở ảnh trên trình duyệt, chuột phải chọn **Sao chép địa chỉ hình ảnh**, rồi dán vào.
+- Ảnh bạn **tự tải lên hoặc dán link không bao giờ bị thay** bởi lần lấy tự động sau.
 - Ảnh nằm trong `/var/www/monitor-matrix/storage/images`, không bị ảnh hưởng khi deploy. Nên sao lưu thư mục này cùng với database.
+
+## 2c. Doanh số LCD
+
+Menu **Tra cứu → Doanh số LCD** (chỉ Mod và Admin). Trang này hiển thị số liệu sell-in màn hình GIGABYTE (dòng `cat = LCD`) lấy từ database của vnpromotion (`/var/www/myproject`). Monitor Matrix **chỉ đọc**, không bao giờ sửa dữ liệu doanh số. Số liệu mới có sau tối đa 1 giờ.
+
+- Chọn khoảng thời gian (tháng này, quý này, năm nay, 12 tháng gần nhất, tất cả, hoặc từ tháng… đến tháng…) và lọc theo NPP (VSC, DGW, TLC).
+- Các phần trên trang:
+  - Số chiếc, doanh thu, giá sell-in trung bình, so với cùng kỳ trước.
+  - Biểu đồ theo tháng.
+  - Top mẫu, kèm link sang trang sản phẩm và so với giá lẻ thấp nhất hôm nay.
+  - Phân bổ theo phân khúc, kích thước và tấm nền.
+  - Top khách hàng và phân bổ theo NPP.
+- Số liệu là **số thuần**: đã trừ hàng trả về. Mã bán ra được tự khớp với 99 mẫu trong catalog. Mã không ghi revision (ví dụ `G34WQCP`) được tính vào bản mới nhất. Dòng cuối bảng Top mẫu cho biết bao nhiêu chiếc chưa khớp được.
+- **Kết nối:** biến `SALES_DATABASE_URL` trong `.env`, dùng role PostgreSQL `monitor_reader`.
+  - Role này chỉ có quyền `SELECT` trên bảng `"SaleRow"` của `vnpromotion_db`, luôn ở chế độ read-only và tối đa 4 kết nối.
+  - Nếu vnpromotion **tạo lại** bảng `SaleRow` (ví dụ do migration xoá rồi tạo lại bảng), quyền sẽ mất và trang báo lỗi. Khi đó, chạy lại lệnh:
+
+```bash
+sudo -u postgres psql -d vnpromotion_db -c 'GRANT SELECT ON "SaleRow" TO monitor_reader;'
+```
 
 ---
 
@@ -110,7 +140,8 @@ Menu **Quản lý → Ảnh sản phẩm** (Mod hoặc Admin).
 | Tải file giá, Áp dụng, huỷ lần tải lên | | ✓ | ✓ |
 | Gắn / bỏ qua dòng chưa khớp, sửa phân khúc | | ✓ | ✓ |
 | Sửa đại lý (thêm, tên, website, thứ tự, trọng điểm, lẻ/sỉ, ẩn/hiện) | | ✓ | ✓ |
-| Ảnh sản phẩm (tải lên, lấy tự động, xoá) | | ✓ | ✓ |
+| Ảnh sản phẩm (tải lên, lấy tự động, dán link, xoá) | | ✓ | ✓ |
+| Xem Doanh số LCD | | ✓ | ✓ |
 | Xoá đại lý | | | ✓ |
 | Quản lý người dùng | | | ✓ |
 
@@ -188,8 +219,9 @@ File `/var/www/monitor-matrix/.env` (chỉ user deploy đọc được, không �
 | Biến | Ý nghĩa |
 |---|---|
 | `DATABASE_URL` | PostgreSQL `monitor_matrix_db`, user riêng `monitor_user` (chỉ có quyền trên database này) |
+| `SALES_DATABASE_URL` | Kết nối **chỉ đọc** tới `vnpromotion_db` (role `monitor_reader`) cho trang Doanh số LCD |
 | `SESSION_SECRET` | Khoá ký cookie đăng nhập. Đổi khoá = mọi người phải đăng nhập lại |
-| `ADMIN_EMAIL` (+ `ADMIN_NAME`, `ADMIN_PASSWORD`) | Chỉ dùng một lần để tạo Admin đầu tiên (`npm run user -- bootstrap`) khi database chưa có tài khoản nào |
+| `ADMIN_EMAIL` (+ `ADMIN_NAME`, `ADMIN_PASSWORD`) | Chỉ dùng một lần để tạo Admin đầu tiên (`npm run user -- bootstrap`) khi database chưa có tài khoản nào. Tạo xong thì xoá `ADMIN_PASSWORD` khỏi `.env` |
 
 Mật khẩu người dùng **không** nằm trong `.env`: chúng được mã hoá một chiều (scrypt) trong database, không ai đọc lại được, kể cả Admin. Trang có header `noindex` để Google không đưa lên kết quả tìm kiếm.
 

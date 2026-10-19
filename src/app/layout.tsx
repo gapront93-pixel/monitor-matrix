@@ -3,6 +3,8 @@ import { Be_Vietnam_Pro, JetBrains_Mono } from "next/font/google";
 import type { ReactNode } from "react";
 
 import { ToastProvider } from "@/components/ui/toast";
+import { I18nProvider } from "@/lib/i18n/client";
+import { getLocale, getTheme } from "@/lib/i18n/server";
 
 import "./globals.css";
 
@@ -29,11 +31,15 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = { themeColor: "#05070b", width: "device-width", initialScale: 1 };
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default async function RootLayout({ children }: { children: ReactNode }) {
+  // Read on the server, so the page arrives in the right language and colours (no flash)
+  const [locale, theme] = await Promise.all([getLocale(), getTheme()]);
   return (
-    <html lang="vi" className={`${fontSans.variable} ${fontMono.variable}`}>
+    <html lang={locale} data-theme={theme} className={`${fontSans.variable} ${fontMono.variable}`}>
       <body className="min-h-dvh">
-        <ToastProvider>{children}</ToastProvider>
+        <I18nProvider locale={locale}>
+          <ToastProvider>{children}</ToastProvider>
+        </I18nProvider>
       </body>
     </html>
   );

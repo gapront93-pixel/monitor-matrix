@@ -10,7 +10,7 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
 
   const { pathname, search } = request.nextUrl;
   if (pathname.startsWith("/api/")) {
-    return NextResponse.json({ error: "Chưa đăng nhập" }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   const url = new URL("/dang-nhap", request.url);
   if (pathname !== "/") url.searchParams.set("next", pathname + search);

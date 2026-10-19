@@ -33,7 +33,7 @@ say "5/6 Thay bản build và khởi động lại PM2"
 rm -rf .next-old
 [ -d .next ] && mv .next .next-old
 mv .next-build .next
-if pm2 describe "$APP" >/dev/null 2>&1; then pm2 restart "$APP" --update-env >/dev/null; else pm2 start ecosystem.config.cjs >/dev/null; fi
+if pm2 describe "$APP" >/dev/null 2>&1; then pm2 restart ecosystem.config.cjs --only "$APP" --update-env >/dev/null; else pm2 start ecosystem.config.cjs >/dev/null; fi
 pm2 save >/dev/null
 
 say "6/6 Kiểm tra app trả lời"

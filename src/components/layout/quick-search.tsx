@@ -4,12 +4,15 @@ import { useRouter } from "next/navigation";
 import { useEffect, useId, useRef, useState } from "react";
 
 import { fmtNum } from "@/lib/format";
+import { useT } from "@/lib/i18n/client";
+import { shellMessages } from "@/lib/i18n/messages/shell";
 import { cn } from "@/lib/utils";
 
 type Hit = { slug: string; model: string; brand: string; spec: string; minPrice: number | null };
 
 /** Type a model code: up to 7 matches, Enter or click opens the product */
-export function QuickSearch() {
+export function QuickSearch({ className }: { className?: string }) {
+  const t = useT(shellMessages).search;
   const router = useRouter();
   const listId = useId();
   const [q, setQ] = useState("");
@@ -57,14 +60,14 @@ export function QuickSearch() {
   const shown = q.trim() ? hits : [];
 
   return (
-    <div ref={box} className="relative">
+    <div ref={box} className={cn("relative", className)}>
       <input
         type="search"
         role="combobox"
         aria-expanded={open && shown.length > 0}
         aria-controls={listId}
-        aria-label="Tìm nhanh mã mẫu"
-        placeholder="Tìm nhanh mã mẫu (vd. MO27Q28G)"
+        aria-label={t.label}
+        placeholder={t.placeholder}
         value={q}
         onChange={(e) => {
           setQ(e.target.value);
@@ -83,15 +86,15 @@ export function QuickSearch() {
             go(shown[cursor]);
           } else if (e.key === "Escape") setOpen(false);
         }}
-        className="h-8 w-full rounded-ctl border border-white/25 bg-white/10 px-2.5 text-[13px] text-white placeholder:text-white/55 focus-visible:border-accent"
+        className="h-8 w-full rounded-ctl border border-line bg-app px-2.5 text-[13px] text-fg placeholder:text-faint"
       />
       {open && q.trim() && (
         <ul
           id={listId}
           role="listbox"
-          className="absolute top-[calc(100%+6px)] right-0 z-50 w-full min-w-[300px] overflow-hidden rounded-ctl border border-line bg-panel py-1 shadow-pop"
+          className="absolute top-[calc(100%+6px)] left-0 z-50 w-full min-w-[300px] overflow-hidden rounded-ctl border border-line bg-panel py-1 shadow-pop"
         >
-          {shown.length === 0 && <li className="px-3 py-2.5 text-[12.5px] text-muted">Không có mẫu nào khớp “{q.trim()}”.</li>}
+          {shown.length === 0 && <li className="px-3 py-2.5 text-[12.5px] text-muted">{t.none(q.trim())}</li>}
           {shown.map((h, i) => (
             <li
               key={h.slug}
@@ -111,7 +114,7 @@ export function QuickSearch() {
                 </div>
               </div>
               <div className={cn("num text-[12px] whitespace-nowrap", h.minPrice ? "text-best" : "text-faint")}>
-                {h.minPrice ? fmtNum(h.minPrice) : "Chưa có giá"}
+                {h.minPrice ? fmtNum(h.minPrice) : t.noPrice}
               </div>
             </li>
           ))}

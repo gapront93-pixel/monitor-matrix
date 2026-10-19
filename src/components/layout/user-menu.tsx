@@ -4,12 +4,15 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
 import { logout } from "@/app/dang-nhap/actions";
-import { roleLabel, type Role } from "@/lib/permissions";
+import { useT } from "@/lib/i18n/client";
+import { shellMessages } from "@/lib/i18n/messages/shell";
+import type { Role } from "@/lib/permissions";
 
 export type HeaderUser = { name: string; email: string; role: Role };
 
 /** Initials button with name, role, account page and logout */
 export function UserMenu({ user }: { user: HeaderUser }) {
+  const t = useT(shellMessages);
   const [open, setOpen] = useState(false);
   const box = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -31,7 +34,7 @@ export function UserMenu({ user }: { user: HeaderUser }) {
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
-        aria-label={`Tài khoản: ${user.name}`}
+        aria-label={t.user.account(user.name)}
         className="flex size-8 items-center justify-center rounded-full border border-white/30 bg-white/10 text-[11.5px] font-bold text-white hover:bg-white/20"
       >
         {initials}
@@ -41,14 +44,14 @@ export function UserMenu({ user }: { user: HeaderUser }) {
           <div className="border-b border-line-2 px-2.5 pt-1.5 pb-2.5">
             <div className="truncate text-[13px] font-semibold text-fg">{user.name}</div>
             <div className="truncate text-[11.5px] text-muted">{user.email}</div>
-            <div className="mt-1 text-[11px] font-semibold text-fg-2">Vai trò: {roleLabel(user.role)}</div>
+            <div className="mt-1 text-[11px] font-semibold text-fg-2">{t.user.role(t.roles[user.role].label)}</div>
           </div>
           <Link href="/tai-khoan" onClick={() => setOpen(false)} className="mt-1 block rounded-chip px-2.5 py-2 text-[13px] text-fg hover:bg-row-a">
-            Tài khoản · đổi mật khẩu
+            {t.user.accountLink}
           </Link>
           <form action={logout}>
             <button type="submit" className="block w-full rounded-chip px-2.5 py-2 text-left text-[13px] text-fg hover:bg-row-a">
-              Đăng xuất
+              {t.user.signOut}
             </button>
           </form>
         </div>

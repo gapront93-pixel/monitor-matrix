@@ -2,23 +2,27 @@
 
 import { Button, ButtonLink } from "@/components/ui/button";
 import { ErrorState } from "@/components/ui/states";
+import { useT } from "@/lib/i18n/client";
+import { shellMessages } from "@/lib/i18n/messages/shell";
 
 export default function ErrorPage({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
+  const t = useT(shellMessages).states;
   return (
     <ErrorState
-      code={error.digest ? `Mã lỗi: ${error.digest}` : undefined}
+      title={t.errorTitle}
+      code={error.digest ? t.errorCode(error.digest) : undefined}
       action={
         <>
           <Button variant="primary" size="sm" onClick={reset}>
-            Thử lại
+            {t.retry}
           </Button>
           <ButtonLink href="/" size="sm">
-            Về Tổng quan
+            {t.home}
           </ButtonLink>
         </>
       }
     >
-      Máy chủ gặp lỗi khi đọc dữ liệu. Thử lại sau ít phút; nếu vẫn lỗi, báo quản trị viên kèm mã lỗi bên dưới.
+      {t.errorText}
     </ErrorState>
   );
 }

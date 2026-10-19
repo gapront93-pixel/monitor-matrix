@@ -6,24 +6,31 @@ import { PageHeader } from "@/components/ui/panel";
 import { EmptyState } from "@/components/ui/states";
 import { requireUser } from "@/lib/auth";
 import { fmtDate, fmtDateTime } from "@/lib/format";
-import { can, canManage, roleLabel } from "@/lib/permissions";
+import { adminMessages } from "@/lib/i18n/messages/admin";
+import { shellMessages } from "@/lib/i18n/messages/shell";
+import { getT } from "@/lib/i18n/server";
+import { can, canManage } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
 
-export const metadata: Metadata = { title: "Quản trị" };
+export async function generateMetadata(): Promise<Metadata> {
+  return { title: (await getT(adminMessages)).page.title };
+}
 
 export default async function AdminPage({ searchParams }: { searchParams: Promise<{ tab?: string }> }) {
-  const me = await requireUser();
+  const [me, a, shell] = await Promise.all([requireUser(), getT(adminMessages), getT(shellMessages)]);
+  const t = a.page;
+  const roleName = shell.roles[me.role].label;
   if (!canManage(me.role)) {
     return (
       <EmptyState
-        title="Bạn không có quyền vào Quản trị"
+        title={t.noAccess}
         action={
           <ButtonLink href="/" variant="primary" size="sm">
-            Về Tổng quan
+            {t.home}
           </ButtonLink>
         }
       >
-        Tài khoản của bạn có vai trò {roleLabel(me.role)}. Cần vai trò Mod hoặc Admin để cập nhật giá; liên hệ Admin nếu bạn cần quyền này.
+        {t.noAccessText(roleName)}
       </EmptyState>
     );
   }
@@ -56,7 +63,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
 
   return (
     <>
-      <PageHeader eyebrow="Quản trị" title="Dữ liệu giá và đại lý" sub={`${me.name} · ${roleLabel(me.role)}`} />
+      <PageHeader eyebrow={t.eyebrow} title={t.heading} sub={`${me.name} · ${roleName}`} />
       <AdminView
         initialTab={tab === "dai-ly" || tab === "phan-khuc" || (tab === "nguoi-dung" && manageUsers) ? tab : "gia"}
         perms={{ deleteDealer: can(me.role, "dealers.delete"), users: manageUsers }}

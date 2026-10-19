@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 
 import { COMPARE_FIELDS, bestIndexes, rowIsSame, type Comparable } from "./compare";
 
+const w = { yes: "Có", no: "Không", noPrice: "Chưa có giá" };
+
 describe("bestIndexes", () => {
   it("marks the highest when higher is better", () => {
     expect([...bestIndexes([240, 280, 240], "high")]).toEqual([1]);
@@ -26,8 +28,8 @@ describe("rowIsSame", () => {
   };
   const field = (k: string) => COMPARE_FIELDS.find((f) => f.key === k)!;
   it("detects identical and different rows", () => {
-    expect(rowIsSame(field("size"), [base, { ...base, slug: "b" }])).toBe(true);
-    expect(rowIsSame(field("hz"), [base, { ...base, refreshHz: 240 }])).toBe(false);
+    expect(rowIsSame(field("size"), [base, { ...base, slug: "b" }], w)).toBe(true);
+    expect(rowIsSame(field("hz"), [base, { ...base, refreshHz: 240 }], w)).toBe(false);
   });
   it("treats no USB-C as the worst PD value", () => {
     const f = field("pd");

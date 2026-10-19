@@ -7,19 +7,24 @@ import { PageHeader, Panel, VerdictTag, verdictDot } from "@/components/ui/panel
 import { EmptyState } from "@/components/ui/states";
 import { comparable, getCatalog } from "@/lib/catalog";
 import { byRivalBrand } from "@/lib/format";
+import { catalogMessages } from "@/lib/i18n/messages/catalog";
+import { getT } from "@/lib/i18n/server";
 import { segmentBenchmarks } from "@/lib/product-detail";
 import { cn } from "@/lib/utils";
 
-export const metadata: Metadata = { title: "Đối thủ" };
+export async function generateMetadata(): Promise<Metadata> {
+  return { title: (await getT(catalogMessages)).rivals.title };
+}
 
 export default async function RivalsPage({ searchParams }: { searchParams: Promise<{ pk?: string }> }) {
   const { pk } = await searchParams;
-  const { segments, products } = await getCatalog();
+  const [{ segments, products }, m] = await Promise.all([getCatalog(), getT(catalogMessages)]);
+  const t = m.rivals;
   if (!segments.length) {
     return (
       <>
-        <PageHeader eyebrow="Đối thủ" title="GIGABYTE so với ASUS, MSI, Samsung, LG, Dell/Alienware" />
-        <EmptyState title="Chưa có phân khúc">Chạy lệnh seed để nạp dữ liệu phân khúc và đối thủ.</EmptyState>
+        <PageHeader eyebrow={t.title} title={t.heading} />
+        <EmptyState title={t.noSegments}>{t.noSegmentsText}</EmptyState>
       </>
     );
   }
@@ -30,9 +35,9 @@ export default async function RivalsPage({ searchParams }: { searchParams: Promi
 
   return (
     <>
-      <PageHeader eyebrow="Đối thủ" title="GIGABYTE so với ASUS, MSI, Samsung, LG, Dell/Alienware" />
+      <PageHeader eyebrow={t.title} title={t.heading} />
       <div className="flex flex-col gap-4 md:flex-row md:items-start">
-        <nav aria-label="Phân khúc" className="hidden w-[260px] shrink-0 overflow-hidden rounded-panel border border-line bg-panel md:sticky md:top-[70px] md:block">
+        <nav aria-label={t.segments} className="hidden w-[260px] shrink-0 overflow-hidden rounded-panel border border-line bg-panel md:sticky md:top-[70px] md:block">
           {segments.map((s) => (
             <Link
               key={s.id}
@@ -62,8 +67,8 @@ export default async function RivalsPage({ searchParams }: { searchParams: Promi
 
           <RivalsTable items={items} />
 
-          <h2 className="mt-6 mb-3 text-[15px] font-bold text-fg">Số đo review trong phân khúc</h2>
-          <BenchmarkCards cards={benchmarks} emptyText="Chưa có bài review đo đạc cho phân khúc này." />
+          <h2 className="mt-6 mb-3 text-[15px] font-bold text-fg">{t.reviews}</h2>
+          <BenchmarkCards cards={benchmarks} emptyText={t.noReviews} />
         </div>
       </div>
     </>

@@ -6,15 +6,20 @@ import { PageHeader } from "@/components/ui/panel";
 import { EmptyState } from "@/components/ui/states";
 import { getCatalog } from "@/lib/catalog";
 import { fmtDate, isoDay } from "@/lib/format";
+import { productsMessages } from "@/lib/i18n/messages/products";
+import { getT } from "@/lib/i18n/server";
 import { gridDealers, gridRows } from "@/lib/price-table";
 
-export const metadata: Metadata = { title: "Bảng giá" };
+export async function generateMetadata(): Promise<Metadata> {
+  return { title: (await getT(productsMessages)).prices.title };
+}
 
 const noon = (day: string) => new Date(`${day}T12:00:00+07:00`);
 
 export default async function PricesPage({ searchParams }: { searchParams: Promise<{ ngay?: string }> }) {
   const { ngay } = await searchParams;
-  const all = await getCatalog();
+  const [all, msgs] = await Promise.all([getCatalog(), getT(productsMessages)]);
+  const t = msgs.prices;
   // Days that have a price import, newest first
   const days = [...new Set(all.imports.map((i) => isoDay(i.capturedAt)))];
   const latest = days[0];
@@ -22,16 +27,16 @@ export default async function PricesPage({ searchParams }: { searchParams: Promi
   if (!latest) {
     return (
       <>
-        <PageHeader eyebrow="Bảng giá" title="Giá bán lẻ theo đại lý" />
+        <PageHeader eyebrow={t.title} title={t.heading} />
         <EmptyState
-          title="Bảng giá chưa có dữ liệu"
+          title={t.empty}
           action={
             <ButtonLink href="/admin" variant="primary" size="sm">
-              Tải file giá
+              {t.upload}
             </ButtonLink>
           }
         >
-          Chưa có lần nhập giá nào. Tải file giá của đại lý ở trang Quản trị.
+          {t.emptyText}
         </EmptyState>
       </>
     );

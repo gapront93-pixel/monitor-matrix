@@ -4,6 +4,8 @@ import { z } from "zod";
 
 import { userWith } from "@/lib/auth";
 import { getCatalog } from "@/lib/catalog";
+import { productsMessages } from "@/lib/i18n/messages/products";
+import { getT } from "@/lib/i18n/server";
 import { fmtDate, isoDay } from "@/lib/format";
 import { isBuyable } from "@/lib/import/prices";
 import { gridDealers, gridRows, hasPrice, isBestCell } from "@/lib/price-table";
@@ -35,9 +37,10 @@ const C = {
 const xlText = (s: string) => s.replace(/"/g, '""');
 
 export async function GET(req: NextRequest) {
-  if (!(await userWith("view"))) return Response.json({ error: "Chưa đăng nhập" }, { status: 401 });
+  if (!(await userWith("view"))) return Response.json({ error: "Unauthorized" }, { status: 401 });
+  const t = (await getT(productsMessages)).xlsx;
   const parsed = Query.safeParse(Object.fromEntries(req.nextUrl.searchParams));
-  if (!parsed.success) return new Response("Tham số không hợp lệ", { status: 400 });
+  if (!parsed.success) return new Response(t.badParams, { status: 400 });
   const { ngay, m } = parsed.data;
 
   const catalog = await getCatalog(ngay);
@@ -56,15 +59,15 @@ export async function GET(req: NextRequest) {
   const wb = new ExcelJS.Workbook();
   wb.creator = "GIGABYTE Monitor Matrix";
   wb.created = new Date();
-  const ws = wb.addWorksheet("Bảng giá", { views: [{ state: "frozen", xSplit: 2, ySplit: 1 }] });
+  const ws = wb.addWorksheet(t.sheet, { views: [{ state: "frozen", xSplit: 2, ySplit: 1 }] });
 
   ws.columns = [
-    { header: "Mẫu", key: "model", width: 26 },
-    { header: "Thông số", key: "spec", width: 22 },
-    ...dealers.map((d) => ({ header: d.wholesale ? `${d.name} (giá sỉ)` : d.name, key: d.id, width: 15 })),
-    { header: "Giá thấp nhất", key: "min", width: 15 },
-    { header: "Nơi có giá thấp nhất", key: "minAt", width: 24 },
-    { header: "Số nơi còn hàng", key: "cnt", width: 15 },
+    { header: t.model, key: "model", width: 26 },
+    { header: t.spec, key: "spec", width: 22 },
+    ...dealers.map((d) => ({ header: d.wholesale ? t.wholesale(d.name) : d.name, key: d.id, width: 15 })),
+    { header: t.lowest, key: "min", width: 15 },
+    { header: t.lowestAt, key: "minAt", width: 24 },
+    { header: t.inStock, key: "cnt", width: 15 },
   ];
 
   const header = ws.getRow(1);
@@ -90,7 +93,7 @@ export async function GET(req: NextRequest) {
       const cell = row.getCell(3 + i);
       const gone = !isBuyable(c.s);
       if (c.p === null) {
-        cell.value = c.link ? { text: "Liên hệ", hyperlink: c.link } : "Liên hệ";
+        cell.value = c.link ? { text: t.contact, hyperlink: c.link } : t.contact;
         cell.font = { color: { argb: gone ? C.gone : C.warn }, strike: gone };
       } else {
         // HYPERLINK keeps the cell numeric (sortable, summable) and clickable
@@ -105,7 +108,7 @@ export async function GET(req: NextRequest) {
         };
         if (best) cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: C.bestFill } };
       }
-      if (gone) cell.note = c.s === "discontinued" ? "Ngừng kinh doanh" : "Hết hàng";
+      if (gone) cell.note = c.s === "discontinued" ? t.stop : t.out;
       cell.alignment = { horizontal: "right" };
     });
     const min = row.getCell("min");
@@ -122,18 +125,14 @@ export async function GET(req: NextRequest) {
   ws.autoFilter = { from: { row: 1, column: 1 }, to: { row: 1, column: ws.columnCount } };
 
   ws.addRow([]);
-  const notes = [
-    `Bảng giá màn hình GIGABYTE tại đại lý · ngày ${fmtDate(new Date(`${day}T12:00:00+07:00`))} · ${rows.length} mẫu · ${dealers.length} đại lý`,
-    "Ô xanh: giá thấp nhất (chỉ tính đại lý bán lẻ còn hàng). Chữ xám gạch ngang: hết hàng / ngừng bán. Chữ nghiêng: giá sỉ, không tính vào giá thấp nhất.",
-    "Bấm vào ô giá để mở trang sản phẩm của đại lý (nguồn giá).",
-  ];
+  const notes = [t.title(fmtDate(new Date(`${day}T12:00:00+07:00`)), rows.length, dealers.length), t.legend, t.links];
   for (const n of notes) ws.addRow([n]).getCell(1).font = { color: { argb: "FF6B7178" }, size: 10 };
 
   const buf = await wb.xlsx.writeBuffer();
   return new Response(new Uint8Array(buf as ArrayBuffer), {
     headers: {
       "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      "Content-Disposition": `attachment; filename="bang-gia-man-hinh-${day}.xlsx"`,
+      "Content-Disposition": `attachment; filename="${t.file}-${day}.xlsx"`,
       "Cache-Control": "no-store",
     },
   });

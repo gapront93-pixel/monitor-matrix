@@ -2,11 +2,8 @@
 
 export type Role = "admin" | "mod" | "viewer";
 
-export const ROLES: { id: Role; label: string; hint: string }[] = [
-  { id: "admin", label: "Admin", hint: "Mọi quyền, kể cả xoá đại lý và quản lý người dùng" },
-  { id: "mod", label: "Mod", hint: "Cập nhật giá, ảnh sản phẩm, sửa đại lý, sửa phân khúc, gắn dòng chưa khớp" },
-  { id: "viewer", label: "Viewer", hint: "Chỉ xem và xuất Excel" },
-];
+// Labels and hints: shellMessages.roles
+export const ROLES: { id: Role }[] = [{ id: "admin" }, { id: "mod" }, { id: "viewer" }];
 
 export type Permission =
   | "view" // every screen, Excel export
@@ -16,12 +13,13 @@ export type Permission =
   | "dealers.edit" // add, rename, order, key, retail/wholesale, show/hide
   | "dealers.delete"
   | "images" // product photos: upload, auto-fetch, delete
+  | "sales" // LCD sell-in from vnpromotion (customers, NPP, revenue)
   | "users";
 
 const GRANTS: Record<Role, Permission[]> = {
   viewer: ["view"],
-  mod: ["view", "prices", "unmatched", "segments", "dealers.edit", "images"],
-  admin: ["view", "prices", "unmatched", "segments", "dealers.edit", "dealers.delete", "images", "users"],
+  mod: ["view", "prices", "unmatched", "segments", "dealers.edit", "images", "sales"],
+  admin: ["view", "prices", "unmatched", "segments", "dealers.edit", "dealers.delete", "images", "sales", "users"],
 };
 
 export function can(role: Role | null | undefined, perm: Permission): boolean {
@@ -31,8 +29,4 @@ export function can(role: Role | null | undefined, perm: Permission): boolean {
 /** Opens the Quản trị screen at all */
 export function canManage(role: Role | null | undefined): boolean {
   return can(role, "prices") || can(role, "users");
-}
-
-export function roleLabel(role: Role): string {
-  return ROLES.find((r) => r.id === role)?.label ?? role;
 }

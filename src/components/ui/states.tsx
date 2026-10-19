@@ -25,12 +25,12 @@ export function EmptyState({
 }
 
 export function ErrorState({
-  title = "Không tải được dữ liệu",
+  title,
   children,
   code,
   action,
 }: {
-  title?: ReactNode;
+  title: ReactNode;
   children?: ReactNode;
   code?: string;
   action?: ReactNode;
@@ -50,7 +50,7 @@ export function Skeleton({ className }: { className?: string }) {
 }
 
 /** "Đang tải …" + 4 card skeletons + 9 striped rows, as in the design */
-export function PageSkeleton({ label = "Đang tải …" }: { label?: string }) {
+export function PageSkeleton({ label }: { label: string }) {
   return (
     <div aria-busy="true" aria-live="polite">
       <div className="mb-4 text-[12.5px] text-muted">{label}</div>

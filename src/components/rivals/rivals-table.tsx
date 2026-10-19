@@ -9,31 +9,35 @@ import { ButtonLink } from "@/components/ui/button";
 import { Chip } from "@/components/ui/chip";
 import { bestIndexes, type Better, type Comparable } from "@/lib/compare";
 import { RIVAL_BRANDS, fmtNum } from "@/lib/format";
+import { useT } from "@/lib/i18n/client";
+import { catalogMessages } from "@/lib/i18n/messages/catalog";
 import { cn } from "@/lib/utils";
 
 const BRAND_LABEL: Record<string, string> = { Dell: "Dell/Alienware" };
 
-type Col = { label: string; rank?: (p: Comparable) => number | null; better?: Better; show: (p: Comparable) => string; right?: boolean };
+type M = (typeof catalogMessages)["vi"];
+type Col = { label: (m: M) => string; rank?: (p: Comparable) => number | null; better?: Better; show: (p: Comparable, m: M) => string; right?: boolean };
 
 const COLS: Col[] = [
-  { label: "Tấm nền", show: (p) => p.panel ?? "—" },
-  { label: "Hz", rank: (p) => p.refreshHz, better: "high", show: (p) => (p.refreshHz ? String(p.refreshHz) : "—"), right: true },
-  { label: "Phản hồi", rank: (p) => p.responseMs, better: "low", show: (p) => (p.responseMs !== null ? `${p.responseMs} ms` : "—"), right: true },
-  { label: "SDR", rank: (p) => p.brightnessSdrNits, better: "high", show: (p) => (p.brightnessSdrNits ? String(p.brightnessSdrNits) : "—"), right: true },
-  { label: "HDR", rank: (p) => p.brightnessHdrPeakNits, better: "high", show: (p) => (p.brightnessHdrPeakNits ? String(p.brightnessHdrPeakNits) : "—"), right: true },
-  { label: "DCI-P3", rank: (p) => p.dciP3Pct, better: "high", show: (p) => (p.dciP3Pct !== null ? `${p.dciP3Pct}%` : "—"), right: true },
+  { label: (m) => m.fields.panel, show: (p) => p.panel ?? "—" },
+  { label: () => "Hz", rank: (p) => p.refreshHz, better: "high", show: (p) => (p.refreshHz ? String(p.refreshHz) : "—"), right: true },
+  { label: (m) => m.rivals.response, rank: (p) => p.responseMs, better: "low", show: (p) => (p.responseMs !== null ? `${p.responseMs} ms` : "—"), right: true },
+  { label: () => "SDR", rank: (p) => p.brightnessSdrNits, better: "high", show: (p) => (p.brightnessSdrNits ? String(p.brightnessSdrNits) : "—"), right: true },
+  { label: () => "HDR", rank: (p) => p.brightnessHdrPeakNits, better: "high", show: (p) => (p.brightnessHdrPeakNits ? String(p.brightnessHdrPeakNits) : "—"), right: true },
+  { label: () => "DCI-P3", rank: (p) => p.dciP3Pct, better: "high", show: (p) => (p.dciP3Pct !== null ? `${p.dciP3Pct}%` : "—"), right: true },
   {
-    label: "USB-C",
+    label: (m) => m.rivals.usbc,
     rank: (p) => (p.usbC === false ? 0 : p.usbCPdW),
     better: "high",
-    show: (p) => (p.usbC === false ? "Không" : p.usbCPdW ? `${p.usbCPdW}W` : p.usbC ? "Có" : "—"),
+    show: (p, m) => (p.usbC === false ? m.words.no : p.usbCPdW ? `${p.usbCPdW}W` : p.usbC ? m.words.yes : "—"),
     right: true,
   },
-  { label: "Giá thấp nhất", rank: (p) => p.minPrice, better: "low", show: (p) => (p.minPrice ? fmtNum(p.minPrice) : "—"), right: true },
-  { label: "Nơi bán", rank: (p) => (p.sellers ? p.inStock : null), better: "high", show: (p) => (p.sellers ? String(p.inStock) : "—"), right: true },
+  { label: (m) => m.fields.price, rank: (p) => p.minPrice, better: "low", show: (p) => (p.minPrice ? fmtNum(p.minPrice) : "—"), right: true },
+  { label: (m) => m.rivals.sellers, rank: (p) => (p.sellers ? p.inStock : null), better: "high", show: (p) => (p.sellers ? String(p.inStock) : "—"), right: true },
 ];
 
 export function RivalsTable({ items }: { items: Comparable[] }) {
+  const m = useT(catalogMessages);
   const brands = useMemo(() => RIVAL_BRANDS.filter((b) => items.some((p) => p.brand === b)), [items]);
   const [hidden, setHidden] = useState<string[]>([]);
   const shown = items.filter((p) => p.isGigabyte || !hidden.includes(p.brand));
@@ -45,7 +49,7 @@ export function RivalsTable({ items }: { items: Comparable[] }) {
   return (
     <>
       <div className="mb-3 flex flex-wrap items-center gap-1.5">
-        <span className="mr-1 text-[12.5px] text-muted">Hãng</span>
+        <span className="mr-1 text-[12.5px] text-muted">{m.rivals.brand}</span>
         {brands.map((b) => (
           <Chip key={b} active={!hidden.includes(b)} onClick={() => setHidden((h) => (h.includes(b) ? h.filter((x) => x !== b) : [...h, b]))}>
             {BRAND_LABEL[b] ?? b}
@@ -53,7 +57,7 @@ export function RivalsTable({ items }: { items: Comparable[] }) {
         ))}
         {compare.length >= 2 && (
           <ButtonLink href={compareHref(compare)} size="sm" className="ml-auto">
-            So sánh phân khúc này
+            {m.rivals.compareSegment}
           </ButtonLink>
         )}
       </div>
@@ -62,11 +66,11 @@ export function RivalsTable({ items }: { items: Comparable[] }) {
           <thead>
             <tr className="text-[11.5px] text-muted">
               <th scope="col" className="sticky left-0 z-10 w-[230px] border-r border-b border-line bg-head px-3 py-2 text-left font-semibold">
-                Mẫu
+                {m.rivals.model}
               </th>
               {COLS.map((c) => (
-                <th key={c.label} scope="col" className={cn("border-b border-line bg-head px-2.5 py-2 font-semibold", c.right ? "text-right" : "text-left")}>
-                  {c.label}
+                <th key={c.label(m)} scope="col" className={cn("border-b border-line bg-head px-2.5 py-2 font-semibold", c.right ? "text-right" : "text-left")}>
+                  {c.label(m)}
                 </th>
               ))}
             </tr>
@@ -87,14 +91,14 @@ export function RivalsTable({ items }: { items: Comparable[] }) {
                   </th>
                   {COLS.map((c, ci) => (
                     <td
-                      key={c.label}
+                      key={c.label(m)}
                       className={cn(
                         "num border-b border-line-2 px-2.5 py-1.5 text-[12px]",
                         c.right ? "text-right" : "text-left font-sans",
                         best[ci].has(i) ? "bg-best-bg font-semibold text-best" : cn(bg, "text-fg"),
                       )}
                     >
-                      {c.show(p)}
+                      {c.show(p, m)}
                     </td>
                   ))}
                 </tr>
@@ -104,18 +108,18 @@ export function RivalsTable({ items }: { items: Comparable[] }) {
         </table>
       </div>
       <p className="mt-2 text-[12px] text-muted">
-        Ô xanh: giá trị tốt nhất của cột. Thông số đối thủ lấy từ trang chính hãng (hoặc bài review khi trang hãng bị chặn); mẫu đối thủ chưa có
-        giá đại lý Việt Nam.
+        {m.rivals.note}
       </p>
     </>
   );
 }
 
 export function SegmentSelect({ segments, current }: { segments: { id: string; name: string }[]; current: string }) {
+  const t = useT(catalogMessages).rivals;
   const router = useRouter();
   return (
     <select
-      aria-label="Phân khúc"
+      aria-label={t.segments}
       value={current}
       onChange={(e) => router.push(`/doi-thu?pk=${e.target.value}`)}
       className="h-9 w-full rounded-ctl border border-line bg-app px-2.5 text-[13px] font-semibold text-fg md:hidden"

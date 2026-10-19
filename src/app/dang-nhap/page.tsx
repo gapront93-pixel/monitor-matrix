@@ -1,10 +1,14 @@
 import type { Metadata } from "next";
 
 import { HeaderBar, Logo } from "@/components/layout/header";
+import { shellMessages } from "@/lib/i18n/messages/shell";
+import { getT } from "@/lib/i18n/server";
 
 import { LoginForm } from "./form";
 
-export const metadata: Metadata = { title: "Đăng nhập" };
+export async function generateMetadata(): Promise<Metadata> {
+  return { title: (await getT(shellMessages)).login.title };
+}
 
 export default async function LoginPage({ searchParams }: { searchParams: Promise<{ next?: string }> }) {
   const { next } = await searchParams;

@@ -5,14 +5,19 @@ import { z } from "zod";
 
 import { userWith } from "@/lib/auth";
 import type { Permission } from "@/lib/permissions";
+import { adminMessages } from "@/lib/i18n/messages/admin";
+import { getT } from "@/lib/i18n/server";
 import { classifyStock } from "@/lib/import/prices";
 import { normKey } from "@/lib/normalize";
 import { prisma } from "@/lib/prisma";
 
 export type ActionResult = { ok: true; message?: string } | { ok: false; error: string };
 
+type M = (typeof adminMessages)["vi"]["actions"];
+const t = async (): Promise<M> => (await getT(adminMessages)).actions;
+
 async function guard(perm: Permission): Promise<ActionResult | null> {
-  return (await userWith(perm)) ? null : { ok: false, error: "Bạn không có quyền làm việc này (hoặc phiên đăng nhập đã hết hạn)." };
+  return (await userWith(perm)) ? null : { ok: false, error: (await t()).denied };
 }
 
 function done(message?: string): ActionResult {
@@ -25,26 +30,32 @@ const fail = (error: string): ActionResult => ({ ok: false, error });
 
 // --- Dealers ---
 
-const DealerPatch = z.object({
-  name: z.string().trim().min(1, "Tên đại lý không được trống.").max(80).optional(),
-  website: z
+const website = (m: M) =>
+  z
     .string()
     .trim()
     .max(200)
-    .refine((v) => v === "" || /^https?:\/\/[^\s]+\.[^\s]+$/i.test(v), "Website phải bắt đầu bằng http:// hoặc https://")
-    .optional(),
-  isKey: z.boolean().optional(),
-  priceType: z.enum(["retail", "dealer"]).optional(),
-  visible: z.boolean().optional(),
-});
+    .refine((v) => v === "" || /^https?:\/\/[^\s]+\.[^\s]+$/i.test(v), m.websiteFormat)
+    .optional();
 
-export async function updateDealer(id: string, patch: z.input<typeof DealerPatch>): Promise<ActionResult> {
+const dealerPatch = (m: M) =>
+  z.object({
+    name: z.string().trim().min(1, m.dealerNameEmpty).max(80).optional(),
+    website: website(m),
+    isKey: z.boolean().optional(),
+    priceType: z.enum(["retail", "dealer"]).optional(),
+    visible: z.boolean().optional(),
+  });
+
+type DealerPatch = { name?: string; website?: string; isKey?: boolean; priceType?: "retail" | "dealer"; visible?: boolean };
+
+export async function updateDealer(id: string, patch: DealerPatch): Promise<ActionResult> {
   const denied = await guard("dealers.edit");
   if (denied) return denied;
-  const p = DealerPatch.safeParse(patch);
+  const p = dealerPatch(await t()).safeParse(patch);
   if (!p.success) return fail(p.error.issues[0].message);
-  const { website, ...rest } = p.data;
-  await prisma.dealer.update({ where: { id }, data: { ...rest, ...(website !== undefined ? { website: website || null } : {}) } });
+  const { website: site, ...rest } = p.data;
+  await prisma.dealer.update({ where: { id }, data: { ...rest, ...(site !== undefined ? { website: site || null } : {}) } });
   return done();
 }
 
@@ -61,15 +72,11 @@ export async function moveDealer(id: string, dir: -1 | 1): Promise<ActionResult>
   return done();
 }
 
-const NewDealer = z.object({
-  name: z.string().trim().min(1, "Nhập tên đại lý.").max(80),
-  website: DealerPatch.shape.website,
-});
-
-export async function addDealer(input: z.input<typeof NewDealer>): Promise<ActionResult> {
+export async function addDealer(input: { name: string; website?: string }): Promise<ActionResult> {
   const denied = await guard("dealers.edit");
   if (denied) return denied;
-  const p = NewDealer.safeParse(input);
+  const m = await t();
+  const p = z.object({ name: z.string().trim().min(1, m.dealerNameNeeded).max(80), website: website(m) }).safeParse(input);
   if (!p.success) return fail(p.error.issues[0].message);
   const base = normKey(p.data.name) || "daily";
   let id = base;
@@ -78,17 +85,18 @@ export async function addDealer(input: z.input<typeof NewDealer>): Promise<Actio
   await prisma.dealer.create({
     data: { id, name: p.data.name, website: p.data.website || null, sortOrder: (max._max.sortOrder ?? 0) + 1, status: "ok", visible: true },
   });
-  return done(`Đã thêm ${p.data.name} (mã: ${id}). Dùng mã này hoặc tên trong cột dealer của file giá.`);
+  return done(m.dealerAdded(p.data.name, id));
 }
 
 /** Only dealers without any price history can be deleted; the others are hidden instead */
 export async function deleteDealer(id: string): Promise<ActionResult> {
   const denied = await guard("dealers.delete");
   if (denied) return denied;
+  const m = await t();
   const used = await prisma.priceSnapshot.count({ where: { dealerId: id } });
-  if (used) return fail(`Đại lý này có ${used} giá trong lịch sử. Tắt "Hiện cột" để ẩn thay vì xoá, để giữ lịch sử giá.`);
+  if (used) return fail(m.dealerUsed(used));
   await prisma.dealer.delete({ where: { id } });
-  return done("Đã xoá đại lý.");
+  return done(m.dealerDeleted);
 }
 
 // --- Segments ---
@@ -98,13 +106,13 @@ const SegmentPatch = z.object({
   conclusionVi: z.string().trim().max(4000).optional(),
 });
 
-export async function updateSegment(id: string, patch: z.input<typeof SegmentPatch>): Promise<ActionResult> {
+export async function updateSegment(id: string, patch: { verdict?: "lead" | "even" | "weak" | null; conclusionVi?: string }): Promise<ActionResult> {
   const denied = await guard("segments");
   if (denied) return denied;
   const p = SegmentPatch.safeParse(patch);
   if (!p.success) return fail(p.error.issues[0].message);
   await prisma.segment.update({ where: { id }, data: p.data });
-  return done("Đã lưu phân khúc.");
+  return done((await t()).segmentSaved);
 }
 
 // --- Unmatched price rows ---
@@ -120,7 +128,8 @@ export async function mapUnmatched(unmatchedId: number, productId: number): Prom
     prisma.unmatchedPrice.findUnique({ where: { id: unmatchedId } }),
     prisma.product.findUnique({ where: { id: productId }, select: { id: true, model: true, aliases: true } }),
   ]);
-  if (!u || !product) return fail("Không tìm thấy dòng hoặc mẫu.");
+  const m = await t();
+  if (!u || !product) return fail(m.notFound);
   const keys = [normKey(u.nameOnSite), u.slugInFile ? normKey(u.slugInFile) : ""].filter(Boolean);
   const same = await prisma.unmatchedPrice.findMany({ where: { OR: [{ nameOnSite: u.nameOnSite }, ...(u.slugInFile ? [{ slugInFile: u.slugInFile }] : [])] } });
 
@@ -129,13 +138,14 @@ export async function mapUnmatched(unmatchedId: number, productId: number): Prom
     await tx.priceSnapshot.createMany({
       skipDuplicates: true,
       data: same.map((r) => {
-        const note = r.note?.split(" · ")[0] || null; // drop the "Không có mẫu ..." reason added at import
+        // Older imports appended the match reason to the note; keep only the dealer's own note
+        const note = r.note?.replace(/ · (Không có mẫu|Không có mã mẫu|"[^"]*" khớp nhiều mẫu).*$/, "") || null;
         return { importId: r.importId, productId: product.id, dealerId: r.dealerId, priceVnd: r.priceVnd, listPriceVnd: null, ...classifyStock(note, r.priceVnd), note, nameOnSite: r.nameOnSite, url: r.url, capturedAt: r.capturedAt };
       }),
     });
     await tx.unmatchedPrice.deleteMany({ where: { id: { in: same.map((r) => r.id) } } });
   });
-  return done(`Đã gắn “${u.nameOnSite}” vào ${product.model}. Các lần tải lên sau sẽ tự khớp.`);
+  return done(m.mapped(u.nameOnSite, product.model));
 }
 
 export async function dismissUnmatched(unmatchedId: number): Promise<ActionResult> {
@@ -143,7 +153,7 @@ export async function dismissUnmatched(unmatchedId: number): Promise<ActionResul
   if (denied) return denied;
   const u = await prisma.unmatchedPrice.findUnique({ where: { id: unmatchedId } });
   if (u) await prisma.unmatchedPrice.deleteMany({ where: { nameOnSite: u.nameOnSite, dealerId: u.dealerId } });
-  return done("Đã bỏ qua dòng này.");
+  return done((await t()).dismissed);
 }
 
 // --- Imports ---
@@ -153,8 +163,9 @@ export async function deleteImport(importId: number): Promise<ActionResult> {
   const denied = await guard("prices");
   if (denied) return denied;
   const imp = await prisma.priceImport.findUnique({ where: { id: importId }, select: { source: true } });
-  if (!imp) return fail("Không tìm thấy lần tải lên này.");
-  if (imp.source !== "admin") return fail("Chỉ huỷ được các lần tải lên từ trang Quản trị.");
+  const m = await t();
+  if (!imp) return fail(m.importNotFound);
+  if (imp.source !== "admin") return fail(m.importNotAdmin);
   await prisma.priceImport.delete({ where: { id: importId } });
-  return done("Đã huỷ lần tải lên. Bảng giá quay về lần cập nhật trước đó.");
+  return done(m.importUndone);
 }

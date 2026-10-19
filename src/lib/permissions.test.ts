@@ -6,11 +6,11 @@ import { can, canManage } from "./permissions";
 describe("permissions", () => {
   it("viewer only views", () => {
     expect(can("viewer", "view")).toBe(true);
-    for (const p of ["prices", "unmatched", "segments", "dealers.edit", "dealers.delete", "images", "users"] as const) expect(can("viewer", p)).toBe(false);
+    for (const p of ["prices", "unmatched", "segments", "dealers.edit", "dealers.delete", "images", "sales", "users"] as const) expect(can("viewer", p)).toBe(false);
     expect(canManage("viewer")).toBe(false);
   });
   it("mod updates prices, segments and dealers but cannot delete dealers or manage users", () => {
-    expect(["prices", "unmatched", "segments", "dealers.edit", "images"].every((p) => can("mod", p as never))).toBe(true);
+    expect(["prices", "unmatched", "segments", "dealers.edit", "images", "sales"].every((p) => can("mod", p as never))).toBe(true);
     expect(can("mod", "dealers.delete")).toBe(false);
     expect(can("mod", "users")).toBe(false);
     expect(canManage("mod")).toBe(true);
@@ -32,9 +32,9 @@ describe("password", () => {
   it("uses a new salt every time", async () => {
     expect(await hashPassword("abc12345")).not.toBe(await hashPassword("abc12345"));
   });
-  it("rejects weak passwords in Vietnamese", () => {
-    expect(passwordProblem("abc123")).toMatch(/8 ký tự/);
-    expect(passwordProblem("abcdefgh")).toMatch(/chữ và số/);
+  it("names why a password is weak", () => {
+    expect(passwordProblem("abc123")).toBe("short");
+    expect(passwordProblem("abcdefgh")).toBe("mix");
     expect(passwordProblem("monitor2026")).toBeNull();
   });
 });

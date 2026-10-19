@@ -6,7 +6,7 @@ export const runtime = "nodejs";
 export async function GET(_req: Request, { params }: { params: Promise<{ file: string }> }) {
   const { file } = await params;
   const body = await readStoredImage(file);
-  if (!body) return new Response("Không có ảnh", { status: 404, headers: { "Cache-Control": "no-store" } });
+  if (!body) return new Response("Not found", { status: 404, headers: { "Cache-Control": "no-store" } });
   return new Response(new Uint8Array(body), {
     headers: {
       "Content-Type": "image/webp",

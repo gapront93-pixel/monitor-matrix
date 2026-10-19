@@ -95,6 +95,109 @@
   --badge-gradient: linear-gradient(135deg, #0a0e14 0%, #111111 55%, #1b2029 100%);
 }
 
+
+/*
+ * Light theme (Sáng): same token names, light values from the vnpromotion light palette.
+ * <html data-theme> is set on the server from the "theme" cookie; "system" follows the OS.
+ * The header bar stays black in both themes.
+ */
+:root[data-theme="light"] {
+  color-scheme: light;
+  --color-app: #f2f4f8;
+  --color-head: #e9edf2;
+  --color-panel: #ffffff;
+  --color-row-a: #f7f9fb;
+  --color-row-b: #ffffff;
+  --color-sum-a: #eef1f5;
+  --color-sum-b: #f4f6f9;
+  --color-seg-sel: #e9edf2;
+  --color-line: #dde1e6;
+  --color-line-2: #e6e9ee;
+  --color-line-3: #eef1f5;
+  --color-line-hover: #b9c0c9;
+  --color-line-dashed: #cfd5dc;
+  --color-fg: #0a0e14;
+  --color-fg-2: #2d333b;
+  --color-muted: #4a4f57;
+  --color-faint: #646c76;
+  --color-faint-2: #7c848e;
+  --color-empty: #c3c9d1;
+  --color-wholesale: #646c76;
+  --color-accent: #00c2f0;
+  --color-accent-hover: #00a9d1;
+  --color-on-accent: #001a22;
+  --color-brand-gb: #0086a8;
+  --color-accent-tint: rgba(0, 194, 240, 0.12);
+  --color-aorus: #c4008f;
+  --color-aorus-tint: rgba(255, 0, 191, 0.1);
+  --color-best: #13834f;
+  --color-best-bg: rgba(19, 131, 79, 0.1);
+  --color-best-line: rgba(19, 131, 79, 0.35);
+  --color-best-solid: #dcf2e6;
+  --color-warn: #9a6200;
+  --color-warn-bg: #fff6e5;
+  --color-warn-line: #f0d49a;
+  --color-sel: #0086a8;
+  --color-sel-bg: #dff4fb;
+  --color-key: #00779f;
+  --color-up: #c62f27;
+  --color-up-bg: rgba(198, 47, 39, 0.08);
+  --color-err-bg: #fdeeee;
+  --color-err-line: #f2c4c1;
+  --color-err-title: #a3231c;
+  --shadow-pop: 0 14px 36px rgba(10, 14, 20, 0.16);
+  --shadow-float: 0 16px 40px rgba(10, 14, 20, 0.18);
+}
+@media (prefers-color-scheme: light) {
+  :root[data-theme="system"] {
+    color-scheme: light;
+    --color-app: #f2f4f8;
+    --color-head: #e9edf2;
+    --color-panel: #ffffff;
+    --color-row-a: #f7f9fb;
+    --color-row-b: #ffffff;
+    --color-sum-a: #eef1f5;
+    --color-sum-b: #f4f6f9;
+    --color-seg-sel: #e9edf2;
+    --color-line: #dde1e6;
+    --color-line-2: #e6e9ee;
+    --color-line-3: #eef1f5;
+    --color-line-hover: #b9c0c9;
+    --color-line-dashed: #cfd5dc;
+    --color-fg: #0a0e14;
+    --color-fg-2: #2d333b;
+    --color-muted: #4a4f57;
+    --color-faint: #646c76;
+    --color-faint-2: #7c848e;
+    --color-empty: #c3c9d1;
+    --color-wholesale: #646c76;
+    --color-accent: #00c2f0;
+    --color-accent-hover: #00a9d1;
+    --color-on-accent: #001a22;
+    --color-brand-gb: #0086a8;
+    --color-accent-tint: rgba(0, 194, 240, 0.12);
+    --color-aorus: #c4008f;
+    --color-aorus-tint: rgba(255, 0, 191, 0.1);
+    --color-best: #13834f;
+    --color-best-bg: rgba(19, 131, 79, 0.1);
+    --color-best-line: rgba(19, 131, 79, 0.35);
+    --color-best-solid: #dcf2e6;
+    --color-warn: #9a6200;
+    --color-warn-bg: #fff6e5;
+    --color-warn-line: #f0d49a;
+    --color-sel: #0086a8;
+    --color-sel-bg: #dff4fb;
+    --color-key: #00779f;
+    --color-up: #c62f27;
+    --color-up-bg: rgba(198, 47, 39, 0.08);
+    --color-err-bg: #fdeeee;
+    --color-err-line: #f2c4c1;
+    --color-err-title: #a3231c;
+    --shadow-pop: 0 14px 36px rgba(10, 14, 20, 0.16);
+    --shadow-float: 0 16px 40px rgba(10, 14, 20, 0.18);
+  }
+}
+
 @layer base {
   html {
     color-scheme: dark;
@@ -144,7 +247,7 @@
 
 /* Striped placeholder until real product photos exist */
 @utility img-placeholder {
-  background: repeating-linear-gradient(135deg, #222529 0 8px, #26292d 8px 16px);
+  background: repeating-linear-gradient(135deg, var(--color-row-b) 0 8px, var(--color-sum-a) 8px 16px);
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -2,6 +2,8 @@ import { NextResponse, type NextRequest } from "next/server";
 
 import { userWith } from "@/lib/auth";
 import { getCatalog } from "@/lib/catalog";
+import { importMessages } from "@/lib/i18n/messages/import";
+import { getLocale } from "@/lib/i18n/server";
 import { isoDay } from "@/lib/format";
 import { gridDealers, gridRows, hasPrice } from "@/lib/price-table";
 
@@ -19,8 +21,11 @@ function file(body: string, name: string, type: string) {
 
 // Templates for the price upload, filled from the current prices so they are realistic
 export async function GET(req: NextRequest) {
+  const msgs = importMessages[await getLocale()];
   const user = await userWith("prices");
-  if (!user) return NextResponse.json({ error: "Bạn không có quyền cập nhật giá." }, { status: 403 });
+  if (!user) return NextResponse.json({ error: msgs.upload.noPrices }, { status: 403 });
+  // Stock words written into the files are the ones the importer reads back (Vietnamese in every language)
+  const w = msgs.templates;
   const loai = req.nextUrl.searchParams.get("loai");
   const catalog = await getCatalog();
   const dealers = gridDealers(catalog);
@@ -51,8 +56,8 @@ export async function GET(req: NextRequest) {
         ...dealers.map((d) => {
           const c = r.cells[d.id];
           if (!c) return "";
-          if (c.p === null) return "Liên hệ";
-          return c.s === "out_of_stock" || c.s === "discontinued" ? `${c.p} (Hết hàng)` : c.p;
+          if (c.p === null) return w.contact;
+          return c.s === "out_of_stock" || c.s === "discontinued" ? `${c.p} (${w.out})` : c.p;
         }),
         r.min,
         r.inStock,
@@ -65,7 +70,7 @@ export async function GET(req: NextRequest) {
     // Same layout as data/prices/<dealer>.json, for one dealer
     const id = req.nextUrl.searchParams.get("dai-ly") ?? dealers[0]?.id;
     const d = catalog.dealers.find((x) => x.id === id);
-    if (!d) return NextResponse.json({ error: "Không có đại lý này." }, { status: 404 });
+    if (!d) return NextResponse.json({ error: w.noDealer }, { status: 404 });
     const items = gridRows(catalog)
       .filter((r) => r.cells[d.id])
       .map((r) => {
@@ -76,12 +81,12 @@ export async function GET(req: NextRequest) {
           price_vnd: c.p,
           list_price_vnd: null,
           url: c.link,
-          note: c.p === null ? "Liên hệ" : c.s === "out_of_stock" ? "Hết hàng" : c.s === "discontinued" ? "Ngừng kinh doanh" : "",
+          note: c.p === null ? w.contact : c.s === "out_of_stock" ? w.out : c.s === "discontinued" ? w.stop : "",
         };
       });
     const body = { retailer: d.name, retailer_id: d.id, site: d.website, status: "ok", fetched: day, items };
     return file(JSON.stringify(body, null, 2), `${d.id}-${day}.json`, "application/json; charset=utf-8");
   }
 
-  return NextResponse.json({ error: "loai phải là csv-doc, bang-gia hoặc json" }, { status: 400 });
+  return NextResponse.json({ error: w.badKind }, { status: 400 });
 }

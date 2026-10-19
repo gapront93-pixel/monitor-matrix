@@ -2,14 +2,7 @@
 
 export type SpecGroupId = "display" | "connect" | "ergo" | "power" | "size" | "other";
 
-export const SPEC_GROUPS: { id: SpecGroupId; label: string }[] = [
-  { id: "display", label: "Hiển thị" },
-  { id: "connect", label: "Kết nối" },
-  { id: "ergo", label: "Công thái học" },
-  { id: "power", label: "Điện" },
-  { id: "size", label: "Kích thước" },
-  { id: "other", label: "Khác" },
-];
+export const SPEC_GROUPS: SpecGroupId[] = ["display", "connect", "ergo", "power", "size", "other"];
 
 // gigabyte.com spec keys
 const GIGABYTE: Record<string, [string, SpecGroupId]> = {
@@ -79,6 +72,14 @@ const GIGABYTE: Record<string, [string, SpecGroupId]> = {
   Note: ["Ghi chú của hãng", "other"],
 };
 
+// Rival spec keys (segments/*.json "specs"), English labels
+const RIVAL_EN: Record<string, string> = {
+  size: "Size", panel: "Panel", resolution: "Resolution", refresh_hz: "Refresh rate", refresh_dual_mode: "Dual mode",
+  response_time: "Response time", brightness_sdr: "SDR brightness", brightness_hdr_peak: "HDR peak brightness", hdr_cert: "HDR standard",
+  dci_p3: "DCI-P3 coverage", contrast: "Contrast", ports: "Ports", usb_c_pd_w: "USB-C power delivery", _kvm: "KVM", speakers: "Speakers",
+  ergonomics: "Stand", warranty: "Warranty", msrp_usd: "Maker list price (USD)", _spec_source_note: "Spec source",
+};
+
 // Rival spec keys (segments/*.json "specs")
 const RIVAL: Record<string, [string, SpecGroupId]> = {
   size: ["Kích thước", "display"],
@@ -102,25 +103,27 @@ const RIVAL: Record<string, [string, SpecGroupId]> = {
   _spec_source_note: ["Nguồn thông số", "other"],
 };
 
-function value(v: unknown): string | null {
+function value(v: unknown, locale: "vi" | "en"): string | null {
   if (v === null || v === undefined) return null;
   const s = String(v).trim();
   if (!s || s === "N/A") return null;
-  if (/^yes$/i.test(s)) return "Có";
-  if (/^no$/i.test(s)) return "Không";
+  if (/^yes$/i.test(s)) return locale === "vi" ? "Có" : "Yes";
+  if (/^no$/i.test(s)) return locale === "vi" ? "Không" : "No";
   return s;
 }
 
-export type SpecGroup = { id: SpecGroupId; label: string; rows: { label: string; value: string }[] };
+export type SpecGroup = { id: SpecGroupId; rows: { label: string; value: string }[] };
 
-export function groupSpecs(raw: Record<string, unknown>, isGigabyte: boolean): SpecGroup[] {
+/** Spec sheet in groups. Vietnamese labels are translated; English uses gigabyte.com's own labels. */
+export function groupSpecs(raw: Record<string, unknown>, isGigabyte: boolean, locale: "vi" | "en" = "vi"): SpecGroup[] {
   const dict = isGigabyte ? GIGABYTE : RIVAL;
-  const groups = new Map<SpecGroupId, SpecGroup>(SPEC_GROUPS.map((g) => [g.id, { ...g, rows: [] }]));
+  const groups = new Map<SpecGroupId, SpecGroup>(SPEC_GROUPS.map((id) => [id, { id, rows: [] }]));
   for (const [key, v] of Object.entries(raw)) {
     if (key === "_model_full") continue;
-    const val = value(v);
+    const val = value(v, locale);
     if (!val) continue;
-    const [label, group] = dict[key] ?? [key, "other"];
+    const [vi, group] = dict[key] ?? [key, "other"];
+    const label = locale === "vi" ? vi : isGigabyte ? key : (RIVAL_EN[key] ?? key);
     groups.get(group)!.rows.push({ label, value: val });
   }
   return [...groups.values()].filter((g) => g.rows.length);

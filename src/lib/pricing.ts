@@ -43,18 +43,3 @@ export function priceLink(cell: { url: string | null }, dealerWebsite: string | 
   if (!dealerWebsite) return null;
   return `${dealerWebsite.replace(/\/+$/, "")}/search?q=${encodeURIComponent(model)}`;
 }
-
-export function stockLabel(s: StockStatus): string {
-  switch (s) {
-    case "in_stock":
-      return "Còn hàng";
-    case "out_of_stock":
-      return "Hết hàng";
-    case "discontinued":
-      return "Ngừng kinh doanh";
-    case "contact":
-      return "Liên hệ";
-    default:
-      return "Đang bán";
-  }
-}

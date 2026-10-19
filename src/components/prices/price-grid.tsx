@@ -18,6 +18,8 @@ import { EmptyState } from "@/components/ui/states";
 import { Switch } from "@/components/ui/switch";
 import { fmtNum, fmtPriceCell } from "@/lib/format";
 import { isBuyable } from "@/lib/import/prices";
+import { useT } from "@/lib/i18n/client";
+import { productsMessages } from "@/lib/i18n/messages/products";
 import { hasPrice, isBestCell, matchesQuery, type GridDealer, type GridRow } from "@/lib/price-table";
 import { cn } from "@/lib/utils";
 
@@ -43,6 +45,7 @@ function parseSort(v: string | null): SortingState {
 const selectCls = "h-8 rounded-ctl border border-line bg-app px-2 text-[13px] text-fg";
 
 export function PriceGrid({ rows, dealers, days, day, isHistory, dayLabel }: Props) {
+  const t = useT(productsMessages).prices;
   const router = useRouter();
   const pathname = usePathname();
   const params = useSearchParams();
@@ -164,12 +167,12 @@ export function PriceGrid({ rows, dealers, days, day, isHistory, dayLabel }: Pro
   return (
     <>
       <PageHeader
-        eyebrow="Bảng giá"
-        title="Giá bán lẻ theo đại lý"
-        sub={`Ngày ${dayLabel} · ${data.length} mẫu · ${dealers.length} đại lý · bấm vào giá để mở trang đại lý`}
+        eyebrow={t.title}
+        title={t.heading}
+        sub={t.sub(dayLabel, data.length, dealers.length)}
         actions={
           <Button variant="primary" onClick={exportXlsx} disabled={!data.length}>
-            Xuất Excel
+            {t.export}
           </Button>
         }
       />
@@ -179,31 +182,31 @@ export function PriceGrid({ rows, dealers, days, day, isHistory, dayLabel }: Pro
           type="search"
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Tìm mẫu trong bảng (vd: MO27, 240hz, 4K)"
-          aria-label="Tìm mẫu trong bảng"
+          placeholder={t.search}
+          aria-label={t.searchLabel}
           className={cn(selectCls, "w-full px-2.5 placeholder:text-faint md:w-[260px]")}
         />
-        <select aria-label="Tấm nền" value={panel} onChange={(e) => setPanel(e.target.value)} className={selectCls}>
-          <option value="">Tấm nền: tất cả</option>
+        <select aria-label={t.panel} value={panel} onChange={(e) => setPanel(e.target.value)} className={selectCls}>
+          <option value="">{t.panelAll}</option>
           {panels.map((p) => (
             <option key={p} value={p}>
               {p}
             </option>
           ))}
         </select>
-        <select aria-label="Kích thước" value={size} onChange={(e) => setSize(e.target.value)} className={selectCls}>
-          <option value="">Kích thước: tất cả</option>
+        <select aria-label={t.size} value={size} onChange={(e) => setSize(e.target.value)} className={selectCls}>
+          <option value="">{t.sizeAll}</option>
           {sizes.map((s) => (
             <option key={s} value={String(s)}>
               {s}&quot;
             </option>
           ))}
         </select>
-        <Switch checked={onlyPriced} onCheckedChange={setOnlyPriced} label="Chỉ mẫu có giá" />
+        <Switch checked={onlyPriced} onCheckedChange={setOnlyPriced} label={t.onlyPriced} />
         <label className="flex h-8 items-center gap-2 rounded-ctl border border-line bg-app pl-2.5 text-[13px] text-muted">
-          Ngày giá
+          {t.day}
           <select
-            aria-label="Ngày giá"
+            aria-label={t.day}
             value={day}
             onChange={(e) => changeDay(e.target.value)}
             className="num h-full rounded-r-ctl bg-app pr-1 text-[12px] text-fg"
@@ -221,27 +224,27 @@ export function PriceGrid({ rows, dealers, days, day, isHistory, dayLabel }: Pro
 
       {isHistory && (
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2 rounded-panel border border-warn-line bg-warn-bg px-3.5 py-2.5 text-[12.5px] text-warn">
-          <span>Đang xem giá lịch sử ngày {dayLabel}. Giá hiện tại có thể đã thay đổi.</span>
+          <span>{t.history(dayLabel)}</span>
           <button
             type="button"
             onClick={() => changeDay(days[0].value)}
             className="h-7 rounded-ctl border border-warn-line px-2.5 font-semibold text-fg hover:border-warn"
           >
-            Về hôm nay
+            {t.today}
           </button>
         </div>
       )}
 
       {data.length === 0 ? (
         <EmptyState
-          title="Không có mẫu nào khớp bộ lọc"
+          title={t.none}
           action={
             <Button variant="primary" size="sm" onClick={clearFilters}>
-              Xoá bộ lọc
+              {t.clear}
             </Button>
           }
         >
-          Thử bỏ chọn “Chỉ mẫu có giá”, chọn tấm nền hoặc kích thước khác, hoặc xoá ô tìm kiếm.
+          {t.noneText}
         </EmptyState>
       ) : (
         <div ref={scroller} className="max-h-[70vh] overflow-auto rounded-panel border border-line md:max-h-[calc(100vh-280px)]">
@@ -257,26 +260,26 @@ export function PriceGrid({ rows, dealers, days, day, isHistory, dayLabel }: Pro
             <thead>
               <tr>
                 <Th sticky onClick={() => sortBy("model")} className="text-left">
-                  <span className="text-[12px] font-bold text-fg">Mẫu</span>
+                  <span className="text-[12px] font-bold text-fg">{t.model}</span>
                   {arrow("model")}
                 </Th>
                 {dealers.map((d) => (
-                  <Th key={d.id} onClick={() => sortBy(d.id)} title={`Sắp xếp theo giá ${d.name}`}>
+                  <Th key={d.id} onClick={() => sortBy(d.id)} title={t.sortBy(d.name)}>
                     <div className={cn("truncate text-[11.5px] font-bold", d.isKey ? "text-key" : "text-fg")}>
                       {d.name}
                       {arrow(d.id)}
                     </div>
                     <div className={cn("text-[10px] font-normal text-faint", d.wholesale && "italic")}>
-                      {d.wholesale ? "giá sỉ" : d.isKey ? "trọng điểm" : "lẻ"}
+                      {d.wholesale ? t.wholesale : d.isKey ? t.key : t.retail}
                     </div>
                   </Th>
                 ))}
                 <Th onClick={() => sortBy("min")} className="bg-sum-a">
-                  <span className="text-[11.5px] font-bold text-fg">Giá thấp nhất</span>
+                  <span className="text-[11.5px] font-bold text-fg">{t.lowest}</span>
                   {arrow("min")}
                 </Th>
                 <Th onClick={() => sortBy("cnt")} className="bg-sum-a">
-                  <span className="text-[11.5px] font-bold text-fg">Số nơi còn hàng</span>
+                  <span className="text-[11.5px] font-bold text-fg">{t.inStock}</span>
                   {arrow("cnt")}
                 </Th>
               </tr>
@@ -332,7 +335,7 @@ export function PriceGrid({ rows, dealers, days, day, isHistory, dayLabel }: Pro
                     </td>
                     <td className={cn("num border-b border-line-2 px-2.5 text-right text-[12px] text-fg-2", isSel ? "bg-sel-bg" : odd ? "bg-sum-a" : "bg-sum-b")}>
                       {r.sellers ? (
-                        <span title={`${r.inStock} nơi còn hàng / ${r.sellers} nơi đang niêm yết`}>
+                        <span title={t.inStockTitle(r.inStock, r.sellers)}>
                           {r.inStock}/{r.sellers}
                         </span>
                       ) : (
@@ -352,8 +355,7 @@ export function PriceGrid({ rows, dealers, days, day, isHistory, dayLabel }: Pro
         </div>
       )}
       <p className="mt-2.5 max-w-[90ch] text-[12px] leading-relaxed text-muted">
-        Giá thấp nhất chỉ tính đại lý bán lẻ còn hàng; giá sỉ và giá hết hàng không được tính. Số nơi còn hàng = số đại lý lẻ còn bán / số
-        đại lý đang niêm yết. Ô trống (—) là đại lý không bán hoặc không tìm thấy mẫu đó.
+        {t.note}
       </p>
     </>
   );
@@ -391,6 +393,7 @@ function Th({
 }
 
 function PriceTd({ row, dealer, rowBg }: { row: GridRow; dealer: GridDealer; rowBg: string }) {
+  const t = useT(productsMessages).prices;
   const c = row.cells[dealer.id];
   const base = "num border-r border-b border-line-2 px-2.5 py-1 text-right text-[12px] whitespace-nowrap";
   if (!c) {
@@ -402,7 +405,7 @@ function PriceTd({ row, dealer, rowBg }: { row: GridRow; dealer: GridDealer; row
   }
   const best = isBestCell(row, dealer, c);
   const gone = !isBuyable(c.s);
-  const text = c.p !== null ? fmtPriceCell(c.p) : "Liên hệ";
+  const text = c.p !== null ? fmtPriceCell(c.p) : t.contact;
   const inner = (
     <span
       className={cn(
@@ -427,7 +430,7 @@ function PriceTd({ row, dealer, rowBg }: { row: GridRow; dealer: GridDealer; row
       )}
       {gone && (
         <span className="mt-0.5 ml-auto block w-fit rounded-tag bg-warn px-1 font-sans text-[9.5px] leading-[14px] font-bold text-app">
-          {c.s === "discontinued" ? "ngừng bán" : "hết hàng"}
+          {c.s === "discontinued" ? t.stopTag : t.outTag}
         </span>
       )}
     </td>
@@ -435,17 +438,18 @@ function PriceTd({ row, dealer, rowBg }: { row: GridRow; dealer: GridDealer; row
 }
 
 function Legend() {
+  const t = useT(productsMessages).prices;
   return (
     <div className="mb-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-[12px] text-muted">
       <span>
-        <span className="num text-best">[ 0 ]</span> Giá thấp nhất
+        <span className="num text-best">[ 0 ]</span> {t.legendLowest}
       </span>
       <span>
-        <span className="num text-faint-2 line-through">[ 0 ]</span> <span className="text-warn">hết hàng</span>
+        <span className="num text-faint-2 line-through">[ 0 ]</span> <span className="text-warn">{t.legendOut}</span>
       </span>
-      <span className="text-warn">Liên hệ</span>
-      <span className="text-wholesale italic">Giá đại lý (sỉ)</span>
-      <span className="text-key">Đại lý trọng điểm</span>
+      <span className="text-warn">{t.contact}</span>
+      <span className="text-wholesale italic">{t.legendWholesale}</span>
+      <span className="text-key">{t.legendKey}</span>
     </div>
   );
 }

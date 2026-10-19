@@ -4,6 +4,8 @@ import Link from "next/link";
 
 import { ProductImage } from "@/components/product-image";
 import { COMPARE_FIELDS, bestIndexes, rowIsSame, type Comparable } from "@/lib/compare";
+import { useT } from "@/lib/i18n/client";
+import { catalogMessages } from "@/lib/i18n/messages/catalog";
 import { cn } from "@/lib/utils";
 
 /** Side by side table: one column per model, best value of each row in green */
@@ -18,7 +20,8 @@ export function CompareTable({
   onRemove?: (slug: string) => void;
   showImages?: boolean;
 }) {
-  const fields = diffOnly ? COMPARE_FIELDS.filter((f) => !rowIsSame(f, items)) : COMPARE_FIELDS;
+  const m = useT(catalogMessages);
+  const fields = diffOnly ? COMPARE_FIELDS.filter((f) => !rowIsSame(f, items, m.words)) : COMPARE_FIELDS;
   return (
     <div className="overflow-x-auto rounded-panel border border-line">
       <table className="w-full border-separate border-spacing-0 text-[12.5px]" style={{ minWidth: 120 + items.length * 180 }}>
@@ -31,7 +34,7 @@ export function CompareTable({
         <thead>
           <tr>
             <th scope="col" className="sticky left-0 z-10 border-r border-b border-line bg-head px-3 py-2.5 text-left align-bottom text-[11.5px] font-semibold text-muted">
-              Thông số
+              {m.compare.specs}
             </th>
             {items.map((p) => (
               <th key={p.slug} scope="col" className="border-r border-b border-line bg-head px-3 py-2.5 text-left align-top font-normal last:border-r-0">
@@ -41,7 +44,7 @@ export function CompareTable({
                     <button
                       type="button"
                       onClick={() => onRemove(p.slug)}
-                      aria-label={`Bỏ ${p.model} khỏi so sánh`}
+                      aria-label={m.compare.remove(p.model)}
                       className="flex size-5 items-center justify-center rounded-chip border border-line text-[11px] text-muted hover:border-line-hover hover:text-fg"
                     >
                       ×
@@ -63,7 +66,7 @@ export function CompareTable({
             return (
               <tr key={f.key}>
                 <th scope="row" className={cn("sticky left-0 z-10 border-r border-b border-line-2 px-3 py-2 text-left font-normal text-fg-2", bg)}>
-                  {f.label}
+                  {m.fields[f.key]}
                 </th>
                 {items.map((p, i) => (
                   <td
@@ -74,7 +77,7 @@ export function CompareTable({
                       f.key === "price" && !p.minPrice && "font-sans text-faint",
                     )}
                   >
-                    {f.show(p)}
+                    {f.show(p, m.words)}
                   </td>
                 ))}
               </tr>
@@ -83,7 +86,7 @@ export function CompareTable({
           {fields.length === 0 && (
             <tr>
               <td colSpan={items.length + 1} className="px-4 py-6 text-center text-[12.5px] text-muted">
-                Các mẫu này giống nhau ở mọi thông số đang so sánh.
+                {m.compare.allSame}
               </td>
             </tr>
           )}

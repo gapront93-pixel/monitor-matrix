@@ -3,6 +3,8 @@ import "server-only";
 import { z } from "zod";
 
 import { isoDay } from "./format";
+import { importMessages, type ImportMessages } from "./i18n/messages/import";
+import { getLocale } from "./i18n/server";
 import { applyPlan, buildPlan, type ImportPlan } from "./import/plan";
 import { parsePriceFile, vnDate, type ParsedPriceFile } from "./import/prices";
 import { prisma } from "./prisma";
@@ -36,37 +38,40 @@ export type UploadPreview = {
   keepMissing: boolean;
 };
 
-const Form = z.object({
-  file: z.instanceof(File, { message: "Chưa chọn file." }),
-  ngay: z
-    .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, "Ngày không hợp lệ.")
-    .optional()
-    .or(z.literal("").transform(() => undefined)),
-});
+const formSchema = (m: ImportMessages["upload"]) =>
+  z.object({
+    file: z.instanceof(File, { message: m.noFile }),
+    ngay: z
+      .string()
+      .regex(/^\d{4}-\d{2}-\d{2}$/, m.badDate)
+      .optional()
+      .or(z.literal("").transform(() => undefined)),
+  });
 
 export class UploadError extends Error {}
 
 /** Reads the form, parses the file and diffs it against today's prices. Nothing is written. */
 export async function planUpload(form: FormData): Promise<{ plan: ImportPlan; parsed: ParsedPriceFile; preview: UploadPreview }> {
-  const f = Form.safeParse({ file: form.get("file"), ngay: form.get("ngay") ?? undefined });
-  if (!f.success) throw new UploadError(f.error.issues[0]?.message ?? "Dữ liệu gửi lên không hợp lệ.");
+  const msgs = importMessages[await getLocale()];
+  const m = msgs.upload;
+  const f = formSchema(m).safeParse({ file: form.get("file"), ngay: form.get("ngay") ?? undefined });
+  if (!f.success) throw new UploadError(f.error.issues[0]?.message ?? m.badForm);
   const { file, ngay } = f.data;
-  if (file.size === 0) throw new UploadError("File trống.");
-  if (file.size > MAX_UPLOAD_BYTES) throw new UploadError("File lớn hơn 5 MB.");
+  if (file.size === 0) throw new UploadError(m.empty);
+  if (file.size > MAX_UPLOAD_BYTES) throw new UploadError(m.tooBig);
 
   const dealers = await prisma.dealer.findMany({ select: { id: true, name: true } });
   let parsed: ParsedPriceFile;
   try {
-    parsed = parsePriceFile(file.name, await file.text(), dealers);
+    parsed = parsePriceFile(file.name, await file.text(), dealers, msgs.parse);
   } catch (e) {
-    throw new UploadError(e instanceof Error ? e.message : "Không đọc được file.");
+    throw new UploadError(e instanceof Error ? e.message : m.unreadable);
   }
-  if (!parsed.dealers.length) throw new UploadError("Không tìm thấy đại lý nào trong file.");
+  if (!parsed.dealers.length) throw new UploadError(m.noDealers);
 
   const today = isoDay(new Date());
   const day = ngay ?? (parsed.capturedAt ? isoDay(parsed.capturedAt) : today);
-  if (day > today) throw new UploadError("Ngày giá không được ở tương lai.");
+  if (day > today) throw new UploadError(m.future);
   const keepMissing = form.get("giu-gia-cu") === "1";
   const plan = await buildPlan(prisma, parsed, vnDate(day)!, { keepMissing });
 
@@ -104,17 +109,17 @@ export async function planUpload(form: FormData): Promise<{ plan: ImportPlan; pa
       pct: diff !== null && before ? Math.round((diff / before) * 1000) / 10 : null,
       note:
         c.kind === "new"
-          ? "Đại lý mới niêm yết"
+          ? m.newListing
           : c.kind === "removed"
-            ? "Không còn trong file: sẽ không hiện ở bảng giá mới"
+            ? m.removed
             : kind === "stock"
-              ? `${label(c.before?.stockStatus)} → ${label(c.after?.stockStatus)}`
+              ? `${m.stock[c.before?.stockStatus ?? "none"]} → ${m.stock[c.after?.stockStatus ?? "none"]}`
               : null,
     });
   }
   for (const u of plan.unmatched) {
     counts.error++;
-    items.push({ kind: "error", model: u.nameOnSite, slug: null, dealer: dealerName.get(u.dealerId) ?? u.dealerId, before: null, after: u.priceVnd, diff: null, pct: null, note: `${u.reason}, bỏ qua` });
+    items.push({ kind: "error", model: u.nameOnSite, slug: null, dealer: dealerName.get(u.dealerId) ?? u.dealerId, before: null, after: u.priceVnd, diff: null, pct: null, note: m.skipped(u.reason.kind === "noCode" ? msgs.reason.noCode : msgs.reason[u.reason.kind](u.reason.value)) });
   }
   for (const w of plan.warnings) {
     counts.error++;
@@ -143,26 +148,9 @@ export async function planUpload(form: FormData): Promise<{ plan: ImportPlan; pa
   };
 }
 
-function label(s: string | undefined): string {
-  switch (s) {
-    case "in_stock":
-      return "còn hàng";
-    case "out_of_stock":
-      return "hết hàng";
-    case "discontinued":
-      return "ngừng bán";
-    case "contact":
-      return "liên hệ";
-    case undefined:
-      return "—";
-    default:
-      return "đang bán";
-  }
-}
-
 export async function applyUpload(form: FormData, userId: number): Promise<{ importId: number; preview: UploadPreview }> {
   const { plan, preview } = await planUpload(form);
-  if (!plan.snapshots.length) throw new UploadError("File không có dòng giá nào khớp mẫu, không có gì để áp dụng.");
+  if (!plan.snapshots.length) throw new UploadError(importMessages[await getLocale()].upload.nothing);
   const importId = await applyPlan(prisma, plan, { source: "admin", fileName: preview.fileName, uploadedById: userId });
   return { importId, preview };
 }

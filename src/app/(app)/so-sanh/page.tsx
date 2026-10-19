@@ -3,8 +3,12 @@ import type { Metadata } from "next";
 import { CompareView } from "@/components/compare/compare-view";
 import { comparable, getCatalog } from "@/lib/catalog";
 import { resLabel, specLine } from "@/lib/format";
+import { catalogMessages } from "@/lib/i18n/messages/catalog";
+import { getT } from "@/lib/i18n/server";
 
-export const metadata: Metadata = { title: "So sánh" };
+export async function generateMetadata(): Promise<Metadata> {
+  return { title: (await getT(catalogMessages)).compare.title };
+}
 
 export default async function ComparePage({ searchParams }: { searchParams: Promise<{ m?: string }> }) {
   const { m } = await searchParams;

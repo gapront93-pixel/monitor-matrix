@@ -5,21 +5,20 @@ import { useState } from "react";
 import { updateSegment } from "@/app/(app)/admin/data-actions";
 import { Button } from "@/components/ui/button";
 import { Panel, VerdictTag, type Verdict } from "@/components/ui/panel";
+import { useT } from "@/lib/i18n/client";
+import { adminMessages } from "@/lib/i18n/messages/admin";
 import { cn } from "@/lib/utils";
 
 import { useAction } from "./history-panels";
 import type { AdminSegment } from "./types";
 
-const VERDICTS: { v: Verdict; label: string }[] = [
-  { v: "lead", label: "Dẫn đầu" },
-  { v: "even", label: "Ngang" },
-  { v: "weak", label: "Yếu hơn" },
-];
+const VERDICTS: Verdict[] = ["lead", "even", "weak"];
 
 export function SegmentsPanel({ segments }: { segments: AdminSegment[] }) {
+  const t = useT(adminMessages).segments;
   return (
     <section>
-      <p className="mb-3 text-[12.5px] text-muted">Nhãn kết luận hiện trên thẻ phân khúc ở Tổng quan và ở trang Đối thủ; đoạn kết luận hiện ở trang Đối thủ.</p>
+      <p className="mb-3 text-[12.5px] text-muted">{t.help}</p>
       <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,460px),1fr))] gap-3">
         {segments.map((s) => (
           <SegmentEditor key={s.id + s.verdict + s.conclusionVi} s={s} />
@@ -30,6 +29,7 @@ export function SegmentsPanel({ segments }: { segments: AdminSegment[] }) {
 }
 
 function SegmentEditor({ s }: { s: AdminSegment }) {
+  const t = useT(adminMessages).segments;
   const { pending, run } = useAction();
   const [verdict, setVerdict] = useState(s.verdict);
   const [text, setText] = useState(s.conclusionVi);
@@ -40,16 +40,16 @@ function SegmentEditor({ s }: { s: AdminSegment }) {
         <h3 className="text-[14px] font-bold text-fg">{s.name}</h3>
         <VerdictTag verdict={verdict} />
       </div>
-      <div className="inline-flex w-fit overflow-hidden rounded-ctl border border-line" role="group" aria-label={`Kết luận ${s.name}`}>
-        {VERDICTS.map((x) => (
+      <div className="inline-flex w-fit overflow-hidden rounded-ctl border border-line" role="group" aria-label={t.verdictOf(s.name)}>
+        {VERDICTS.map((v) => (
           <button
-            key={x.v}
+            key={v}
             type="button"
-            aria-pressed={verdict === x.v}
-            onClick={() => setVerdict(x.v)}
-            className={cn("h-8 px-3 text-[12.5px] font-semibold", verdict === x.v ? "bg-fg text-app" : "bg-app text-fg-2 hover:text-fg")}
+            aria-pressed={verdict === v}
+            onClick={() => setVerdict(v)}
+            className={cn("h-8 px-3 text-[12.5px] font-semibold", verdict === v ? "bg-fg text-app" : "bg-app text-fg-2 hover:text-fg")}
           >
-            {x.label}
+            {t.verdicts[v]}
           </button>
         ))}
       </div>
@@ -57,7 +57,7 @@ function SegmentEditor({ s }: { s: AdminSegment }) {
         value={text}
         onChange={(e) => setText(e.target.value)}
         rows={5}
-        aria-label={`Đoạn kết luận ${s.name}`}
+        aria-label={t.textOf(s.name)}
         className="rounded-ctl border border-line bg-app px-2.5 py-2 text-[12.5px] leading-relaxed text-fg"
       />
       <div className="flex justify-end gap-2">
@@ -69,11 +69,11 @@ function SegmentEditor({ s }: { s: AdminSegment }) {
               setText(s.conclusionVi);
             }}
           >
-            Bỏ thay đổi
+            {t.revert}
           </Button>
         )}
         <Button size="sm" variant="primary" disabled={!dirty || pending} onClick={() => run(() => updateSegment(s.id, { verdict, conclusionVi: text }))}>
-          {pending ? "Đang lưu …" : "Lưu"}
+          {pending ? t.saving : t.save}
         </Button>
       </div>
     </Panel>

@@ -6,6 +6,8 @@ import { deleteImport, dismissUnmatched, mapUnmatched, type ActionResult } from 
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/toast";
 import { fmtNum } from "@/lib/format";
+import { useT } from "@/lib/i18n/client";
+import { adminMessages } from "@/lib/i18n/messages/admin";
 import { cn } from "@/lib/utils";
 
 import type { AdminImport, AdminUnmatched } from "./types";
@@ -26,19 +28,20 @@ const n = (v: unknown) => (typeof v === "number" ? v : 0);
 
 export function ImportsList({ imports }: { imports: AdminImport[] }) {
   const { pending, run } = useAction();
+  const t = useT(adminMessages).history;
   return (
     <section aria-labelledby="imports-title">
       <h2 id="imports-title" className="mb-2 text-[15px] font-bold text-fg">
-        Lần tải lên gần đây
+        {t.title}
       </h2>
       {imports.length === 0 ? (
-        <p className="text-[12.5px] text-muted">Chưa có lần nhập giá nào.</p>
+        <p className="text-[12.5px] text-muted">{t.none}</p>
       ) : (
         <div className="overflow-x-auto rounded-panel border border-line">
           <table className="w-full min-w-[760px] border-separate border-spacing-0 text-[12.5px]">
             <thead>
               <tr className="text-[11.5px] text-muted">
-                {["Ngày giá", "Tải lên lúc", "Người tải lên", "Đại lý", "Giá", "Thay đổi", ""].map((h) => (
+                {t.cols.map((h) => (
                   <th key={h} scope="col" className="border-b border-line bg-head px-3 py-2 text-left font-semibold">
                     {h}
                   </th>
@@ -54,16 +57,16 @@ export function ImportsList({ imports }: { imports: AdminImport[] }) {
                     <td className={cn(td, "num font-semibold text-fg")}>{im.day}</td>
                     <td className={cn(td, "num text-muted")}>{im.createdAt}</td>
                     <td className={td}>
-                      <div className="text-fg">{im.source === "seed" ? "Dữ liệu khởi tạo" : (im.uploadedBy ?? "Quản trị")}</div>
+                      <div className="text-fg">{im.source === "seed" ? t.seed : (im.uploadedBy ?? t.admin)}</div>
                       {im.fileName && <div className="num max-w-[260px] truncate text-[11px] text-faint">{im.fileName}</div>}
                     </td>
                     <td className={cn(td, "num text-fg-2")}>{im.dealers}</td>
                     <td className={cn(td, "num text-fg-2")}>
                       {im.prices}
-                      {im.unmatched > 0 && <span className="ml-1 text-warn">+{im.unmatched} chưa khớp</span>}
+                      {im.unmatched > 0 && <span className="ml-1 text-warn">{t.unmatched(im.unmatched)}</span>}
                     </td>
                     <td className={cn(td, "text-[12px] text-muted")}>
-                      {im.source === "seed" ? "—" : `${n(s.price)} đổi giá · ${n(s.new)} mới · ${n(s.removed)} bỏ · ${n(s.stock)} đổi tình trạng`}
+                      {im.source === "seed" ? "—" : t.changes(n(s.price), n(s.new), n(s.removed), n(s.stock))}
                     </td>
                     <td className={cn(td, "text-right")}>
                       {im.source === "admin" && (
@@ -71,10 +74,10 @@ export function ImportsList({ imports }: { imports: AdminImport[] }) {
                           size="sm"
                           disabled={pending}
                           onClick={() => {
-                            if (confirm(`Huỷ lần tải lên ngày ${im.day} (${im.prices} giá)? Bảng giá sẽ quay về lần cập nhật trước đó.`)) run(() => deleteImport(im.id));
+                            if (confirm(t.undoConfirm(im.day, im.prices))) run(() => deleteImport(im.id));
                           }}
                         >
-                          Huỷ lần này
+                          {t.undo}
                         </Button>
                       )}
                     </td>
@@ -91,24 +94,22 @@ export function ImportsList({ imports }: { imports: AdminImport[] }) {
 
 export function UnmatchedPanel({ rows, products }: { rows: AdminUnmatched[]; products: { id: number; model: string }[] }) {
   const { pending, run } = useAction();
+  const t = useT(adminMessages).unmatched;
   const [pick, setPick] = useState<Record<number, string>>({});
   return (
     <section aria-labelledby="unmatched-title">
       <h2 id="unmatched-title" className="mb-1 text-[15px] font-bold text-fg">
-        Dòng giá chưa khớp mẫu <span className="num text-[13px] font-normal text-warn">{rows.length}</span>
+        {t.title} <span className="num text-[13px] font-normal text-warn">{rows.length}</span>
       </h2>
-      <p className="mb-2 max-w-[100ch] text-[12.5px] text-muted">
-        Tin đăng của đại lý không khớp mẫu nào trong danh mục (mẫu cũ, mẫu ngoài 99 mẫu, hoặc tên viết khác). Chọn đúng mẫu rồi bấm Gắn: giá này hiện ngay
-        trên bảng giá và các lần tải lên sau tự khớp. Mẫu không thuộc danh mục thì bấm Bỏ qua.
-      </p>
+      <p className="mb-2 max-w-[100ch] text-[12.5px] text-muted">{t.help}</p>
       {rows.length === 0 ? (
-        <p className="text-[12.5px] text-muted">Không còn dòng nào chưa khớp.</p>
+        <p className="text-[12.5px] text-muted">{t.none}</p>
       ) : (
         <div className="max-h-[60vh] overflow-auto rounded-panel border border-line">
           <table className="w-full min-w-[900px] border-separate border-spacing-0 text-[12.5px]">
             <thead>
               <tr className="text-[11.5px] text-muted">
-                {["Tên trên web đại lý", "Đại lý", "Giá", "Ghi chú", "Gắn vào mẫu"].map((h) => (
+                {t.cols.map((h) => (
                   <th key={h} scope="col" className="sticky top-0 border-b border-line bg-head px-3 py-2 text-left font-semibold">
                     {h}
                   </th>
@@ -128,20 +129,20 @@ export function UnmatchedPanel({ rows, products }: { rows: AdminUnmatched[]; pro
                       ) : (
                         u.name
                       )}
-                      <div className="num text-[10.5px] text-faint">ngày {u.day}</div>
+                      <div className="num text-[10.5px] text-faint">{t.day(u.day)}</div>
                     </td>
                     <td className={cn(td, "text-fg-2")}>{u.dealer}</td>
-                    <td className={cn(td, "num text-right text-fg")}>{u.price !== null ? fmtNum(u.price) : "Liên hệ"}</td>
+                    <td className={cn(td, "num text-right text-fg")}>{u.price !== null ? fmtNum(u.price) : t.contact}</td>
                     <td className={cn(td, "max-w-[260px] text-[12px] text-muted")}>{u.note}</td>
                     <td className={td}>
                       <div className="flex flex-wrap items-center gap-1.5">
                         <select
-                          aria-label={`Mẫu cho ${u.name}`}
+                          aria-label={t.modelFor(u.name)}
                           value={pick[u.id] ?? ""}
                           onChange={(e) => setPick((p) => ({ ...p, [u.id]: e.target.value }))}
                           className="h-8 max-w-[200px] rounded-ctl border border-line bg-app px-2 text-[12.5px] text-fg"
                         >
-                          <option value="">Chọn mẫu …</option>
+                          <option value="">{t.pick}</option>
                           {products.map((p) => (
                             <option key={p.id} value={p.id}>
                               {p.model}
@@ -149,10 +150,10 @@ export function UnmatchedPanel({ rows, products }: { rows: AdminUnmatched[]; pro
                           ))}
                         </select>
                         <Button size="sm" variant="primary" disabled={pending || !pick[u.id]} onClick={() => run(() => mapUnmatched(u.id, Number(pick[u.id])))}>
-                          Gắn
+                          {t.map}
                         </Button>
                         <Button size="sm" disabled={pending} onClick={() => run(() => dismissUnmatched(u.id))}>
-                          Bỏ qua
+                          {t.dismiss}
                         </Button>
                       </div>
                     </td>

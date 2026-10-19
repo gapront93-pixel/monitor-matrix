@@ -1,24 +1,28 @@
-import { GitCompareArrowsIcon, ImageIcon, LayoutDashboardIcon, MonitorIcon, ShieldIcon, SwordsIcon, Table2Icon, type LucideIcon } from "lucide-react";
+import { BarChart3Icon, GitCompareArrowsIcon, ImageIcon, LayoutDashboardIcon, MonitorIcon, ShieldIcon, SwordsIcon, Table2Icon, type LucideIcon } from "lucide-react";
 
-export type NavLink = { href: string; label: string; Icon: LucideIcon; manage?: boolean };
+import type { shellMessages } from "@/lib/i18n/messages/shell";
 
-// Screens, in menu order. "manage" entries only show for Mod and Admin.
-export const NAV_GROUPS: { label: string; links: NavLink[] }[] = [
+type NavKey = keyof (typeof shellMessages)["vi"]["nav"];
+export type NavLink = { href: string; label: NavKey; Icon: LucideIcon; manage?: boolean; sales?: boolean };
+
+// Screens, in menu order. "manage" and "sales" entries only show for Mod and Admin.
+export const NAV_GROUPS: { label: NavKey; links: NavLink[] }[] = [
   {
-    label: "Tra cứu",
+    label: "browse",
     links: [
-      { href: "/", label: "Tổng quan", Icon: LayoutDashboardIcon },
-      { href: "/san-pham", label: "Sản phẩm", Icon: MonitorIcon },
-      { href: "/bang-gia", label: "Bảng giá", Icon: Table2Icon },
-      { href: "/so-sanh", label: "So sánh", Icon: GitCompareArrowsIcon },
-      { href: "/doi-thu", label: "Đối thủ", Icon: SwordsIcon },
+      { href: "/", label: "overview", Icon: LayoutDashboardIcon },
+      { href: "/san-pham", label: "products", Icon: MonitorIcon },
+      { href: "/bang-gia", label: "prices", Icon: Table2Icon },
+      { href: "/so-sanh", label: "compare", Icon: GitCompareArrowsIcon },
+      { href: "/doi-thu", label: "rivals", Icon: SwordsIcon },
+      { href: "/doanh-so", label: "sales", Icon: BarChart3Icon, sales: true },
     ],
   },
   {
-    label: "Quản lý",
+    label: "manage",
     links: [
-      { href: "/admin", label: "Quản trị", Icon: ShieldIcon, manage: true },
-      { href: "/admin/anh", label: "Ảnh sản phẩm", Icon: ImageIcon, manage: true },
+      { href: "/admin", label: "admin", Icon: ShieldIcon, manage: true },
+      { href: "/admin/anh", label: "images", Icon: ImageIcon, manage: true },
     ],
   },
 ];

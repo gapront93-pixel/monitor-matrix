@@ -92,7 +92,9 @@ export type Change = {
   after: { priceVnd: number | null; stockStatus: StockStatus } | null;
 };
 
-export type UnmatchedRow = PriceRow & { reason: string };
+/** Why a row matched no product; turned into words by importMessages.reason */
+export type UnmatchedReason = { kind: "unknown" | "noCode" | "ambiguous"; value: string };
+export type UnmatchedRow = PriceRow & { reason: UnmatchedReason };
 
 export type ImportPlan = {
   capturedAt: Date;
@@ -143,11 +145,11 @@ export function planImport(
     const keys = [row.slugInFile, row.nameOnSite].filter(Boolean).map((k) => normKey(k!));
     const ids = keys.map((k) => idx.get(k)).find((v) => v && v.length);
     if (!ids) {
-      unmatched.push({ ...row, reason: row.slugInFile ? `Không có mẫu "${row.slugInFile}"` : "Không có mã mẫu" });
+      unmatched.push({ ...row, reason: row.slugInFile ? { kind: "unknown", value: row.slugInFile } : { kind: "noCode", value: "" } });
       continue;
     }
     if (ids.length > 1) {
-      unmatched.push({ ...row, reason: `"${row.slugInFile ?? row.nameOnSite}" khớp nhiều mẫu` });
+      unmatched.push({ ...row, reason: { kind: "ambiguous", value: row.slugInFile ?? row.nameOnSite } });
       continue;
     }
     const productId = ids[0];
@@ -259,7 +261,7 @@ export async function applyPlan(
             slugInFile: u.slugInFile,
             priceVnd: u.priceVnd,
             url: u.url,
-            note: [u.note, u.reason].filter(Boolean).join(" · "),
+            note: u.note,
             capturedAt: plan.capturedAt,
           })),
         });

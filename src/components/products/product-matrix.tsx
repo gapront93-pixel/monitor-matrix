@@ -5,6 +5,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 
 import { compareHref, MAX_COMPARE, useCompareList } from "@/components/compare/compare-store";
+import { QuickSearch } from "@/components/layout/quick-search";
 import { ProductImage } from "@/components/product-image";
 import { Button, ButtonLink } from "@/components/ui/button";
 import { Chip } from "@/components/ui/chip";
@@ -14,12 +15,15 @@ import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/components/ui/toast";
 import type { Comparable } from "@/lib/compare";
 import { fmtNum, resLabel, shortHdr } from "@/lib/format";
+import { useT } from "@/lib/i18n/client";
+import { catalogMessages } from "@/lib/i18n/messages/catalog";
+import { productsMessages } from "@/lib/i18n/messages/products";
 import { cn } from "@/lib/utils";
 
 type Item = Comparable & { line: string | null };
 
 const HZ = [
-  { v: 0, label: "Tất cả" },
+  { v: 0, label: "" }, // "all", from the messages
   { v: 180, label: "≥ 180Hz" },
   { v: 240, label: "≥ 240Hz" },
   { v: 360, label: "≥ 360Hz" },
@@ -49,6 +53,7 @@ const SORTS: Record<SortKey, (p: Item) => number | string | null> = {
 };
 
 export function ProductMatrix({ items }: { items: Item[] }) {
+  const t = useT(productsMessages).matrix;
   const pathname = usePathname();
   const params = useSearchParams();
   const toast = useToast();
@@ -131,7 +136,7 @@ export function ProductMatrix({ items }: { items: Item[] }) {
 
   const togglePick = (slug: string) => {
     if (picked.includes(slug)) setPicked(picked.filter((s) => s !== slug));
-    else if (picked.length >= MAX_COMPARE) toast(`Chỉ so sánh tối đa ${MAX_COMPARE} mẫu`);
+    else if (picked.length >= MAX_COMPARE) toast(t.maxToast(MAX_COMPARE));
     else setPicked([...picked, slug]);
   };
   const bySlug = useMemo(() => new Map(items.map((p) => [p.slug, p])), [items]);
@@ -140,14 +145,16 @@ export function ProductMatrix({ items }: { items: Item[] }) {
   return (
     <>
       <PageHeader
-        eyebrow="Sản phẩm"
+        eyebrow={t.title}
         title={
           <>
-            Ma trận màn hình GIGABYTE <span className="num ml-1 text-[13px] font-normal text-muted">{shown.length} mẫu</span>
+            {t.heading} <span className="num ml-1 text-[13px] font-normal text-muted">{t.count(shown.length)}</span>
           </>
         }
         actions={
-          <div className="flex overflow-hidden rounded-ctl border border-line" role="group" aria-label="Kiểu hiển thị">
+          <>
+          <QuickSearch className="w-full md:w-[300px]" />
+          <div className="flex overflow-hidden rounded-ctl border border-line" role="group" aria-label={t.viewLabel}>
             {(["bang", "the"] as const).map((v) => (
               <button
                 key={v}
@@ -156,69 +163,70 @@ export function ProductMatrix({ items }: { items: Item[] }) {
                 onClick={() => setView(v)}
                 className={cn("h-8 px-3.5 text-[12.5px] font-semibold", view === v ? "bg-fg text-app" : "bg-app text-fg-2 hover:text-fg")}
               >
-                {v === "bang" ? "Bảng" : "Thẻ"}
+                {v === "bang" ? t.table : t.cards}
               </button>
             ))}
           </div>
+          </>
         }
       />
 
       <div className="flex flex-col gap-3 md:flex-row md:items-start">
         <Button className="md:hidden" onClick={() => setShowFilters((v) => !v)} aria-expanded={showFilters}>
-          Bộ lọc{activeCount ? ` (${activeCount})` : ""}
+          {activeCount ? t.filtersN(activeCount) : t.filters}
         </Button>
         <aside
           className={cn(
             "shrink-0 rounded-panel border border-line bg-panel p-3.5 md:sticky md:top-[70px] md:block md:w-[240px] xl:w-[260px]",
             showFilters ? "block" : "hidden",
           )}
-          aria-label="Bộ lọc"
+          aria-label={t.filters}
         >
           <div className="mb-1 flex items-center justify-between">
-            <span className="text-[13px] font-bold text-fg">Bộ lọc</span>
+            <span className="text-[13px] font-bold text-fg">{t.filters}</span>
             <button type="button" onClick={clear} className="text-[12px] text-muted hover:text-fg">
-              Xoá bộ lọc
+              {t.clear}
             </button>
           </div>
-          <FilterGroup title="Dòng">
+          <FilterGroup title={t.line}>
             {options.lines.map((v) => (
               <Chip key={v} active={lines.includes(v)} onClick={() => toggleIn(setLines, v)}>
                 {v}
               </Chip>
             ))}
           </FilterGroup>
-          <FilterGroup title="Kích thước">
+          <FilterGroup title={t.size}>
             {options.sizes.map((v) => (
               <Chip key={v} active={sizes.includes(v)} onClick={() => toggleIn(setSizes, v)}>
                 {v}&quot;
               </Chip>
             ))}
           </FilterGroup>
-          <FilterGroup title="Tấm nền">
+          <FilterGroup title={t.panel}>
             {options.panels.map((v) => (
               <Chip key={v} active={panels.includes(v)} onClick={() => toggleIn(setPanels, v)}>
                 {v}
               </Chip>
             ))}
           </FilterGroup>
-          <FilterGroup title="Độ phân giải">
+          <FilterGroup title={t.res}>
             {options.resos.map((v) => (
               <Chip key={v} active={resos.includes(v)} onClick={() => toggleIn(setResos, v)}>
                 {v}
               </Chip>
             ))}
           </FilterGroup>
-          <FilterGroup title="Tần số quét">
+          <FilterGroup title={t.hz}>
             {HZ.map((h) => (
               <Chip key={h.v} active={hz === h.v} onClick={() => setHz(h.v)}>
-                {h.label}
+                {h.v === 0 ? t.all : h.label}
               </Chip>
             ))}
           </FilterGroup>
           <div className="mt-4">
             <div className="mb-2 flex items-baseline justify-between">
-              <span className="eyebrow">Khoảng giá</span>
-              <span className="num text-[11.5px] text-fg-2">{priceMax >= PRICE_MAX ? "Không giới hạn" : `≤ ${priceMax} triệu`}</span>
+              <span className="eyebrow">{t.priceRange}</span>
+              <span className="num text-[11.5px] text-fg-2">{priceMax >= PRICE_MAX ? t.noLimit : t.upTo(priceMax)}</span>
             </div>
             <input
               type="range"
@@ -227,28 +235,28 @@ export function ProductMatrix({ items }: { items: Item[] }) {
               step={1}
               value={priceMax}
               onChange={(e) => setPriceMax(Number(e.target.value))}
-              aria-label="Giá tối đa (triệu đồng)"
+              aria-label={t.priceMax}
               className="w-full accent-accent"
             />
             <div className="num flex justify-between text-[10.5px] text-faint">
-              <span>{PRICE_MIN} tr</span>
-              <span>{PRICE_MAX} tr+</span>
+              <span>{PRICE_MIN} {t.millions}</span>
+              <span>{PRICE_MAX} {t.millions}+</span>
             </div>
           </div>
-          <Switch className="mt-4 w-full justify-between" checked={inStock} onCheckedChange={setInStock} label={<span className="order-first">Chỉ mẫu còn hàng</span>} />
+          <Switch className="mt-4 w-full justify-between" checked={inStock} onCheckedChange={setInStock} label={<span className="order-first">{t.inStock}</span>} />
         </aside>
 
         <div className="min-w-0 flex-1">
           {shown.length === 0 ? (
             <EmptyState
-              title="Không có mẫu nào khớp bộ lọc"
+              title={t.none}
               action={
                 <Button variant="primary" size="sm" onClick={clear}>
-                  Xoá bộ lọc
+                  {t.clear}
                 </Button>
               }
             >
-              Bỏ bớt điều kiện lọc hoặc nới khoảng giá.
+              {t.noneText}
             </EmptyState>
           ) : view === "bang" ? (
             <MatrixTable items={shown} picked={picked} onPick={togglePick} sort={sort} onSort={sortBy} />
@@ -265,24 +273,24 @@ export function ProductMatrix({ items }: { items: Item[] }) {
       {picked.length > 0 && (
         <div className="fixed inset-x-0 bottom-4 z-40 flex justify-center px-3">
           <div className="flex max-w-full flex-wrap items-center gap-2 rounded-panel border border-line bg-panel px-3 py-2.5 shadow-float">
-            <span className="text-[12.5px] text-muted">Đã chọn</span>
+            <span className="text-[12.5px] text-muted">{t.picked}</span>
             {picked.map((s) => (
               <span key={s} className="flex h-7 items-center gap-1.5 rounded-chip border border-sel bg-sel-bg pr-1 pl-2 text-[12px] font-semibold text-fg">
                 {bySlug.get(s)?.model ?? s}
-                <button type="button" onClick={() => togglePick(s)} aria-label={`Bỏ chọn ${bySlug.get(s)?.model ?? s}`} className="px-1 text-muted hover:text-fg">
+                <button type="button" onClick={() => togglePick(s)} aria-label={t.unpick(bySlug.get(s)?.model ?? s)} className="px-1 text-muted hover:text-fg">
                   ×
                 </button>
               </span>
             ))}
             <button type="button" onClick={() => setPicked([])} className="px-1 text-[12.5px] text-muted hover:text-fg">
-              Bỏ chọn
+              {t.clearPicks}
             </button>
             {picked.length >= 2 ? (
               <ButtonLink href={compareHref(picked)} variant="primary" size="sm">
-                So sánh ({picked.length})
+                {t.compareN(picked.length)}
               </ButtonLink>
             ) : (
-              <span className="text-[12px] text-faint">Chọn thêm ít nhất 1 mẫu</span>
+              <span className="text-[12px] text-faint">{t.pickMore}</span>
             )}
           </div>
         </div>
@@ -313,19 +321,20 @@ function Check({ checked, onChange, label }: { checked: boolean; onChange: () =>
   );
 }
 
-const COLS: { key: SortKey | null; label: string; w: string; right?: boolean }[] = [
-  { key: "size", label: "Inch", w: "w-[56px]", right: true },
-  { key: null, label: "Tấm nền", w: "w-[86px]" },
-  { key: null, label: "Độ phân giải", w: "w-[84px]" },
-  { key: "hz", label: "Hz", w: "w-[60px]", right: true },
-  { key: "ms", label: "Phản hồi", w: "w-[76px]", right: true },
-  { key: "sdr", label: "SDR / HDR nit", w: "w-[108px]", right: true },
-  { key: "p3", label: "DCI-P3", w: "w-[72px]", right: true },
-  { key: null, label: "Chuẩn HDR", w: "w-[118px]" },
-  { key: null, label: "DP / HDMI", w: "w-[150px]" },
-  { key: "pd", label: "USB-C PD", w: "w-[78px]", right: true },
-  { key: "price", label: "Giá thấp nhất", w: "w-[126px]", right: true },
-  { key: "sellers", label: "Nơi bán", w: "w-[72px]", right: true },
+type ColKey = keyof (typeof productsMessages)["vi"]["matrix"]["col"];
+const COLS: { key: SortKey | null; label: ColKey; w: string; right?: boolean }[] = [
+  { key: "size", label: "inch", w: "w-[56px]", right: true },
+  { key: null, label: "panel", w: "w-[86px]" },
+  { key: null, label: "res", w: "w-[84px]" },
+  { key: "hz", label: "hz", w: "w-[60px]", right: true },
+  { key: "ms", label: "ms", w: "w-[76px]", right: true },
+  { key: "sdr", label: "nits", w: "w-[108px]", right: true },
+  { key: "p3", label: "p3", w: "w-[72px]", right: true },
+  { key: null, label: "hdr", w: "w-[118px]" },
+  { key: null, label: "ports", w: "w-[150px]" },
+  { key: "pd", label: "pd", w: "w-[78px]", right: true },
+  { key: "price", label: "price", w: "w-[126px]", right: true },
+  { key: "sellers", label: "sellers", w: "w-[72px]", right: true },
 ];
 
 function MatrixTable({
@@ -341,6 +350,8 @@ function MatrixTable({
   sort: { key: SortKey; desc: boolean };
   onSort: (k: SortKey) => void;
 }) {
+  const t = useT(productsMessages).matrix;
+  const w = useT(catalogMessages).words;
   const arrow = (k: SortKey | null) => (k && sort.key === k ? <span className="ml-0.5 text-[10px] text-accent">{sort.desc ? "▼" : "▲"}</span> : null);
   return (
     <div className="max-h-[75vh] overflow-auto rounded-panel border border-line md:max-h-[calc(100vh-150px)]">
@@ -355,7 +366,7 @@ function MatrixTable({
           <tr>
             <th scope="col" className="sticky top-0 left-0 z-30 border-r border-b border-line bg-head px-3 py-2 text-left text-[11.5px] font-semibold text-muted">
               <button type="button" onClick={() => onSort("model")} className="font-semibold">
-                Mẫu{arrow("model")}
+                {t.col.model}{arrow("model")}
               </button>
             </th>
             {COLS.map((c) => (
@@ -366,11 +377,11 @@ function MatrixTable({
               >
                 {c.key ? (
                   <button type="button" onClick={() => onSort(c.key!)} className="font-semibold hover:text-fg">
-                    {c.label}
+                    {t.col[c.label]}
                     {arrow(c.key)}
                   </button>
                 ) : (
-                  c.label
+                  t.col[c.label]
                 )}
               </th>
             ))}
@@ -385,13 +396,13 @@ function MatrixTable({
               <tr key={p.slug} className="h-11">
                 <td className={cn("sticky left-0 z-10 border-r border-b border-line-2 px-3 py-1.5", bg, sel && "shadow-[inset_3px_0_0_var(--color-sel)]")}>
                   <div className="flex items-center gap-2.5">
-                    <Check checked={sel} onChange={() => onPick(p.slug)} label={`Chọn ${p.model} để so sánh`} />
+                    <Check checked={sel} onChange={() => onPick(p.slug)} label={t.pickFor(p.model)} />
                     <ProductImage src={p.thumb} className="hidden h-6 w-9 shrink-0 md:flex" sizes="40px" />
                     <div className="min-w-0">
                       <Link href={`/san-pham/${encodeURIComponent(p.slug)}`} prefetch={false} className="block text-[12.5px] leading-tight font-bold text-fg hover:underline">
                         {p.model}
                       </Link>
-                      {p.line && <div className="text-[10.5px] text-faint">Dòng {p.line}</div>}
+                      {p.line && <div className="text-[10.5px] text-faint">{t.lineOf(p.line)}</div>}
                     </div>
                   </div>
                 </td>
@@ -410,9 +421,9 @@ function MatrixTable({
                 <td className={cn(td, "num text-[11px] text-fg-2")}>
                   {[p.dpVer && `DP ${p.dpVer}`, p.hdmiVer && `HDMI ${p.hdmiVer}`].filter(Boolean).join(" · ") || "—"}
                 </td>
-                <td className={cn(td, "num text-right")}>{p.usbCPdW ? `${p.usbCPdW}W` : p.usbC ? "Có" : "—"}</td>
+                <td className={cn(td, "num text-right")}>{p.usbCPdW ? `${p.usbCPdW}W` : p.usbC ? w.yes : "—"}</td>
                 <td className={cn(td, "num text-right", p.minPrice ? "font-semibold text-best" : "font-sans text-[11.5px] text-faint")}>
-                  {p.minPrice ? fmtNum(p.minPrice) : "Chưa có giá"}
+                  {p.minPrice ? fmtNum(p.minPrice) : w.noPrice}
                 </td>
                 <td className={cn(td, "num text-right text-fg-2")}>{p.sellers || "—"}</td>
               </tr>
@@ -425,23 +436,25 @@ function MatrixTable({
 }
 
 function ProductCard({ p, picked, onPick }: { p: Item; picked: boolean; onPick: () => void }) {
+  const t = useT(productsMessages).matrix;
+  const w = useT(catalogMessages).words;
   return (
     <article className={cn("relative flex flex-col rounded-panel border bg-panel p-3", picked ? "border-sel" : "border-line hover:border-line-hover")}>
       <div className="absolute top-5 left-5 z-10 flex rounded-chip bg-app/80 p-1">
-        <Check checked={picked} onChange={onPick} label={`Chọn ${p.model} để so sánh`} />
+        <Check checked={picked} onChange={onPick} label={t.pickFor(p.model)} />
       </div>
       <ProductImage src={p.thumb} label={p.model} className="aspect-video w-full" />
       <Link href={`/san-pham/${encodeURIComponent(p.slug)}`} prefetch={false} className="mt-2.5 text-[14px] font-bold text-fg hover:underline">
         {p.model}
       </Link>
       <div className="mt-0.5 text-[11.5px] text-muted">
-        {[p.sizeIn !== null && `${p.sizeIn}"`, p.panel, resLabel(p.resolution), p.refreshHz && `${p.refreshHz}Hz`, p.line && `Dòng ${p.line}`].filter(Boolean).join(" · ")}
+        {[p.sizeIn !== null && `${p.sizeIn}"`, p.panel, resLabel(p.resolution), p.refreshHz && `${p.refreshHz}Hz`, p.line && t.lineOf(p.line)].filter(Boolean).join(" · ")}
       </div>
       <div className="mt-auto flex items-baseline justify-between pt-3">
         <span className={cn("num text-[14px] font-semibold", p.minPrice ? "text-best" : "font-sans text-[12px] font-normal text-faint")}>
-          {p.minPrice ? fmtNum(p.minPrice) : "Chưa có giá"}
+          {p.minPrice ? fmtNum(p.minPrice) : w.noPrice}
         </span>
-        <span className="text-[11.5px] text-muted">{p.sellers ? `${p.sellers} nơi bán` : ""}</span>
+        <span className="text-[11.5px] text-muted">{p.sellers ? t.sellersN(p.sellers) : ""}</span>
       </div>
     </article>
   );

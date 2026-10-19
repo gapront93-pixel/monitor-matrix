@@ -1,20 +1,22 @@
 import { EmptyState } from "@/components/ui/states";
+import { catalogMessages } from "@/lib/i18n/messages/catalog";
+import { getT } from "@/lib/i18n/server";
 import { reviewMonth, type BenchmarkCard } from "@/lib/product-detail";
 
 /** One card per review: source, month, verdict quote, measurements, each with its source link */
-export function BenchmarkCards({ cards, model, emptyText }: { cards: BenchmarkCard[]; model?: string; emptyText?: string }) {
+export async function BenchmarkCards({ cards, model, emptyText }: { cards: BenchmarkCard[]; model?: string; emptyText?: string }) {
+  const t = (await getT(catalogMessages)).bench;
   if (!cards.length) {
     return (
-      <EmptyState title="Chưa có số đo review">
-        {emptyText ?? "Chưa tìm thấy bài review đo đạc cho mẫu này. Số đo sẽ được thêm khi có nguồn đáng tin cậy."}
+      <EmptyState title={t.empty}>
+        {emptyText ?? t.emptyText}
       </EmptyState>
     );
   }
   return (
     <>
       <p className="mb-3 text-[12.5px] text-muted">
-        Số đo trích từ bài review độc lập, mỗi số đo dẫn về nguồn. Nhận xét giữ nguyên văn tiếng Anh của bài gốc. Chỉ nên so độ trễ đầu vào giữa
-        các máy do cùng một nguồn đo.
+        {t.intro}
       </p>
       <div className="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-3">
         {cards.map((c) => (
@@ -23,11 +25,11 @@ export function BenchmarkCards({ cards, model, emptyText }: { cards: BenchmarkCa
               <h3 className="text-[14px] font-bold text-fg">{c.source}</h3>
               {c.dateText && <span className="num shrink-0 text-[11px] text-faint">{reviewMonth(c.dateText)}</span>}
             </div>
-            {model && c.subject !== model && <div className="mt-0.5 text-[11.5px] text-muted">Số đo của: {c.subject}</div>}
+            {model && c.subject !== model && <div className="mt-0.5 text-[11.5px] text-muted">{t.of(c.subject)}</div>}
             {!model && <div className="mt-0.5 text-[11.5px] font-semibold text-fg-2">{c.subject}</div>}
             {c.verdict && (
               <blockquote className="mt-2 text-[12.5px] leading-relaxed text-fg-2">
-                <span className="mb-0.5 block text-[10.5px] text-faint">Trích nhận xét gốc</span>“{c.verdict}”
+                <span className="mb-0.5 block text-[10.5px] text-faint">{t.quote}</span>“{c.verdict}”
               </blockquote>
             )}
             {c.metrics.length > 0 && (
@@ -37,14 +39,14 @@ export function BenchmarkCards({ cards, model, emptyText }: { cards: BenchmarkCa
                     <dt className="min-w-0 flex-1 text-muted">{m.metric}</dt>
                     <dd className="num max-w-[45%] text-right text-fg">{m.value}</dd>
                     <a href={c.url} target="_blank" rel="noopener noreferrer" className="shrink-0 text-[11px] text-key hover:underline">
-                      nguồn ↗
+                      {t.source}
                     </a>
                   </div>
                 ))}
               </dl>
             )}
             <a href={c.url} target="_blank" rel="noopener noreferrer" className="mt-auto pt-3 text-[12.5px] text-key hover:underline">
-              Đọc bài review ↗
+              {t.read}
             </a>
           </article>
         ))}

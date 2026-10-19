@@ -2,6 +2,8 @@ import type { ComponentProps, ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 
+import type { Verdict } from "./verdict-tag";
+
 export function Panel({ className, ...props }: ComponentProps<"section">) {
   return <section className={cn("rounded-panel border border-line bg-panel", className)} {...props} />;
 }
@@ -32,23 +34,7 @@ export function PageHeader({
   );
 }
 
-const VERDICT = {
-  lead: { label: "GIGABYTE dẫn đầu", cls: "border-best-line bg-best-bg text-best" },
-  even: { label: "Ngang", cls: "border-line bg-seg-sel text-fg-2" },
-  weak: { label: "Yếu hơn", cls: "border-warn-line bg-warn-bg text-warn" },
-} as const;
-
-export type Verdict = keyof typeof VERDICT;
-
-export function VerdictTag({ verdict, className }: { verdict: Verdict | null; className?: string }) {
-  if (!verdict) return null;
-  const v = VERDICT[verdict];
-  return (
-    <span className={cn("inline-flex h-[22px] items-center rounded-chip border px-2 text-[12px] font-semibold whitespace-nowrap", v.cls, className)}>
-      {v.label}
-    </span>
-  );
-}
+export { VerdictTag, type Verdict } from "./verdict-tag";
 
 export function verdictDot(verdict: Verdict | null): string {
   return verdict === "lead" ? "bg-best" : verdict === "weak" ? "bg-warn" : "bg-fg-2";

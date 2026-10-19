@@ -30,42 +30,45 @@ export type Comparable = {
 
 export type Better = "high" | "low";
 
+/** Words the table needs, from catalogMessages.words */
+export type Words = { yes: string; no: string; noPrice: string };
+
+export type FieldKey = "price" | "stock" | "size" | "panel" | "res" | "hz" | "ms" | "sdr" | "hdrp" | "p3" | "hdr" | "dp" | "hdmi" | "pd" | "height" | "pivot" | "kvm";
+
 export type CompareField = {
-  key: string;
-  label: string;
+  key: FieldKey; // also the label key in catalogMessages.fields
   /** Number used to rank (null = no data); omitted for text-only rows */
   rank?: (p: Comparable) => number | null;
   better?: Better;
-  show: (p: Comparable) => string;
+  show: (p: Comparable, w: Words) => string;
 };
 
-const yn = (v: boolean | null) => (v === null ? "—" : v ? "Có" : "Không");
+const yn = (v: boolean | null, w: Words) => (v === null ? "—" : v ? w.yes : w.no);
 const num = (v: number | null, unit = "") => (v === null ? "—" : `${fmtNum(v)}${unit}`);
 
 export const COMPARE_FIELDS: CompareField[] = [
-  { key: "price", label: "Giá thấp nhất", rank: (p) => p.minPrice, better: "low", show: (p) => (p.minPrice ? fmtNum(p.minPrice) : "Chưa có giá") },
-  { key: "stock", label: "Số nơi còn hàng", rank: (p) => (p.sellers ? p.inStock : null), better: "high", show: (p) => (p.sellers ? String(p.inStock) : "—") },
-  { key: "size", label: "Kích thước", show: (p) => (p.sizeIn !== null ? `${p.sizeIn}"` : "—") },
-  { key: "panel", label: "Tấm nền", show: (p) => p.panel ?? "—" },
-  { key: "res", label: "Độ phân giải", show: (p) => resPx(p.resolution) || "—" },
-  { key: "hz", label: "Tần số quét", rank: (p) => p.refreshHz, better: "high", show: (p) => num(p.refreshHz, " Hz") },
-  { key: "ms", label: "Phản hồi (GtG)", rank: (p) => p.responseMs, better: "low", show: (p) => num(p.responseMs, " ms") },
-  { key: "sdr", label: "Độ sáng SDR", rank: (p) => p.brightnessSdrNits, better: "high", show: (p) => num(p.brightnessSdrNits, " nit") },
-  { key: "hdrp", label: "Độ sáng HDR peak", rank: (p) => p.brightnessHdrPeakNits, better: "high", show: (p) => num(p.brightnessHdrPeakNits, " nit") },
-  { key: "p3", label: "Độ phủ DCI-P3", rank: (p) => p.dciP3Pct, better: "high", show: (p) => num(p.dciP3Pct, "%") },
-  { key: "hdr", label: "Chuẩn HDR", show: (p) => p.hdr ?? "—" },
-  { key: "dp", label: "DisplayPort", show: (p) => p.dpVer ?? "—" },
-  { key: "hdmi", label: "HDMI", show: (p) => p.hdmiVer ?? "—" },
+  { key: "price", rank: (p) => p.minPrice, better: "low", show: (p, w) => (p.minPrice ? fmtNum(p.minPrice) : w.noPrice) },
+  { key: "stock", rank: (p) => (p.sellers ? p.inStock : null), better: "high", show: (p) => (p.sellers ? String(p.inStock) : "—") },
+  { key: "size", show: (p) => (p.sizeIn !== null ? `${p.sizeIn}"` : "—") },
+  { key: "panel", show: (p) => p.panel ?? "—" },
+  { key: "res", show: (p) => resPx(p.resolution) || "—" },
+  { key: "hz", rank: (p) => p.refreshHz, better: "high", show: (p) => num(p.refreshHz, " Hz") },
+  { key: "ms", rank: (p) => p.responseMs, better: "low", show: (p) => num(p.responseMs, " ms") },
+  { key: "sdr", rank: (p) => p.brightnessSdrNits, better: "high", show: (p) => num(p.brightnessSdrNits, " nit") },
+  { key: "hdrp", rank: (p) => p.brightnessHdrPeakNits, better: "high", show: (p) => num(p.brightnessHdrPeakNits, " nit") },
+  { key: "p3", rank: (p) => p.dciP3Pct, better: "high", show: (p) => num(p.dciP3Pct, "%") },
+  { key: "hdr", show: (p) => p.hdr ?? "—" },
+  { key: "dp", show: (p) => p.dpVer ?? "—" },
+  { key: "hdmi", show: (p) => p.hdmiVer ?? "—" },
   {
     key: "pd",
-    label: "USB-C PD",
     rank: (p) => (p.usbC === false ? 0 : p.usbCPdW),
     better: "high",
-    show: (p) => (p.usbC === false ? "Không" : p.usbCPdW !== null ? `${fmtNum(p.usbCPdW)}W` : p.usbC ? "Có" : "—"),
+    show: (p, w) => (p.usbC === false ? w.no : p.usbCPdW !== null ? `${fmtNum(p.usbCPdW)}W` : p.usbC ? w.yes : "—"),
   },
-  { key: "height", label: "Nâng hạ", rank: (p) => p.heightAdjMm, better: "high", show: (p) => num(p.heightAdjMm, " mm") },
-  { key: "pivot", label: "Xoay dọc", show: (p) => yn(p.pivot) },
-  { key: "kvm", label: "KVM", show: (p) => yn(p.kvm) },
+  { key: "height", rank: (p) => p.heightAdjMm, better: "high", show: (p) => num(p.heightAdjMm, " mm") },
+  { key: "pivot", show: (p, w) => yn(p.pivot, w) },
+  { key: "kvm", show: (p, w) => yn(p.kvm, w) },
 ];
 
 /**
@@ -82,7 +85,7 @@ export function bestIndexes(values: (number | null)[], better: Better): Set<numb
 }
 
 /** For "Chỉ hiện điểm khác nhau": the row shows the same text for everyone */
-export function rowIsSame(field: CompareField, items: Comparable[]): boolean {
-  const texts = items.map(field.show);
+export function rowIsSame(field: CompareField, items: Comparable[], w: Words): boolean {
+  const texts = items.map((p) => field.show(p, w));
   return texts.every((t) => t === texts[0]);
 }

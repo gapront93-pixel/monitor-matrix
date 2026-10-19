@@ -10,7 +10,7 @@ const Query = z.object({ q: z.string().trim().min(1).max(60) });
 
 // Quick search in the header: model code, slug or brand + model
 export async function GET(req: NextRequest) {
-  if (!(await userWith("view"))) return Response.json({ error: "Chưa đăng nhập" }, { status: 401 });
+  if (!(await userWith("view"))) return Response.json({ error: "Unauthorized" }, { status: 401 });
   const parsed = Query.safeParse({ q: req.nextUrl.searchParams.get("q") ?? "" });
   if (!parsed.success) return NextResponse.json({ hits: [] });
   const key = normKey(parsed.data.q);

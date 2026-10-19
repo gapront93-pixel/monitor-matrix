@@ -108,3 +108,17 @@ export function shortHdr(hdr: string | null): string {
   if (!hdr) return "—";
   return hdr.replace(/^VESA\s+/i, "").replace(/DisplayHDR\s+True\s*Black/i, "TrueBlack").trim();
 }
+
+/** Big VND amounts: vi "85.19 tỷ" / "123.4 triệu", en "85.19B" / "123.4M" */
+export function fmtVndCompact(n: number, locale: "vi" | "en"): string {
+  const abs = Math.abs(n);
+  const unit = abs >= 1e9 ? (locale === "vi" ? [1e9, " tỷ"] : [1e9, "B"]) : abs >= 1e6 ? (locale === "vi" ? [1e6, " triệu"] : [1e6, "M"]) : null;
+  if (!unit) return fmtNum(Math.round(n));
+  const [div, suffix] = unit as [number, string];
+  return `${(n / div).toLocaleString("en-US", { maximumFractionDigits: abs / div >= 100 ? 1 : 2 })}${suffix}`;
+}
+
+/** +12.3% / -4.0% */
+export function fmtPct(n: number): string {
+  return `${n > 0 ? "+" : ""}${n.toFixed(1)}%`;
+}

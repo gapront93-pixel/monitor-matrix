@@ -8,6 +8,8 @@ import { PageHeader } from "@/components/ui/panel";
 import { EmptyState } from "@/components/ui/states";
 import { Switch } from "@/components/ui/switch";
 import type { Comparable } from "@/lib/compare";
+import { useT } from "@/lib/i18n/client";
+import { catalogMessages } from "@/lib/i18n/messages/catalog";
 import { normKey } from "@/lib/normalize";
 import { cn } from "@/lib/utils";
 
@@ -17,6 +19,7 @@ import { compareHref, MAX_COMPARE, useCompareList } from "./compare-store";
 type Choice = { slug: string; model: string; brand: string; spec: string };
 
 export function CompareView({ items, choices }: { items: Comparable[]; choices: Choice[] }) {
+  const t = useT(catalogMessages).compare;
   const router = useRouter();
   const [stored, setStored] = useCompareList();
   const [diffOnly, setDiffOnly] = useState(false);
@@ -39,14 +42,14 @@ export function CompareView({ items, choices }: { items: Comparable[]; choices: 
   return (
     <>
       <PageHeader
-        eyebrow="So sánh"
-        title={items.length ? `So sánh ${items.length} mẫu` : "So sánh mẫu"}
+        eyebrow={t.title}
+        title={items.length ? t.titleN(items.length) : t.titleEmpty}
         actions={
           <>
-            <Switch checked={diffOnly} onCheckedChange={setDiffOnly} label="Chỉ hiện điểm khác nhau" />
+            <Switch checked={diffOnly} onCheckedChange={setDiffOnly} label={t.diffOnly} />
             {items.length >= MAX_COMPARE ? (
               <Button variant="muted" disabled>
-                Tối đa {MAX_COMPARE} mẫu
+                {t.max(MAX_COMPARE)}
               </Button>
             ) : (
               <AddModel choices={choices} exclude={slugs} onPick={(s) => go([...slugs, s])} />
@@ -56,16 +59,16 @@ export function CompareView({ items, choices }: { items: Comparable[]; choices: 
       />
       {items.length < 2 ? (
         <EmptyState
-          title="Chọn ít nhất 2 mẫu để so sánh"
+          title={t.needTwo}
           action={
             <ButtonLink href="/san-pham" variant="primary" size="sm">
-              Chọn ở trang Sản phẩm
+              {t.pickInProducts}
             </ButtonLink>
           }
         >
           {items.length === 1
-            ? `Đã có ${items[0].model}. Bấm “+ Thêm mẫu” để chọn thêm mẫu GIGABYTE hoặc đối thủ.`
-            : "Bấm “+ Thêm mẫu” ở trên, hoặc tick chọn mẫu ở trang Sản phẩm rồi bấm So sánh. Có thể so cả mẫu đối thủ."}
+            ? t.oneSelected(items[0].model)
+            : t.noneSelected}
         </EmptyState>
       ) : (
         <CompareTable items={items} diffOnly={diffOnly} onRemove={(s) => go(slugs.filter((x) => x !== s))} />
@@ -80,6 +83,7 @@ export function CompareView({ items, choices }: { items: Comparable[]; choices: 
 }
 
 function AddModel({ choices, exclude, onPick }: { choices: Choice[]; exclude: string[]; onPick: (slug: string) => void }) {
+  const t = useT(catalogMessages).compare;
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
   const box = useRef<HTMLDivElement>(null);
@@ -95,7 +99,7 @@ function AddModel({ choices, exclude, onPick }: { choices: Choice[]; exclude: st
   return (
     <div ref={box} className="relative">
       <Button variant="primary" onClick={() => setOpen((v) => !v)} aria-expanded={open}>
-        + Thêm mẫu
+        {t.add}
       </Button>
       {open && (
         <div className="absolute top-[calc(100%+6px)] right-0 z-50 w-[min(340px,calc(100vw-28px))] rounded-ctl border border-line bg-panel p-2 shadow-pop">
@@ -104,12 +108,12 @@ function AddModel({ choices, exclude, onPick }: { choices: Choice[]; exclude: st
             type="search"
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="Lọc theo hãng hoặc mã mẫu"
-            aria-label="Lọc mẫu"
+            placeholder={t.filter}
+            aria-label={t.filterLabel}
             className="mb-1.5 h-8 w-full rounded-ctl border border-line bg-app px-2.5 text-[13px] text-fg placeholder:text-faint"
           />
-          <ul className="max-h-[320px] overflow-y-auto" role="listbox" aria-label="Chọn mẫu">
-            {list.length === 0 && <li className="px-2 py-2 text-[12.5px] text-muted">Không có mẫu nào khớp.</li>}
+          <ul className="max-h-[320px] overflow-y-auto" role="listbox" aria-label={t.pick}>
+            {list.length === 0 && <li className="px-2 py-2 text-[12.5px] text-muted">{t.noMatch}</li>}
             {list.map((c) => (
               <li key={c.slug}>
                 <button
