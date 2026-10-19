@@ -13,3 +13,6 @@ uploads/
 
 # Ảnh sản phẩm tải lên / lấy tự động (không đưa lên git)
 storage/
+
+# Trạng thái deploy trên VPS (bản build đang chạy, bản trước)
+.deploy/

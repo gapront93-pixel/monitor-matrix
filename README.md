@@ -246,19 +246,15 @@ sudo -u deploy pm2 logs monitor-matrix --lines 100   # xem log khi có lỗi
 
 ## 5. Cập nhật code (sau khi sửa code)
 
-```bash
-sudo -u deploy -H /var/www/monitor-matrix/scripts/deploy.sh
+Code sửa ở máy dev rồi đưa lên bằng một lệnh, GitHub tự kiểm tra, build và deploy lên VPS:
+
+```powershell
+npm run ship -- "Mô tả thay đổi"
 ```
 
-Script làm lần lượt:
-1. Cài thư viện nếu `package-lock.json` đổi.
-2. Chạy migration database.
-3. Kiểm tra TypeScript và chạy test.
-4. Build vào thư mục `.next-build` (bản đang chạy chưa bị đụng tới).
-5. Thay bản build và restart PM2.
-6. Kiểm tra app trả lời; nếu không, tự quay lại bản trước.
-
-Build mất khoảng 1 phút và dùng khoảng 750MB RAM. VPS chỉ có 2GB, nên tránh build lúc đang build app khác.
+- Cài máy dev lần đầu: [docs/dev-setup.md](docs/dev-setup.md).
+- Chi tiết deploy, rollback, xử lý lỗi: [docs/deploy.md](docs/deploy.md).
+- Không sửa code trực tiếp trên VPS: lần deploy sau sẽ dừng lại.
 
 ## 6. Nạp lại dữ liệu gốc (`data/`)
 

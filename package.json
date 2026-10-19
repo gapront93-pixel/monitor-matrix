@@ -14,7 +14,8 @@
     "seed": "tsx scripts/seed.ts",
     "test": "vitest run",
     "user": "tsx scripts/user.ts",
-    "lineup": "tsx scripts/lineup.ts"
+    "lineup": "tsx scripts/lineup.ts",
+    "ship": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/ship.ps1"
   },
   "dependencies": {
     "@base-ui/react": "1.8.0",

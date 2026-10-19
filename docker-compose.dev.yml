@@ -1,0 +1,18 @@
+# Local development database only (production uses the VPS PostgreSQL).
+# Start: docker compose -f docker-compose.dev.yml up -d
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: monitor
+      POSTGRES_PASSWORD: monitor
+      POSTGRES_DB: monitor_matrix_dev
+    ports:
+      # 5434 on the host so it clashes neither with a local PostgreSQL nor with the vnpromotion dev DB (5433)
+      - "5434:5432"
+    volumes:
+      - monitor-matrix-db:/var/lib/postgresql/data
+
+volumes:
+  monitor-matrix-db:
