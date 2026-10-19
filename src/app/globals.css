@@ -210,6 +210,14 @@
   font-display: swap;
 }
 
+/* Native dropdown lists: selects are transparent with light text, so the open list (drawn by the OS, often white)
+   needs its own colours or the options are unreadable */
+select option,
+select optgroup {
+  background-color: var(--color-panel);
+  color: var(--color-fg);
+}
+
 /* Every heading inside a page uses the import page's title font. Unlayered so it wins over font-bold:
    Aldrich has a single weight and a synthetic bold would smear it */
 main :is(h1, h2, h3) {

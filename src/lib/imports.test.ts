@@ -3,7 +3,7 @@ import path from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { ALL_FILTER, EMPTY_FILTER, PRESETS, buildPivot, chartSlots, yearSeries, gamingTable, hzBucket, niceMax, options, sizeBucket, tamTable, visibleRows, type ImportData, type PivotSheet } from "./imports";
+import { ALL_FILTER, EMPTY_FILTER, PRESETS, buildPivot, importerShort, modelTable, chartSlots, yearSeries, gamingTable, hzBucket, niceMax, options, sizeBucket, tamTable, visibleRows, type ImportData, type PivotSheet } from "./imports";
 
 const dir = path.join(__dirname, "..", "..", "data", "import");
 const data: ImportData = JSON.parse(readFileSync(path.join(dir, "import-raw-2024-2026.json"), "utf8"));
@@ -56,7 +56,7 @@ describe("pivot tables match the workbook", () => {
   });
 });
 
-const W = { month: (m: number) => `T${m}`, quarter: (q: number) => `Q${q}`, other: "Khác" };
+const W = { month: (m: number) => `T${m}`, quarter: (q: number) => `Q${q}`, other: "Khác", flat: "Phẳng", curved: "Cong" };
 
 describe("pivot builder", () => {
   it("Market TAM preset gives the same cells as the Market TAM table", () => {
@@ -65,9 +65,8 @@ describe("pivot builder", () => {
     const tam = tamTable(data, { brand: null, months: null });
     expect(mine.rows.map((r) => r.c.slice(1))).toEqual(tam.rows.map((r) => r.c.slice(1)));
   });
-  it("Gaming Only preset matches the Gaming Only table", () => {
-    const p = PRESETS[1];
-    const mine = buildPivot(data, { ...ALL_FILTER, ...p.filter, hz: ge(144) }, p.spec, W);
+  it("size × resolution (2026, ≥144Hz) matches the Gaming Only table", () => {
+    const mine = buildPivot(data, { ...ALL_FILTER, years: [2026], hz: ge(144) }, { row: "size", sub: null, col: "res", measure: "qty" }, W);
     const old = gamingTable(data, "res", { hz: ge(144), brand: null, year: [2026] });
     expect(mine.rows.map((r) => r.c)).toEqual(old.rows.map((r) => r.c));
   });
@@ -84,5 +83,31 @@ describe("pivot builder", () => {
     expect(s).toHaveLength(12);
     expect(s[9].byYear[2026]).toBeNull();
     expect(s[0].byYear[2025]!.qty).toBeGreaterThan(0);
+  });
+});
+
+describe("FOB, shares, importers and models", () => {
+  it("average FOB is value / units and shares of a column add up to 100%", () => {
+    const fob = buildPivot(data, { ...ALL_FILTER, years: [2026] }, { row: "panel", sub: null, col: null, measure: "fob" }, W);
+    const ips = data.r2026.filter((r) => r[7] === "IPS");
+    const want = Math.round((ips.reduce((n, r) => n + r[12], 0) / ips.reduce((n, r) => n + r[11], 0)) * 10) / 10;
+    expect(fob.rows.find((r) => r.c[0] === "IPS")!.c[1]).toBe(want);
+    const share = buildPivot(data, ALL_FILTER, { row: "brand", sub: null, col: "year", measure: "share" }, W);
+    const col2026 = share.rows.filter((r) => r.l === 0).reduce((n, r) => n + (Number(r.c[3]) || 0), 0);
+    expect(col2026).toBeGreaterThan(99.5);
+    expect(col2026).toBeLessThan(100.5);
+  });
+  it("shortens importer names but keeps unusual ones", () => {
+    expect(importerShort("CÔNG TY CỔ PHẦN THẾ GIỚI SỐ")).toBe("THẾ GIỚI SỐ");
+    expect(importerShort("CÔNG TY TNHH MỘT THÀNH VIÊN CÔNG NGHỆ TIN HỌC VIỄN SƠN")).toBe("CÔNG NGHỆ TIN HỌC VIỄN SƠN");
+    expect(importerShort("ANTTEQ")).toBe("ANTTEQ");
+  });
+  it("model table: units add up and FOB sits between its low and high", () => {
+    const rows = modelTable(data, { years: [2026], brand: "Gigabyte", gaming: false, search: "" });
+    expect(rows.reduce((n, r) => n + r.qty, 0)).toBe(data.r2026.filter((r) => data.dicts.brand[r[4]] === "Gigabyte").reduce((n, r) => n + r[11], 0));
+    for (const r of rows) if (r.fobMin) expect(r.fob).toBeGreaterThanOrEqual(r.fobMin - 0.01);
+  });
+  it("every preset builds", () => {
+    for (const p of PRESETS) expect(buildPivot(data, { ...ALL_FILTER, ...p.filter }, p.spec, W).rows.length).toBeGreaterThan(1);
   });
 });

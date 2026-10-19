@@ -24,6 +24,7 @@ export type Comparable = {
   pivot: boolean | null;
   kvm: boolean | null;
   minPrice: number | null;
+  fobUsd?: number | null; // average import FOB over the last 9 months (customs data); absent when not loaded
   inStock: number;
   sellers: number;
 };
@@ -33,7 +34,7 @@ export type Better = "high" | "low";
 /** Words the table needs, from catalogMessages.words */
 export type Words = { yes: string; no: string; noPrice: string };
 
-export type FieldKey = "price" | "stock" | "size" | "panel" | "res" | "hz" | "ms" | "sdr" | "hdrp" | "p3" | "hdr" | "dp" | "hdmi" | "pd" | "height" | "pivot" | "kvm";
+export type FieldKey = "fob" | "price" | "stock" | "size" | "panel" | "res" | "hz" | "ms" | "sdr" | "hdrp" | "p3" | "hdr" | "dp" | "hdmi" | "pd" | "height" | "pivot" | "kvm";
 
 export type CompareField = {
   key: FieldKey; // also the label key in catalogMessages.fields
@@ -47,6 +48,8 @@ const yn = (v: boolean | null, w: Words) => (v === null ? "—" : v ? w.yes : w.
 const num = (v: number | null, unit = "") => (v === null ? "—" : `${fmtNum(v)}${unit}`);
 
 export const COMPARE_FIELDS: CompareField[] = [
+  // Import price (USD, FOB) above the dealer price, so the two read together
+  { key: "fob", rank: (p) => p.fobUsd ?? null, better: "low", show: (p) => (p.fobUsd ? `${p.fobUsd.toFixed(1)} USD` : "—") },
   { key: "price", rank: (p) => p.minPrice, better: "low", show: (p, w) => (p.minPrice ? fmtNum(p.minPrice) : w.noPrice) },
   { key: "stock", rank: (p) => (p.sellers ? p.inStock : null), better: "high", show: (p) => (p.sellers ? String(p.inStock) : "—") },
   { key: "size", show: (p) => (p.sizeIn !== null ? `${p.sizeIn}"` : "—") },

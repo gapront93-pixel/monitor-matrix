@@ -13,6 +13,7 @@ import {
   EMPTY_FILTER,
   HZ_BUCKETS,
   PRESETS,
+  ROW_ONLY,
   SIZE_BUCKETS,
   YEARS,
   buildPivot,
@@ -22,8 +23,10 @@ import {
   headLabel,
   heatMax,
   hzLabel,
+  importerShort,
   isRevCol,
   isTotalCol,
+  modelTable,
   options,
   resLabel,
   visibleRows,
@@ -32,6 +35,7 @@ import {
   type Dim,
   type ImportData,
   type Measure,
+  type ModelRow,
   type MultiSel,
   type PivotFilter,
   type PivotSpec,
@@ -42,10 +46,11 @@ import { cn } from "@/lib/utils";
 
 const HIGHLIGHT = "Gigabyte";
 
-// One colour pair per year: value bars in blues, unit lines in magentas (the newest year strongest)
+// One strong hue per year, far apart so the years never blur: violet, AORUS orange, GIGABYTE cyan.
+// Bars carry the value, lines (a lighter tint of the same hue, dots outlined) the units
 const YEAR_COLORS: Record<Year, { bar: string; line: string }> = {
-  2024: { bar: "#3b5fd0", line: "#a855f7" },
-  2025: { bar: "#7dd3fc", line: "#ff8fd0" },
+  2024: { bar: "#7b5cff", line: "#b9a6ff" },
+  2025: { bar: "#ff7a1a", line: "#ffb36b" },
   2026: { bar: "#00a3e0", line: "#e040e8" },
 };
 
@@ -59,6 +64,7 @@ function useNumbers() {
       num: (n: number) => f0.format(n),
       // 20,0M · 250,0K, as in the design
       compact: (n: number) => (n >= 1e6 ? `${f1.format(n / 1e6)}M` : n >= 1e3 ? `${f1.format(n / 1e3)}K` : f0.format(n)),
+      dec: (n: number) => f1.format(n),
     };
   }, [locale]);
 }
@@ -94,6 +100,7 @@ export function ImportView() {
         <>
           <YearChart data={data} filter={filter} />
           <PivotBuilder data={data} />
+          <ModelTable data={data} />
         </>
       )}
     </div>
@@ -105,7 +112,7 @@ export function ImportView() {
 function chipCls(on: boolean) {
   return cn(
     "h-[30px] min-w-14 rounded-[6px] border px-2.5 text-[14px] font-medium transition-colors",
-    on ? "border-imp-rev bg-imp-rev/15 text-imp-rev" : "border-line bg-app text-fg-2 hover:border-line-hover",
+    on ? "border-accent bg-accent font-semibold text-on-accent" : "border-line bg-app text-fg-2 hover:border-line-hover",
   );
 }
 
@@ -202,7 +209,7 @@ function YearChart({ data, filter }: { data: ImportData; filter: ChartFilter }) 
   const tick = { fontSize: 12, fontFamily: "var(--font-mono)" };
   return (
     <section className="flex min-w-0 flex-col gap-3 rounded-[10px] border border-line bg-panel px-5 py-4.5">
-      <h2 className="text-[22px] text-fg">{t.compare.title(years.join(" · "))}</h2>
+      <h2 className="text-[22px] text-fg">{t.compare.title}</h2>
       <div className="h-[300px]">
         <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 1000, height: 300 }}>
           <ComposedChart data={rows} margin={{ top: 8, right: 4, bottom: 0, left: 0 }} barGap={2}>
@@ -271,7 +278,7 @@ function PivotBuilder({ data }: { data: ImportData }) {
   const [presetIdx, setPresetIdx] = useState<number | null>(0);
   const [open, setOpen] = useState<string | null>(null);
   const [collapsed, setCollapsed] = useState<number[]>([]);
-  const words = useMemo(() => ({ month: t.monthChip, quarter: t.quarterLabel, other: t.other }), [t]);
+  const words = useMemo(() => ({ month: t.monthChip, quarter: t.quarterLabel, other: t.other, flat: t.flat, curved: t.curved }), [t]);
 
   const table = useMemo(() => buildPivot(data, filter, spec, words), [data, filter, spec, words]);
   const startCollapsed = (tb: PivotTable) => (tb.rows.length > 40 ? tb.rows.flatMap((r, i) => (r.l === 0 ? [i] : [])) : []);
@@ -297,7 +304,7 @@ function PivotBuilder({ data }: { data: ImportData }) {
       <select value={value ?? ""} onChange={(e) => onChange((e.target.value || null) as Dim | null)} className="h-[30px] cursor-pointer bg-transparent text-[15px] text-fg outline-none">
         {allowNone && <option value="">{t.pivot.none}</option>}
         {DIMS.filter((d) => !exclude.includes(d) || d === value)
-          .filter((d) => d !== "model" || label !== t.pivot.col)
+          .filter((d) => !ROW_ONLY.includes(d) || label !== t.pivot.col)
           .map((d) => (
             <option key={d} value={d}>
               {t.dims[d]}
@@ -306,7 +313,7 @@ function PivotBuilder({ data }: { data: ImportData }) {
       </select>
     </label>
   );
-  const sheets = [...new Set(PRESETS.map((p) => p.sheet))];
+  const groups = [...new Set(PRESETS.map((p) => p.group))];
 
   return (
     <section className="flex min-w-0 flex-col gap-4 rounded-[10px] border border-line bg-panel px-5 py-4.5">
@@ -318,23 +325,23 @@ function PivotBuilder({ data }: { data: ImportData }) {
       {/* Presets: the analyses of the workbook's pivot sheets */}
       <div className="flex flex-col gap-2">
         <span className="text-[13px] text-muted">{t.pivot.presets}</span>
-        <div className="flex flex-wrap gap-x-5 gap-y-2">
-          {sheets.map((sheet) => (
-            <div key={sheet} className="flex flex-wrap items-center gap-1.5">
-              <span className="text-[12px] font-semibold tracking-[0.06em] text-faint uppercase">{sheet}</span>
+        <div className="grid gap-x-5 gap-y-2 lg:grid-cols-2">
+          {groups.map((group) => (
+            <div key={group} className="flex flex-wrap items-center gap-1.5">
+              <span className="w-[120px] shrink-0 text-[12px] font-semibold tracking-[0.06em] text-faint uppercase">{t.groups[group]}</span>
               {PRESETS.map((p, i) =>
-                p.sheet !== sheet ? null : (
+                p.group !== group ? null : (
                   <button
-                    key={i}
+                    key={p.id}
                     type="button"
                     aria-pressed={presetIdx === i}
                     onClick={() => apply(p.spec, { ...ALL_FILTER, ...p.filter, hz: p.gaming ? ge(p.gaming) : null }, i)}
                     className={cn(
                       "h-7 rounded-[6px] border px-2.5 text-[13px] whitespace-nowrap",
-                      presetIdx === i ? "border-accent bg-accent-tint text-key" : "border-line bg-app text-fg-2 hover:border-line-hover",
+                      presetIdx === i ? "border-accent bg-accent font-semibold text-on-accent" : "border-line bg-app text-fg-2 hover:border-line-hover",
                     )}
                   >
-                    {[p.spec.row, p.spec.sub].filter(Boolean).map((d) => t.dims[d as Dim]).join(" / ")} × {p.spec.col ? t.dims[p.spec.col] : "—"}
+                    {t.presetLabels[p.id] ?? p.id}
                   </button>
                 ),
               )}
@@ -350,7 +357,7 @@ function PivotBuilder({ data }: { data: ImportData }) {
         {dimSelect(t.pivot.col, spec.col, (v) => change({ col: v }), true, [spec.row, spec.sub])}
         <button
           type="button"
-          disabled={!spec.col || spec.col === "model" || spec.row === "model"}
+          disabled={!spec.col || ROW_ONLY.includes(spec.row) || !!spec.sub}
           onClick={() => spec.col && change({ row: spec.col, col: spec.row, sub: null })}
           className="flex h-8 items-center gap-1.5 rounded-[6px] border border-line px-2.5 text-[13px] text-fg-2 hover:border-line-hover disabled:opacity-40"
         >
@@ -359,7 +366,7 @@ function PivotBuilder({ data }: { data: ImportData }) {
         </button>
         <div className="flex h-8 items-center gap-1 rounded-[6px] border border-line bg-app p-0.5">
           <span className="px-1.5 text-[14px] text-muted">{t.pivot.measure}</span>
-          {(["qty", "rev", "both"] as Measure[]).map((m) => (
+          {(["qty", "rev", "both", "fob", "share"] as Measure[]).map((m) => (
             <button
               key={m}
               type="button"
@@ -415,8 +422,9 @@ function PivotCard({
   setCollapsed: (rows: Set<number>) => void;
 }) {
   const t = useT(importsMessages);
-  const { num } = useNumbers();
+  const { num, dec } = useNumbers();
   const nc = table.cols.length;
+  const show = (v: number) => (table.unit === "pct" ? `${dec(v)}%` : table.unit === "usd" ? dec(v) : num(v));
   const leaf = Math.max(0, ...table.rows.map((r) => r.l));
   const mx = heatMax(table);
   const parents = table.rows.flatMap((_, ri) => (hasKids(table, ri) ? [ri] : []));
@@ -520,7 +528,7 @@ function PivotCard({
                         )}
                         style={ratio > 0 ? { background: `rgba(0,212,230,${(0.05 + ratio * 0.5).toFixed(3)})` } : undefined}
                       >
-                        {isNum ? num(v as number) : v === "" ? "" : String(v)}
+                        {isNum ? show(v as number) : v === "" ? "" : String(v)}
                       </td>
                     );
                   })}
@@ -642,5 +650,158 @@ function MultiSelect<T extends string | number>({
         </>
       )}
     </div>
+  );
+}
+
+// --- Models and their FOB prices ---
+
+type ModelSort = "qty" | "rev" | "fob" | "fobAsc";
+const PAGE = 50;
+
+function ModelTable({ data }: { data: ImportData }) {
+  const t = useT(importsMessages);
+  const m = t.models;
+  const { num, dec } = useNumbers();
+  const brands = useMemo(() => options(data).brands, [data]);
+  const [years, setYears] = useState<Year[]>([2026]);
+  const [brand, setBrand] = useState("");
+  const [gaming, setGaming] = useState(true);
+  const [search, setSearch] = useState("");
+  const [sort, setSort] = useState<ModelSort>("qty");
+  const [limit, setLimit] = useState(PAGE);
+  const rows = useMemo(() => {
+    const list = modelTable(data, { years, brand, gaming, search });
+    const by: Record<ModelSort, (a: ModelRow, b: ModelRow) => number> = {
+      qty: (a, b) => b.qty - a.qty,
+      rev: (a, b) => b.rev - a.rev,
+      fob: (a, b) => b.fob - a.fob,
+      fobAsc: (a, b) => a.fob - b.fob,
+    };
+    return list.sort(by[sort]);
+  }, [data, years, brand, gaming, search, sort]);
+  const maxQty = Math.max(1, ...rows.map((r) => r.qty));
+  const toggleYear = (y: Year) => {
+    const on = years.includes(y);
+    if (on && years.length === 1) return;
+    setYears(on ? years.filter((x) => x !== y) : [...years, y].sort());
+    setLimit(PAGE);
+  };
+  const th = "border-b border-line bg-head px-2.5 py-2 font-sans text-[13px] font-medium tracking-normal whitespace-nowrap text-muted";
+  const spec = (r: ModelRow) => [`${r.size}"`, r.panel, resLabel(r.res), hzLabel(r.hz), r.curved ? t.curved : null].filter(Boolean).join(" · ");
+
+  return (
+    <section className="flex min-w-0 flex-col gap-4 rounded-[10px] border border-line bg-panel px-5 py-4.5">
+      <div className="flex flex-col gap-1">
+        <h2 className="text-[22px] text-fg">{m.title}</h2>
+        <p className="text-[13px] text-muted">{m.sub}</p>
+      </div>
+      <div className="flex flex-wrap items-center gap-2">
+        {YEARS.map((y) => (
+          <button key={y} type="button" aria-pressed={years.includes(y)} onClick={() => toggleYear(y)} className={chipCls(years.includes(y))}>
+            {y}
+          </button>
+        ))}
+        <label className={cn("flex h-8 items-center gap-2 rounded-[6px] border bg-app pr-1 pl-2.5", brand ? "border-accent" : "border-line")}>
+          <span className="text-[14px] text-muted">{t.brand}</span>
+          <select
+            value={brand}
+            onChange={(e) => {
+              setBrand(e.target.value);
+              setLimit(PAGE);
+            }}
+            className="h-[30px] max-w-[170px] cursor-pointer bg-transparent text-[15px] text-fg outline-none"
+          >
+            <option value="">{t.all}</option>
+            {brands.map((b) => (
+              <option key={b} value={b}>
+                {b}
+              </option>
+            ))}
+          </select>
+        </label>
+        <button type="button" aria-pressed={gaming} onClick={() => setGaming(!gaming)} className={cn(chipCls(gaming), "px-3")}>
+          {m.gaming}
+        </button>
+        <label className="flex h-8 items-center gap-2 rounded-[6px] border border-line bg-app pr-1 pl-2.5">
+          <span className="text-[14px] text-muted">{m.sortBy}</span>
+          <select value={sort} onChange={(e) => setSort(e.target.value as ModelSort)} className="h-[30px] cursor-pointer bg-transparent text-[15px] text-fg outline-none">
+            {(Object.keys(m.sorts) as ModelSort[]).map((k) => (
+              <option key={k} value={k}>
+                {m.sorts[k]}
+              </option>
+            ))}
+          </select>
+        </label>
+        <input
+          value={search}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setLimit(PAGE);
+          }}
+          placeholder={m.search}
+          aria-label={m.search}
+          className="h-8 max-w-[300px] min-w-[200px] flex-1 rounded-[6px] border border-line bg-app px-3 text-[15px] text-fg outline-none focus:border-accent"
+        />
+        <span className="ml-auto text-[13px] text-faint">{m.count(rows.length)}</span>
+      </div>
+      {rows.length === 0 ? (
+        <p className="py-6 text-center text-[14px] text-muted">{m.none}</p>
+      ) : (
+        <div className="max-h-[720px] overflow-auto rounded-[6px] border border-line">
+          <table className="w-full border-separate border-spacing-0 text-[14px] tabular-nums">
+            <thead className="sticky top-0 z-[2]">
+              <tr>
+                <th className={cn(th, "w-10 text-left")}>{m.cols.rank}</th>
+                <th className={cn(th, "sticky left-0 z-[3] text-left")}>{m.cols.model}</th>
+                <th className={cn(th, "text-left")}>{m.cols.brand}</th>
+                <th className={cn(th, "text-left")}>{m.cols.spec}</th>
+                <th className={cn(th, "text-right")}>{m.cols.qty}</th>
+                <th className={cn(th, "text-right")}>{m.cols.rev}</th>
+                <th className={cn(th, "text-right")}>{m.cols.fob}</th>
+                <th className={cn(th, "text-right")}>{m.cols.range}</th>
+                <th className={cn(th, "text-right")}>{m.cols.imps}</th>
+                <th className={cn(th, "text-left")}>{m.cols.top}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.slice(0, limit).map((r, i) => {
+                const hl = r.brand === HIGHLIGHT;
+                const td = cn("border-b border-line-2 px-2.5 py-1.5 whitespace-nowrap", hl ? "bg-accent-tint" : "");
+                return (
+                  <tr key={`${r.brand}|${r.model}`}>
+                    <td className={cn(td, "text-faint")}>{i + 1}</td>
+                    <th scope="row" className={cn(td, "sticky left-0 z-[1] text-left font-sans font-semibold tracking-normal", hl ? "bg-accent-tint text-key" : "bg-panel text-fg")}>
+                      {r.model}
+                    </th>
+                    <td className={cn(td, hl ? "font-semibold text-key" : "text-fg-2")}>{r.brand}</td>
+                    <td className={cn(td, "text-[13px] text-muted")}>{spec(r)}</td>
+                    <td className={cn(td, "text-right")}>
+                      <span className="inline-flex items-center gap-2">
+                        <span aria-hidden className="h-1.5 w-12 overflow-hidden rounded-full bg-line-2">
+                          <span className="block h-full rounded-full bg-imp-rev" style={{ width: `${Math.max(3, (r.qty / maxQty) * 100)}%` }} />
+                        </span>
+                        <span className="font-semibold text-fg">{num(r.qty)}</span>
+                      </span>
+                    </td>
+                    <td className={cn(td, "text-right text-fg-2")}>{num(r.rev)}</td>
+                    <td className={cn(td, "text-right font-semibold text-fg")}>{dec(r.fob)}</td>
+                    <td className={cn(td, "text-right text-muted")}>{r.fobMin && r.fobMin !== r.fobMax ? `${dec(r.fobMin)} – ${dec(r.fobMax)}` : r.fobMax ? dec(r.fobMax) : "—"}</td>
+                    <td className={cn(td, "text-right text-fg-2")}>{r.importers}</td>
+                    <td className={cn(td, "max-w-[280px] truncate text-[13px] text-fg-2")} title={r.topImporter}>
+                      {importerShort(r.topImporter)}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+      {rows.length > limit && (
+        <button type="button" onClick={() => setLimit(limit + PAGE)} className="self-center text-[14px] font-semibold text-key hover:underline">
+          {m.showMore(rows.length - limit)}
+        </button>
+      )}
+    </section>
   );
 }

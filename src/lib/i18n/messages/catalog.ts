@@ -28,6 +28,7 @@ const vi = {
     seeRivals: "Xem đối thủ →",
   },
   fields: {
+    fob: "Giá FOB nhập khẩu (9 tháng)",
     price: "Giá thấp nhất",
     stock: "Số nơi còn hàng",
     size: "Kích thước",
@@ -134,6 +135,7 @@ const en: typeof vi = {
     seeRivals: "See competitors →",
   },
   fields: {
+    fob: "Import FOB price (9 months)",
     price: "Lowest price",
     stock: "Dealers in stock",
     size: "Size",

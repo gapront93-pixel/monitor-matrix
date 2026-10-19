@@ -13,6 +13,7 @@ import { EmptyState } from "@/components/ui/states";
 import { comparable, getCatalog, type Catalog, type ProductView } from "@/lib/catalog";
 import { byRivalBrand, fmtDate, fmtDiff, fmtNum, fmtPriceCell, resLabel } from "@/lib/format";
 import { isBuyable } from "@/lib/import/prices";
+import { importStats } from "@/lib/import-stats";
 import { prisma } from "@/lib/prisma";
 import { priceHistory, productBenchmarks } from "@/lib/product-detail";
 import { catalogMessages } from "@/lib/i18n/messages/catalog";
@@ -48,11 +49,16 @@ export default async function ProductPage({ params, searchParams }: Params) {
   const cheapestLink = cheapest ? priceLink(cheapest, dealers.get(cheapest.dealerId)?.website ?? null, p.model) : null;
   const specs = groupSpecs((raw?.rawSpecs ?? {}) as Record<string, unknown>, p.isGigabyte, locale);
 
-  // Same segment, other side: rivals for a GIGABYTE model, GIGABYTE models for a rival
-  const others = catalog.products
-    .filter((o) => o.segmentId && o.segmentId === p.segmentId && o.isGigabyte !== p.isGigabyte)
-    .sort(byRivalBrand)
+  // Same segment, other side: rivals for a GIGABYTE model, GIGABYTE models for a rival.
+  // Rivals only count when the customs data shows them imported in the last 9 months; most imported first
+  const sameSegment = catalog.products.filter((o) => o.segmentId && o.segmentId === p.segmentId && o.isGigabyte !== p.isGigabyte);
+  const imports = await importStats([p, ...sameSegment]);
+  const imported = (o: (typeof sameSegment)[number]) => o.isGigabyte || (imports.get(o.slug)?.qty ?? 0) > 0;
+  const others = sameSegment
+    .filter(imported)
+    .sort((a, b) => (a.isGigabyte ? byRivalBrand(a, b) : (imports.get(b.slug)?.qty ?? 0) - (imports.get(a.slug)?.qty ?? 0) || byRivalBrand(a, b)))
     .slice(0, 3);
+  const withFob = (o: (typeof catalog.products)[number]) => ({ ...comparable(o), fobUsd: imports.get(o.slug)?.fob ?? null });
 
   const chips = [p.sizeIn !== null && `${p.sizeIn}"`, p.panel, resLabel(p.resolution), p.refreshHz && `${p.refreshHz}Hz`, p.responseMs !== null && `${p.responseMs}ms`].filter(Boolean) as string[];
 
@@ -151,18 +157,18 @@ export default async function ProductPage({ params, searchParams }: Params) {
                     {t.openCompare}
                   </ButtonLink>
                 </div>
-                <CompareTable items={[p, ...others].map(comparable)} showImages={false} />
+                <CompareTable items={[p, ...others].map(withFob)} showImages={false} />
               </>
             ) : (
               <EmptyState
-                title={t.noSegment}
+                title={sameSegment.length ? t.noImportedRivals : t.noSegment}
                 action={
                   <ButtonLink href={`/so-sanh?m=${encodeURIComponent(p.slug)}`} variant="primary" size="sm">
                     {t.pickYourself}
                   </ButtonLink>
                 }
               >
-                {t.noSegmentText}
+                {sameSegment.length ? t.noImportedRivalsText : t.noSegmentText}
               </EmptyState>
             ),
           },

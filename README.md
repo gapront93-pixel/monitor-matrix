@@ -159,21 +159,33 @@ Lệnh này cũng tự chạy sau `npm run seed`. Bản sao lưu database trư�
 
 ## 2e. Import Data - LCD
 
-Menu **Matrix LCD → Import Data - LCD** (chỉ Mod và Admin). Trang này hiển thị số liệu nhập khẩu màn hình vào Việt Nam 2024–2026, lấy từ sheet RAW của file *LCD IMPORT DATA - Analysis 2026*.
+Menu **Import Data - LCD** (chỉ Mod và Admin), nằm dưới Doanh số LCD. Trang này hiển thị số liệu nhập khẩu màn hình vào Việt Nam 2024–2026, lấy từ sheet RAW của file *LCD IMPORT DATA - Analysis 2026*.
 
 - **Biểu đồ theo tháng:**
-  - Chọn một hoặc nhiều năm. Khi chọn nhiều năm, mỗi tháng có một cột kim ngạch và một điểm số lượng cho từng năm để so sánh. Chú thích màu nằm dưới biểu đồ.
+  - Chọn một hoặc nhiều năm. Mỗi năm có một màu riêng: 2024 tím, 2025 cam AORUS, 2026 xanh GIGABYTE. Cột là kim ngạch, đường là số lượng. Chú thích nằm dưới biểu đồ.
   - Có thể lọc thêm theo Brand, kích thước, tấm nền, độ phân giải, tần số, hoặc tìm theo model / nhà nhập khẩu.
-- **Phân tích pivot:**
+- **Phân tích dữ liệu:**
   - Mọi bảng đều tính trực tiếp từ dữ liệu RAW.
-  - Chọn **Dòng**, **Dòng con** và **Cột** theo một trong các chiều: Năm, Quý, Tháng, Kích thước, Brand, Độ phân giải, Tấm nền, Tần số quét, Model (Model chỉ dùng được cho dòng).
-  - Chọn **Số liệu**: SL, Kim ngạch hoặc cả hai.
-  - Lọc theo từng chiều.
-  - **Mẫu phân tích** dựng sẵn 10 bảng như trong file (Market TAM, Gaming Only, Gaming by Brand, Analysis UTD). Bấm một mẫu để mở, rồi chỉnh tiếp tuỳ ý.
-  - Khi có hơn 40 cột, các cột nhỏ được gộp vào cột "Khác". Bảng dài hơn 40 dòng sẽ mở ở dạng thu gọn.
-- **Dữ liệu:**
-  - File `data/import/import-raw-2024-2026.json`, có số liệu đến 22/09/2026. Chỉ tài khoản Mod và Admin tải được (`/api/nhap-khau`).
-  - File `pivots-static.json` chỉ giữ lại để tham khảo, trang không còn dùng tới.
+  - Chọn **Dòng**, **Dòng con** và **Cột** theo một trong các chiều: Năm, Quý, Tháng, Kích thước, Brand, Độ phân giải, Tấm nền, Tần số quét, Kiểu màn (phẳng/cong), Xuất xứ, Cửa khẩu, Điều kiện giao hàng. Nhà nhập khẩu và Model chỉ dùng được cho dòng.
+  - **Số liệu** có 5 lựa chọn:
+    - Số lượng;
+    - Kim ngạch;
+    - cả hai;
+    - **FOB bình quân** (= kim ngạch / số lượng, tính bằng USD);
+    - **Tỉ trọng %** (phần của mỗi dòng trong cột, tức thị phần).
+  - **Mẫu phân tích** có 15 mẫu, chia 4 nhóm:
+    - Thị trường;
+    - Gaming ≥144Hz;
+    - Giá FOB;
+    - Kênh nhập khẩu (nhà nhập khẩu, cửa khẩu, xuất xứ).
+  - Khi có hơn 40 cột, các cột nhỏ được gộp vào cột "Khác".
+- **Model & giá FOB:** mỗi model gồm số lượng, kim ngạch, FOB bình quân, FOB thấp – cao nhất, số nhà nhập khẩu và nhà nhập khẩu chính. Có lọc theo năm, Brand và "chỉ gaming ≥144Hz", có ô tìm kiếm và nhiều cách sắp xếp.
+- **Dùng ở trang sản phẩm:**
+  - Tab **So với đối thủ** chỉ hiện đối thủ có số lượng nhập khẩu lớn hơn 0 trong **9 tháng gần nhất**, xếp theo số lượng nhập khẩu.
+  - Bảng so sánh, ở cả tab này lẫn trang So sánh, có hàng **Giá FOB nhập khẩu (9 tháng)** ngay trên hàng Giá thấp nhất.
+  - Mẫu được so khớp với dữ liệu hải quan theo brand và mã model (tên model hoặc alias; nếu không khớp thì so theo mã con). Samsung không có trong dữ liệu hải quan, nên các mẫu Samsung không hiện trong tab này.
+- **Dữ liệu:** file `data/import/import-raw-2024-2026.json`, có số liệu đến 22/09/2026, chỉ tài khoản Mod và Admin tải được (`/api/nhap-khau`).
+  - **Lưu ý về file gốc:** model "LEGION 27Q-10" (Lenovo) bị lặp ở nhiều brand khác, do lỗi kéo-điền trong file Excel. Trang vẫn hiển thị đúng như dữ liệu gốc.
 - **Cập nhật số liệu mới:** thay file RAW trên (cùng định dạng), sửa ngày "cập nhật" trong `src/lib/i18n/messages/imports.ts`, rồi chạy `scripts/deploy.sh`.
 
 ---

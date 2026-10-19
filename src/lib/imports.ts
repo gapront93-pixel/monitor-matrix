@@ -7,7 +7,7 @@ export type Year = (typeof YEARS)[number];
 
 // Columns of a row: m, d, imp, model, brand, size, type, panel, res, hz, fob, qty, rev, country, port, dk
 export type ImportRow = [number, number, number, number, number, number, string, string, string, number, number, number, number, number, number, number];
-export const C = { m: 0, d: 1, imp: 2, model: 3, brand: 4, size: 5, type: 6, panel: 7, res: 8, hz: 9, fob: 10, qty: 11, rev: 12 } as const;
+export const C = { m: 0, d: 1, imp: 2, model: 3, brand: 4, size: 5, type: 6, panel: 7, res: 8, hz: 9, fob: 10, qty: 11, rev: 12, country: 13, port: 14, dk: 15 } as const;
 
 export type ImportData = {
   meta: { latest: number }; // MDD of the newest row: 922 = 22/09
@@ -119,6 +119,7 @@ export type PivotTable = {
   cols: string[];
   groups: { label: string; span: number }[] | null;
   rows: PivotRow[];
+  unit?: "usd" | "pct"; // average FOB or share: shown with one decimal
 };
 export type PivotSheet = { sheet: string; tables: PivotTable[] };
 
@@ -222,12 +223,14 @@ export function gamingTable(d: ImportData, kind: GamingKind, f: GamingFilter): P
 }
 
 /** Header cells of the Excel pivots, renamed (labels come from the page messages) */
-export type HeadWords = { qty: string; rev: string; qtyTotal: string; revTotal: string; total: string };
+export type HeadWords = { qty: string; rev: string; qtyTotal: string; revTotal: string; total: string; fob: string; share: string };
 export function headLabel(v: string, w: HeadWords): string {
   const t = /Total/i.test(v);
   if (/QTY/.test(v)) return t ? w.qtyTotal : w.qty;
   if (/REV/.test(v)) return t ? w.revTotal : w.rev;
   if (/^Grand Total$/i.test(v.trim())) return w.total;
+  if (v === "FOB") return w.fob;
+  if (v === "SHARE") return w.share;
   return v;
 }
 
@@ -267,9 +270,12 @@ export function visibleRows(t: PivotTable, collapsed: Set<number>): number[] {
 
 // --- Pivot builder: any dimension on rows (with an optional sub-row) and columns, over the RAW rows ---
 
-export const DIMS = ["year", "quarter", "month", "size", "brand", "res", "panel", "hz", "model"] as const;
+// Rows only: model and importer have too many values for columns
+export const DIMS = ["year", "quarter", "month", "size", "brand", "res", "panel", "hz", "type", "imp", "country", "port", "dk", "model"] as const;
+export const ROW_ONLY: Dim[] = ["model", "imp"];
 export type Dim = (typeof DIMS)[number];
-export type Measure = "qty" | "rev" | "both";
+// fob: average FOB (value / units, USD); share: % of the column's units
+export type Measure = "qty" | "rev" | "both" | "fob" | "share";
 
 export type PivotFilter = {
   years: MultiSel<Year>;
@@ -308,10 +314,30 @@ function dimKey(d: ImportData, dim: Dim, r: ImportRow, y: Year): Key {
       return r[C.hz];
     case "model":
       return d.dicts.model[r[C.model]];
+    case "type":
+      return /curv/i.test(r[C.type]) ? "Curved" : "Flat";
+    case "imp":
+      return d.dicts.imp[r[C.imp]];
+    case "country":
+      return d.dicts.country[r[C.country]];
+    case "port":
+      return d.dicts.port[r[C.port]];
+    case "dk":
+      return d.dicts.dk[r[C.dk]];
   }
 }
 
-export type DimWords = { month: (m: number) => string; quarter: (q: number) => string; other: string };
+/** "CÔNG TY CỔ PHẦN THẾ GIỚI SỐ" -> "THẾ GIỚI SỐ": the legal form is dropped, the full name stays in the tooltip */
+export function importerShort(name: string): string {
+  const s = name
+    .replace(/^(CHI NHÁNH\s+)?(CÔNG TY|CTY)\s+/i, "")
+    .replace(/^(TRÁCH NHIỆM HỮU HẠN|TNHH|CỔ PHẦN|CP)\s+/i, "")
+    .replace(/^(MỘT THÀNH VIÊN|MTV|HAI THÀNH VIÊN)\s+/i, "")
+    .trim();
+  return s || name;
+}
+
+export type DimWords = { month: (m: number) => string; quarter: (q: number) => string; other: string; flat: string; curved: string };
 export function dimLabel(dim: Dim, k: Key, w: DimWords): string {
   if (k === OTHER_KEY) return w.other;
   switch (dim) {
@@ -325,6 +351,10 @@ export function dimLabel(dim: Dim, k: Key, w: DimWords): string {
       return resLabel(String(k));
     case "hz":
       return hzLabel(Number(k));
+    case "type":
+      return k === "Curved" ? w.curved : w.flat;
+    case "imp":
+      return importerShort(String(k));
     default:
       return String(k);
   }
@@ -388,7 +418,7 @@ export function buildPivot(d: ImportData, f: PivotFilter, spec: PivotSpec, w: Di
       grand.r += rv;
     }
   }
-  const main = (a: Acc) => (spec.measure === "rev" ? a.r : a.q);
+  const main = (a: Acc) => (spec.measure === "rev" ? a.r : a.q); // sorting and folding
   let colKeys: Key[] = col ? orderKeys(col, [...colTot.keys()], (k) => main(colTot.get(k)!)) : [];
   // Too many columns: keep the largest, fold the rest
   let folded = new Set<Key>();
@@ -408,8 +438,15 @@ export function buildPivot(d: ImportData, f: PivotFilter, spec: PivotSpec, w: Di
     return o;
   };
   const both = spec.measure === "both";
-  const vals = (a: Acc): Cell[] => (both ? [a.q || "", a.r || ""] : [main(a) || ""]);
-  const line = (all: Map<Key, Acc>, sum: Acc): Cell[] => [...(col ? colKeys.flatMap((k) => vals(get(all, k))) : []), ...vals(sum)];
+  const round = (v: number, d: number) => Math.round(v * 10 ** d) / 10 ** d;
+  // base: the total a share is taken of (the column total, or the grand total for the totals column)
+  const vals = (a: Acc, base: Acc): Cell[] => {
+    if (both) return [a.q || "", a.r || ""];
+    if (spec.measure === "fob") return [a.q > 0 ? round(a.r / a.q, 1) : ""];
+    if (spec.measure === "share") return [a.q && base.q ? round((a.q / base.q) * 100, 1) : ""];
+    return [main(a) || ""];
+  };
+  const line = (all: Map<Key, Acc>, sum: Acc): Cell[] => [...(col ? colKeys.flatMap((k) => vals(get(all, k), get(colTot, k))) : []), ...vals(sum, grand)];
 
   const rows: PivotRow[] = [];
   const rowKeys = orderKeys(spec.row, [...cells.keys()], (k) => main(cells.get(k)!.sum));
@@ -425,7 +462,7 @@ export function buildPivot(d: ImportData, f: PivotFilter, spec: PivotSpec, w: Di
   }
   rows.push({ l: -1, c: ["Grand Total", ...line(colTot, grand)] });
 
-  const measureCols = both ? ["Tổng của QTY", "Tổng của REV"] : [spec.measure === "rev" ? "Tổng của REV" : "Tổng của QTY"];
+  const measureCols = both ? ["Tổng của QTY", "Tổng của REV"] : [spec.measure === "rev" ? "Tổng của REV" : spec.measure === "fob" ? "FOB" : spec.measure === "share" ? "SHARE" : "Tổng của QTY"];
   const colLabels = col ? colKeys.map((k) => dimLabel(col, k, w)) : [];
   const cols = [
     spec.row,
@@ -441,21 +478,31 @@ export function buildPivot(d: ImportData, f: PivotFilter, spec: PivotSpec, w: Di
     cols,
     groups: both && col ? [...colLabels.map((label) => ({ label, span: 2 })), { label: "", span: 2 }] : null,
     rows,
+    unit: spec.measure === "fob" ? "usd" : spec.measure === "share" ? "pct" : undefined,
   };
 }
 
-/** The analyses of the workbook's pivot sheets, as builder settings */
-export const PRESETS: { sheet: string; spec: PivotSpec; filter: Partial<PivotFilter>; gaming?: number }[] = [
-  { sheet: "Market TAM", spec: { row: "size", sub: null, col: "year", measure: "both" }, filter: {} },
-  { sheet: "Gaming Only", spec: { row: "size", sub: null, col: "res", measure: "qty" }, filter: { years: [2026] }, gaming: 144 },
-  { sheet: "Gaming Only", spec: { row: "size", sub: null, col: "hz", measure: "qty" }, filter: { years: [2026] }, gaming: 120 },
-  { sheet: "Gaming Only", spec: { row: "size", sub: null, col: "panel", measure: "qty" }, filter: { years: [2026] }, gaming: 144 },
-  { sheet: "Gaming by Brand", spec: { row: "brand", sub: null, col: "year", measure: "qty" }, filter: { years: [2025, 2026] }, gaming: 144 },
-  { sheet: "Gaming by Brand", spec: { row: "res", sub: "size", col: "brand", measure: "qty" }, filter: { years: [2026] }, gaming: 144 },
-  { sheet: "Analysis UTD", spec: { row: "size", sub: "res", col: "panel", measure: "qty" }, filter: { years: [2026] }, gaming: 144 },
-  { sheet: "Analysis UTD", spec: { row: "size", sub: "res", col: "brand", measure: "qty" }, filter: { years: [2026] }, gaming: 144 },
-  { sheet: "Analysis UTD", spec: { row: "brand", sub: null, col: "panel", measure: "qty" }, filter: { years: [2026] }, gaming: 144 },
-  { sheet: "Analysis UTD", spec: { row: "brand", sub: "model", col: "panel", measure: "qty" }, filter: { years: [2026] }, gaming: 144 },
+/**
+ * Ready-made analyses, grouped by question: the market as a whole, gaming monitors (≥144Hz), FOB prices and import
+ * channels. Labels come from the page messages (by id).
+ */
+export type Preset = { id: string; group: "market" | "gaming" | "fob" | "channel"; spec: PivotSpec; filter: Partial<PivotFilter>; gaming?: number };
+export const PRESETS: Preset[] = [
+  { id: "sizeYear", group: "market", spec: { row: "size", sub: null, col: "year", measure: "both" }, filter: {} },
+  { id: "brandShare", group: "market", spec: { row: "brand", sub: null, col: "year", measure: "share" }, filter: {} },
+  { id: "panelYear", group: "market", spec: { row: "panel", sub: null, col: "year", measure: "qty" }, filter: {} },
+  { id: "resYear", group: "market", spec: { row: "res", sub: null, col: "year", measure: "qty" }, filter: {} },
+  { id: "gBrandShare", group: "gaming", spec: { row: "brand", sub: null, col: "year", measure: "share" }, filter: {}, gaming: 144 },
+  { id: "gSizeResBrand", group: "gaming", spec: { row: "size", sub: "res", col: "brand", measure: "qty" }, filter: { years: [2026] }, gaming: 144 },
+  { id: "gHzYear", group: "gaming", spec: { row: "hz", sub: null, col: "year", measure: "qty" }, filter: {}, gaming: 120 },
+  { id: "gBrandPanel", group: "gaming", spec: { row: "brand", sub: null, col: "panel", measure: "qty" }, filter: { years: [2026] }, gaming: 144 },
+  { id: "fobSizeRes", group: "fob", spec: { row: "size", sub: "res", col: "year", measure: "fob" }, filter: {}, gaming: 144 },
+  { id: "fobBrand", group: "fob", spec: { row: "brand", sub: null, col: "year", measure: "fob" }, filter: {}, gaming: 144 },
+  { id: "fobPanel", group: "fob", spec: { row: "panel", sub: null, col: "year", measure: "fob" }, filter: {} },
+  { id: "impYear", group: "channel", spec: { row: "imp", sub: null, col: "year", measure: "rev" }, filter: {} },
+  { id: "impBrand", group: "channel", spec: { row: "imp", sub: "brand", col: "year", measure: "qty" }, filter: {} },
+  { id: "portYear", group: "channel", spec: { row: "port", sub: null, col: "year", measure: "qty" }, filter: {} },
+  { id: "countryYear", group: "channel", spec: { row: "country", sub: null, col: "year", measure: "qty" }, filter: {} },
 ];
 
 /** Year-on-year chart: one value per month and chosen year (months a year has no data for stay null) */
@@ -488,4 +535,60 @@ export function dimOptions(d: ImportData) {
     res: uniq(all.map((r) => r[C.res])).sort((a, b) => (RES_ORDER.indexOf(a) + 1 || 99) - (RES_ORDER.indexOf(b) + 1 || 99)),
     panels: uniq(all.map((r) => r[C.panel])).sort(),
   };
+}
+
+// --- Models with their FOB price ---
+
+export type ModelFilter = { years: Year[]; brand: string; gaming: boolean; search: string };
+export type ModelRow = {
+  model: string;
+  brand: string;
+  size: number;
+  panel: string;
+  res: string;
+  hz: number;
+  curved: boolean;
+  qty: number;
+  rev: number;
+  fob: number; // weighted average (value / units)
+  fobMin: number;
+  fobMax: number;
+  importers: number;
+  topImporter: string;
+};
+
+export function modelTable(d: ImportData, f: ModelFilter): ModelRow[] {
+  const B = d.dicts.brand, M = d.dicts.model, I = d.dicts.imp;
+  const q = f.search.trim().toUpperCase();
+  // One row per brand + model: a code filed under several brands (a copy-down slip in the source) stays apart
+  const m = new Map<string, ModelRow & { imps: Map<number, number> }>();
+  for (const y of YEARS.filter((x) => f.years.includes(x))) {
+    for (const r of rowsOf(d, y)) {
+      if (f.brand && B[r[C.brand]] !== f.brand) continue;
+      if (f.gaming && r[C.hz] < 144) continue;
+      if (q && !M[r[C.model]].toUpperCase().includes(q) && !I[r[C.imp]].toUpperCase().includes(q)) continue;
+      const key = `${r[C.brand]}|${r[C.model]}`;
+      let o = m.get(key);
+      if (!o) {
+        o = {
+          model: M[r[C.model]], brand: B[r[C.brand]], size: r[C.size], panel: r[C.panel], res: r[C.res], hz: r[C.hz], curved: /curv/i.test(r[C.type]),
+          qty: 0, rev: 0, fob: 0, fobMin: Infinity, fobMax: 0, importers: 0, topImporter: "", imps: new Map(),
+        };
+        m.set(key, o);
+      }
+      o.qty += r[C.qty];
+      o.rev += r[C.rev];
+      if (r[C.fob] > 0) {
+        o.fobMin = Math.min(o.fobMin, r[C.fob]);
+        o.fobMax = Math.max(o.fobMax, r[C.fob]);
+      }
+      o.imps.set(r[C.imp], (o.imps.get(r[C.imp]) ?? 0) + r[C.qty]);
+    }
+  }
+  return [...m.values()]
+    .filter((o) => o.qty > 0)
+    .map(({ imps, ...o }) => {
+      const top = [...imps.entries()].sort((a, b) => b[1] - a[1])[0];
+      return { ...o, fob: o.rev / o.qty, fobMin: o.fobMin === Infinity ? 0 : o.fobMin, importers: imps.size, topImporter: top ? I[top[0]] : "" };
+    });
 }
