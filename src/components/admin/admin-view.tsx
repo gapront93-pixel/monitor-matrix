@@ -8,14 +8,15 @@ import { adminMessages } from "@/lib/i18n/messages/admin";
 import { cn } from "@/lib/utils";
 
 import { DealersPanel } from "./dealers-panel";
+import { ImportDataPanel, type AdminImportInfo } from "./import-data-panel";
 import { ImportsList, UnmatchedPanel } from "./history-panels";
 import { SegmentsPanel } from "./segments-panel";
 import type { AdminDealer, AdminImport, AdminSegment, AdminUnmatched, AdminUser } from "./types";
 import { UsersPanel } from "./users-panel";
 import { UploadPanel } from "./upload-panel";
 
-type Tab = "gia" | "dai-ly" | "phan-khuc" | "nguoi-dung";
-const TABS: Tab[] = ["gia", "dai-ly", "phan-khuc", "nguoi-dung"];
+type Tab = "gia" | "dai-ly" | "phan-khuc" | "nhap-khau" | "nguoi-dung";
+const TABS: Tab[] = ["gia", "dai-ly", "phan-khuc", "nhap-khau", "nguoi-dung"];
 
 export function AdminView({
   initialTab,
@@ -27,9 +28,10 @@ export function AdminView({
   imports,
   unmatched,
   products,
+  importInfo,
 }: {
   initialTab: Tab;
-  perms: { deleteDealer: boolean; users: boolean };
+  perms: { deleteDealer: boolean; users: boolean; importData: boolean };
   meId: number;
   users: AdminUser[];
   dealers: AdminDealer[];
@@ -37,6 +39,7 @@ export function AdminView({
   imports: AdminImport[];
   unmatched: AdminUnmatched[];
   products: { id: number; model: string }[];
+  importInfo: AdminImportInfo | null;
 }) {
   const t = useT(adminMessages).page;
   const pathname = usePathname();
@@ -48,7 +51,7 @@ export function AdminView({
   return (
     <>
       <div role="tablist" aria-label={t.title} className="no-scrollbar mb-4 flex overflow-x-auto border-b border-line">
-        {TABS.filter((id) => id !== "nguoi-dung" || perms.users).map((id) => (
+        {TABS.filter((id) => (id !== "nguoi-dung" || perms.users) && (id !== "nhap-khau" || perms.importData)).map((id) => (
           <button
             key={id}
             role="tab"
@@ -72,6 +75,7 @@ export function AdminView({
       )}
       {tab === "dai-ly" && <DealersPanel dealers={dealers} canDelete={perms.deleteDealer} />}
       {tab === "phan-khuc" && <SegmentsPanel segments={segments} />}
+      {tab === "nhap-khau" && perms.importData && importInfo && <ImportDataPanel info={importInfo} />}
       {tab === "nguoi-dung" && perms.users && <UsersPanel users={users} meId={meId} />}
     </>
   );

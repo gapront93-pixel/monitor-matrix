@@ -5,6 +5,7 @@ import { ButtonLink } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/panel";
 import { EmptyState } from "@/components/ui/states";
 import { requireUser } from "@/lib/auth";
+import { importInfo } from "@/lib/import-file";
 import { importsMessages } from "@/lib/i18n/messages/imports";
 import { getLocale, getT } from "@/lib/i18n/server";
 import { can } from "@/lib/permissions";
@@ -29,9 +30,10 @@ export default async function ImportsPage() {
       </EmptyState>
     );
   }
+  const { latest } = await importInfo();
   return (
     <>
-      <PageHeader eyebrow={t.eyebrow} title={t.heading} sub={t.sub} actions={<span className="text-[14px] text-muted">{t.source}</span>} />
+      <PageHeader eyebrow={t.eyebrow} title={t.heading} sub={t.sub(latest)} actions={<span className="text-[14px] text-muted">{t.source(latest)}</span>} />
       <ImportView />
     </>
   );

@@ -1,9 +1,7 @@
 import "server-only";
 
-import { readFile, stat } from "node:fs/promises";
-import path from "node:path";
-
-import { YEARS, rowsOf, type ImportData } from "./imports";
+import { readImport } from "./import-file";
+import { YEARS, rowsOf } from "./imports";
 import { codeTokens, normKey } from "./normalize";
 import { prisma } from "./prisma";
 
@@ -11,7 +9,6 @@ import { prisma } from "./prisma";
 // rivals actually imported lately and to show the FOB of their latest shipment next to the dealer price.
 
 export const IMPORT_WINDOW_MONTHS = 9;
-const FILE = path.join(process.cwd(), "data", "import", "import-raw-2024-2026.json");
 
 type Entry = { date: number; qty: number; rev: number; fob: number }; // date as YYYYMMDD, fob in USD per unit
 type Keyed = Map<string, Entry[]>; // model key -> rows
@@ -29,9 +26,8 @@ const push = (m: Keyed, k: string, e: Entry) => {
 };
 
 async function loadIndex(): Promise<Index> {
-  const mtime = (await stat(FILE)).mtimeMs;
+  const { data: d, mtime } = await readImport();
   if (g.importIndex?.mtime === mtime) return g.importIndex.index;
-  const d: ImportData = JSON.parse(await readFile(FILE, "utf8"));
   const index: Index = new Map();
   for (const y of YEARS) {
     for (const r of rowsOf(d, y)) {

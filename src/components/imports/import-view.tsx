@@ -24,6 +24,7 @@ import {
   heatMax,
   hzLabel,
   importerShort,
+  monthsIn,
   isRevCol,
   isTotalCol,
   modelTable,
@@ -291,7 +292,11 @@ function YearChart({ data, filter }: { data: ImportData; filter: ChartFilter }) 
             )}
           </li>
         ))}
-        {years.includes(2026) && <li className="text-[12px] text-faint">· {t.compare.partial}</li>}
+        {years.filter((y) => monthsIn(data, y) < 12).map((y) => (
+          <li key={`p${y}`} className="text-[12px] text-faint">
+            · {t.compare.partial(y, `${String(data.meta.latest % 100).padStart(2, "0")}/${String(Math.floor(data.meta.latest / 100)).padStart(2, "0")}`)}
+          </li>
+        ))}
       </ul>
     </section>
   );

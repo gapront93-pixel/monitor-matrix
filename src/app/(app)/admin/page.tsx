@@ -5,6 +5,7 @@ import { ButtonLink } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/panel";
 import { EmptyState } from "@/components/ui/states";
 import { requireUser } from "@/lib/auth";
+import { importInfo } from "@/lib/import-file";
 import { fmtDate, fmtDateTime } from "@/lib/format";
 import { adminMessages } from "@/lib/i18n/messages/admin";
 import { shellMessages } from "@/lib/i18n/messages/shell";
@@ -36,8 +37,9 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
   }
   const { tab } = await searchParams;
   const manageUsers = can(me.role, "users");
+  const importData = can(me.role, "sales");
 
-  const [dealers, used, segments, imports, unmatched, products, users] = await Promise.all([
+  const [dealers, used, segments, imports, unmatched, products, users, imp] = await Promise.all([
     prisma.dealer.findMany({ orderBy: { sortOrder: "asc" } }),
     prisma.priceSnapshot.groupBy({ by: ["dealerId"], _count: { _all: true } }),
     prisma.segment.findMany({ where: { hidden: false }, orderBy: { sortOrder: "asc" } }),
@@ -49,6 +51,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
     prisma.unmatchedPrice.findMany({ orderBy: [{ capturedAt: "desc" }, { id: "desc" }], take: 400, include: { dealer: { select: { name: true } } } }),
     prisma.product.findMany({ where: { isGigabyte: true, hidden: false }, select: { id: true, model: true }, orderBy: { model: "asc" } }),
     manageUsers ? prisma.user.findMany({ orderBy: [{ active: "desc" }, { role: "asc" }, { name: "asc" }], include: { _count: { select: { imports: true } } } }) : Promise.resolve([]),
+    importData ? importInfo().catch(() => null) : Promise.resolve(null),
   ]);
   const usedBy = new Map(used.map((u) => [u.dealerId, u._count._all]));
 
@@ -65,8 +68,9 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
     <>
       <PageHeader eyebrow={t.eyebrow} title={t.heading} sub={`${me.name} · ${roleName}`} />
       <AdminView
-        initialTab={tab === "dai-ly" || tab === "phan-khuc" || (tab === "nguoi-dung" && manageUsers) ? tab : "gia"}
-        perms={{ deleteDealer: can(me.role, "dealers.delete"), users: manageUsers }}
+        initialTab={tab === "dai-ly" || tab === "phan-khuc" || (tab === "nguoi-dung" && manageUsers) || (tab === "nhap-khau" && importData) ? tab : "gia"}
+        perms={{ deleteDealer: can(me.role, "dealers.delete"), users: manageUsers, importData }}
+        importInfo={imp}
         meId={me.id}
         dealers={dealers.map((d) => ({
           id: d.id,

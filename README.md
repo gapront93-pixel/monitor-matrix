@@ -184,9 +184,14 @@ Menu **Import Data - LCD** (chỉ Mod và Admin), nằm dưới Doanh số LCD. 
   - Tab **So với đối thủ** chỉ hiện đối thủ có số lượng nhập khẩu lớn hơn 0 trong **9 tháng gần nhất**, xếp theo số lượng nhập khẩu.
   - Bảng so sánh, ở cả tab này lẫn trang So sánh, có hàng **Giá FOB lô nhập gần nhất** (kèm ngày nhập) ngay trên hàng Giá thấp nhất. Đây là giá của lô gần nhất, không phải giá trung bình.
   - Mẫu được so khớp với dữ liệu hải quan theo brand và mã model (tên model hoặc alias; nếu không khớp thì so theo mã con). Samsung không có trong dữ liệu hải quan, nên **Samsung không áp dụng điều kiện nhập khẩu**: mẫu Samsung cùng phân khúc luôn được thêm vào sau 3 đối thủ nhập khẩu nhiều nhất, hàng FOB của Samsung để "—".
-- **Dữ liệu:** file `data/import/import-raw-2024-2026.json`, có số liệu đến 22/09/2026, chỉ tài khoản Mod và Admin tải được (`/api/nhap-khau`).
+- **Dữ liệu:** bản tải lên gần nhất (`storage/import/import-raw.json`), hoặc file gốc `data/import/import-raw-2024-2026.json` (số liệu đến 22/09/2026). Chỉ tài khoản Mod và Admin tải được (`/api/nhap-khau`).
   - **Lưu ý về file gốc:** model "LEGION 27Q-10" (Lenovo) bị lặp ở nhiều brand khác, do lỗi kéo-điền trong file Excel. Trang vẫn hiển thị đúng như dữ liệu gốc.
-- **Cập nhật số liệu mới:** thay file RAW trên (cùng định dạng), sửa ngày "cập nhật" trong `src/lib/i18n/messages/imports.ts`, rồi chạy `scripts/deploy.sh`.
+- **Cập nhật số liệu mới:** vào **Quản trị → tab Import Data**, bấm **Chọn file Excel**, rồi chọn file *LCD IMPORT DATA - Analysis* (.xlsx, có sheet RAW).
+  - File được đọc ngay trên máy của bạn, mất khoảng 20–30 giây với file khoảng 9MB. App tự chuẩn hoá dữ liệu: tên hãng viết thống nhất, kích thước và Hz thành số, cột xuất xứ / cửa khẩu bị nhập đổi chỗ được đặt lại đúng.
+  - Màn hình xem trước cho biết số liệu đến ngày nào và số dòng của từng năm (2024–2026), so với bản đang dùng. Bấm **Áp dụng dữ liệu mới** để thay.
+  - Bản đang dùng được giữ lại (10 bản gần nhất) và có nút **Khôi phục**.
+  - File tải lên lưu ở `storage/import/` và có trong bản sao lưu hằng đêm. Khi chưa có lần tải lên nào, app dùng `data/import/import-raw-2024-2026.json`.
+  - Ngày "số liệu đến …" trên trang tự cập nhật theo file. Quyền tải lên: Mod và Admin.
 
 ---
 
@@ -283,7 +288,7 @@ File `/var/www/monitor-matrix/.env` (chỉ user deploy đọc được, không �
 
 Mật khẩu người dùng **không** nằm trong `.env`: chúng được mã hoá một chiều (scrypt) trong database, không ai đọc lại được, kể cả Admin. Trang có header `noindex` để Google không đưa lên kết quả tìm kiếm.
 
-**Sao lưu tự động:** mỗi đêm lúc 02:30 (giờ Việt Nam), `scripts/backup.sh` sao lưu database và thư mục `storage/` (ảnh sản phẩm) vào `/home/deploy/backups/monitor_matrix/`, giữ 14 bản gần nhất. Lịch chạy nằm trong crontab của user `deploy`, log ghi ở `/home/deploy/logs/monitor-matrix-backup.log`.
+**Sao lưu tự động:** mỗi đêm lúc 02:30 (giờ Việt Nam), `scripts/backup.sh` sao lưu database và thư mục `storage/` (ảnh sản phẩm, file Import Data đã tải lên) vào `/home/deploy/backups/monitor_matrix/`, giữ 14 bản gần nhất. Lịch chạy nằm trong crontab của user `deploy`, log ghi ở `/home/deploy/logs/monitor-matrix-backup.log`.
 
 Khôi phục database từ một bản sao lưu:
 
