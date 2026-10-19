@@ -114,13 +114,13 @@ Menu **Quản lý → Ảnh sản phẩm** (Mod hoặc Admin).
 
 Menu **Tra cứu → Doanh số LCD** (chỉ Mod và Admin). Trang này hiển thị số liệu sell-in màn hình GIGABYTE (dòng `cat = LCD`) lấy từ database của vnpromotion (`/var/www/myproject`). Monitor Matrix **chỉ đọc**, không bao giờ sửa dữ liệu doanh số. Số liệu mới có sau tối đa 1 giờ.
 
-- Chọn khoảng thời gian (tháng này, quý này, năm nay, 12 tháng gần nhất, tất cả, hoặc từ tháng… đến tháng…) và lọc theo NPP (VSC, DGW, TLC).
+- **Khoảng thời gian:** một ô chọn giống dashboard vnpromotion: Tháng này, Tháng trước, Quý này, **Quý trước** (mặc định), Năm nay, Năm trước, Tuỳ chọn (từ tháng… đến tháng…). Lọc thêm theo NPP (VSC, DGW, TLC).
 - Các phần trên trang:
-  - Số chiếc, doanh thu, giá sell-in trung bình, so với cùng kỳ trước.
-  - Biểu đồ theo tháng.
-  - Top mẫu, kèm link sang trang sản phẩm và so với giá lẻ thấp nhất hôm nay.
-  - Phân bổ theo phân khúc, kích thước và tấm nền.
-  - Top khách hàng và phân bổ theo NPP.
+  - Số chiếc, doanh thu, giá sell-in trung bình, so với kỳ ngay trước (cùng số tháng).
+  - Biểu đồ gộp theo tháng: cột = doanh thu (trục trái), đường = số lượng (trục phải).
+  - Bảng **NPP và tỉ trọng**, bảng **Segment và tỉ trọng** (segment theo cột segment của file doanh số), có % số lượng và % doanh thu.
+  - Bảng **SO Model** (mã đã gộp giữa các NPP), bấm mũi tên để xem mã gốc theo từng NPP; có link sang trang sản phẩm và so với giá lẻ thấp nhất hôm nay.
+  - Phân bổ theo kích thước và tấm nền, top khách hàng.
 - Số liệu là **số thuần**: đã trừ hàng trả về. Mã bán ra được tự khớp với 99 mẫu trong catalog. Mã không ghi revision (ví dụ `G34WQCP`) được tính vào bản mới nhất. Dòng cuối bảng Top mẫu cho biết bao nhiêu chiếc chưa khớp được.
 - **Kết nối:** biến `SALES_DATABASE_URL` trong `.env`, dùng role PostgreSQL `monitor_reader`.
   - Role này chỉ có quyền `SELECT` trên bảng `"SaleRow"` của `vnpromotion_db`, luôn ở chế độ read-only và tối đa 4 kết nối.

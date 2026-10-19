@@ -1,9 +1,10 @@
 "use client";
 
+import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
-import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { Fragment, useMemo, useState } from "react";
+import { Bar, CartesianGrid, ComposedChart, Legend, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 import { ProductImage } from "@/components/product-image";
 import { Chip } from "@/components/ui/chip";
@@ -12,19 +13,19 @@ import { EmptyState } from "@/components/ui/states";
 import { fmtNum, fmtPct, fmtVndCompact } from "@/lib/format";
 import { useLocale, useT } from "@/lib/i18n/client";
 import { salesMessages } from "@/lib/i18n/messages/sales";
-import type { SalesReport } from "@/lib/sales";
+import type { SalesItem, SalesReport } from "@/lib/sales";
+import { DEFAULT_RANGE, RANGE_PRESETS, type RangePreset } from "@/lib/sales-period";
 import { cn } from "@/lib/utils";
 
-type Period = { from: string; to: string };
 type Props = {
   report: SalesReport;
-  filter: Period & { npp: string | null };
+  filter: { preset: RangePreset; from: string; to: string; npp: string | null };
   range: { first: string; last: string; npps: string[] };
-  presets: Record<"month" | "quarter" | "year" | "last12" | "all", Period>;
   segments: { id: string; name: string }[];
 };
 
 const label = (m: string) => `${m.slice(5)}/${m.slice(0, 4)}`;
+const pct = (v: number, total: number) => (total ? `${((v / total) * 100).toFixed(1)}%` : "—");
 
 function monthsOf(first: string, last: string): string[] {
   const out: string[] = [];
@@ -40,20 +41,29 @@ function monthsOf(first: string, last: string): string[] {
   return out;
 }
 
-export function SalesView({ report, filter, range, presets, segments }: Props) {
+const axisTick = { fill: "var(--color-faint)", fontSize: 10.5, fontFamily: "var(--font-mono)" };
+
+export function SalesView({ report, filter, range, segments }: Props) {
   const t = useT(salesMessages);
   const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
-  const [metric, setMetric] = useState<"qty" | "amount">("qty");
-  const [sort, setSort] = useState<"qty" | "amount">("qty");
+  const [sort, setSort] = useState<"qty" | "amount">("amount");
   const [all, setAll] = useState(false);
+  const [open, setOpen] = useState<Set<string>>(new Set());
 
+  // Same URL shape as the dashboard: range only when not the default, months only for a custom range
   const go = (next: Partial<Props["filter"]>) => {
     const f = { ...filter, ...next };
-    const p = new URLSearchParams({ tu: f.from, den: f.to });
+    const p = new URLSearchParams();
+    if (f.preset !== DEFAULT_RANGE) p.set("range", f.preset);
+    if (f.preset === "custom") {
+      p.set("tu", f.from);
+      p.set("den", f.to);
+    }
     if (f.npp) p.set("npp", f.npp);
-    router.push(`${pathname}?${p}`);
+    const qs = p.toString();
+    router.push(qs ? `${pathname}?${qs}` : pathname);
   };
   const money = (n: number) => fmtVndCompact(n, locale);
   const months = useMemo(() => monthsOf(range.first, range.last), [range]);
@@ -68,42 +78,65 @@ export function SalesView({ report, filter, range, presets, segments }: Props) {
     for (const m of report.models) g.set(key(m), (g.get(key(m)) ?? 0) + m.qty);
     return [...g.entries()].filter(([, v]) => v > 0).sort((a, b) => b[1] - a[1]);
   };
-  const bySegment = group((m) => (m.segmentId ? (segName.get(m.segmentId) ?? m.segmentId) : m.productSlug ? t.otherSegment : t.unknown));
   const bySize = group((m) => (m.sizeIn ? `${Math.round(m.sizeIn)}"` : t.unknown));
   const byPanel = group((m) => m.panel ?? t.unknown);
+  const toggle = (key: string) =>
+    setOpen((s) => {
+      const n = new Set(s);
+      if (!n.delete(key)) n.add(key);
+      return n;
+    });
 
-  const presetActive = (k: keyof Props["presets"]) => presets[k].from === filter.from && presets[k].to === filter.to;
   const selectCls = "h-8 rounded-ctl border border-line bg-app px-2 text-[13px] text-fg";
 
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center gap-2">
-        {(Object.keys(presets) as (keyof Props["presets"])[]).map((k) => (
-          <Chip key={k} active={presetActive(k)} onClick={() => go(presets[k])}>
-            {t.presets[k]}
-          </Chip>
-        ))}
-        <label className="ml-1 flex items-center gap-1.5 text-[12.5px] text-muted">
-          {t.from}
-          <select className={cn(selectCls, "num")} value={filter.from} onChange={(e) => go({ from: e.target.value })}>
-            {months.map((m) => (
-              <option key={m} value={m}>
-                {label(m)}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="flex items-center gap-1.5 text-[12.5px] text-muted">
-          {t.to}
-          <select className={cn(selectCls, "num")} value={filter.to} onChange={(e) => go({ to: e.target.value })}>
-            {months.map((m) => (
-              <option key={m} value={m}>
-                {label(m)}
-              </option>
-            ))}
-          </select>
-        </label>
-        <select aria-label={t.npp} className={selectCls} value={filter.npp ?? ""} onChange={(e) => go({ npp: e.target.value || null })}>
+        <select
+          aria-label={t.period}
+          className={cn(selectCls, "font-semibold")}
+          value={filter.preset}
+          onChange={(e) => {
+            const preset = e.target.value as RangePreset;
+            // Custom starts from the period on screen, then each end can be changed
+            go(preset === "custom" ? { preset, from: filter.from, to: filter.to } : { preset });
+          }}
+        >
+          {RANGE_PRESETS.map((p) => (
+            <option key={p} value={p}>
+              {t.ranges[p]}
+            </option>
+          ))}
+        </select>
+        {filter.preset === "custom" ? (
+          <>
+            <label className="flex items-center gap-1.5 text-[12.5px] text-muted">
+              {t.from}
+              <select className={cn(selectCls, "num")} value={filter.from} onChange={(e) => go({ preset: "custom", from: e.target.value })}>
+                {months.map((m) => (
+                  <option key={m} value={m}>
+                    {label(m)}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="flex items-center gap-1.5 text-[12.5px] text-muted">
+              {t.to}
+              <select className={cn(selectCls, "num")} value={filter.to} onChange={(e) => go({ preset: "custom", to: e.target.value })}>
+                {months.map((m) => (
+                  <option key={m} value={m}>
+                    {label(m)}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </>
+        ) : (
+          <span className="num text-[12.5px] text-muted">
+            {filter.from === filter.to ? label(filter.from) : `${label(filter.from)} – ${label(filter.to)}`}
+          </span>
+        )}
+        <select aria-label={t.npp} className={cn(selectCls, "ml-auto")} value={filter.npp ?? ""} onChange={(e) => go({ npp: e.target.value || null })}>
           <option value="">{t.allNpp}</option>
           {range.npps.map((n) => (
             <option key={n} value={n}>
@@ -125,61 +158,70 @@ export function SalesView({ report, filter, range, presets, segments }: Props) {
             <Kpi label={t.kpi.customers} value={fmtNum(totals.customers)} />
           </div>
 
+          {/* Revenue as bars on the left axis, units as a line on the right axis */}
           <Panel className="p-4">
-            <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-              <h2 className="text-[14px] font-bold text-fg">{t.chart.title}</h2>
-              <div className="flex gap-1.5">
-                <Chip active={metric === "qty"} onClick={() => setMetric("qty")}>
-                  {t.chart.qty}
-                </Chip>
-                <Chip active={metric === "amount"} onClick={() => setMetric("amount")}>
-                  {t.chart.amount}
-                </Chip>
-              </div>
-            </div>
-            <div className="h-[240px]">
-              <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 900, height: 240 }}>
-                <BarChart data={report.months} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
+            <h2 className="mb-2 text-[14px] font-bold text-fg">{t.chart.title}</h2>
+            <div className="h-[260px]">
+              <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 900, height: 260 }}>
+                <ComposedChart data={report.months} margin={{ top: 8, right: 4, bottom: 0, left: 0 }}>
                   <CartesianGrid vertical={false} stroke="var(--color-line-2)" />
-                  <XAxis dataKey="month" tickFormatter={label} tickLine={false} axisLine={false} tick={{ fill: "var(--color-faint)", fontSize: 10.5, fontFamily: "var(--font-mono)" }} />
-                  <YAxis
-                    width={64}
-                    tickLine={false}
-                    axisLine={false}
-                    tickFormatter={(v: number) => (metric === "qty" ? fmtNum(v) : money(v))}
-                    tick={{ fill: "var(--color-faint)", fontSize: 10.5, fontFamily: "var(--font-mono)" }}
-                  />
+                  <XAxis dataKey="month" tickFormatter={label} tickLine={false} axisLine={false} tick={axisTick} />
+                  <YAxis yAxisId="amount" width={60} tickLine={false} axisLine={false} tickFormatter={(v: number) => money(v)} tick={axisTick} />
+                  <YAxis yAxisId="qty" orientation="right" width={52} tickLine={false} axisLine={false} tickFormatter={(v: number) => fmtNum(v)} tick={axisTick} />
                   <Tooltip
                     cursor={{ fill: "var(--color-accent-tint)" }}
                     contentStyle={{ background: "var(--color-panel)", border: "1px solid var(--color-line)", borderRadius: 5, fontSize: 12 }}
                     labelStyle={{ color: "var(--color-fg)", fontWeight: 600 }}
                     itemStyle={{ color: "var(--color-fg-2)", fontFamily: "var(--font-mono)" }}
                     labelFormatter={(m) => label(String(m))}
-                    formatter={(v) => [metric === "qty" ? fmtNum(Number(v)) : `${fmtNum(Number(v))} VNĐ`, metric === "qty" ? t.chart.qty : t.chart.amount]}
+                    formatter={(v, name) => [name === t.chart.amount ? `${fmtNum(Number(v))} VNĐ` : fmtNum(Number(v)), name]}
                   />
-                  <Bar dataKey={metric} fill="var(--color-accent)" radius={[4, 4, 0, 0]} maxBarSize={36} isAnimationActive={false} />
-                </BarChart>
+                  <Legend iconSize={10} wrapperStyle={{ fontSize: 12, color: "var(--color-fg-2)" }} />
+                  <Bar yAxisId="amount" dataKey="amount" name={t.chart.amount} fill="var(--color-accent)" radius={[4, 4, 0, 0]} maxBarSize={40} isAnimationActive={false} />
+                  <Line
+                    yAxisId="qty"
+                    dataKey="qty"
+                    name={t.chart.qty}
+                    type="monotone"
+                    stroke="var(--color-aorus)"
+                    strokeWidth={2.5}
+                    dot={{ r: 3.5, fill: "var(--color-aorus)", strokeWidth: 0 }}
+                    isAnimationActive={false}
+                  />
+                </ComposedChart>
               </ResponsiveContainer>
             </div>
           </Panel>
+
+          <div className="grid items-start gap-3 xl:grid-cols-2">
+            <ShareTable title={t.share.npp} nameHead={t.share.nppCol} rows={report.npps} totals={totals} money={money} />
+            <ShareTable
+              title={t.share.segment}
+              nameHead={t.share.segmentCol}
+              rows={report.segments.map((s) => (s.label === "?" ? { ...s, label: t.unknown } : s))}
+              totals={totals}
+              money={money}
+              withModels
+            />
+          </div>
 
           <Panel className="overflow-hidden">
             <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line px-4 py-3">
               <h2 className="text-[14px] font-bold text-fg">{t.models.title}</h2>
               <div className="flex gap-1.5">
-                <Chip active={sort === "qty"} onClick={() => setSort("qty")}>
-                  {t.models.sortQty}
-                </Chip>
                 <Chip active={sort === "amount"} onClick={() => setSort("amount")}>
                   {t.models.sortAmount}
+                </Chip>
+                <Chip active={sort === "qty"} onClick={() => setSort("qty")}>
+                  {t.models.sortQty}
                 </Chip>
               </div>
             </div>
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[900px] border-separate border-spacing-0 text-[12.5px]">
+              <table className="w-full min-w-[980px] border-separate border-spacing-0 text-[12.5px] whitespace-nowrap">
                 <thead>
                   <tr className="text-[11.5px] text-muted">
-                    {[t.models.rank, t.models.model, t.models.segment, t.models.qty, t.models.amount, t.models.share, t.models.asp, t.models.retail, t.models.gap].map((h, i) => (
+                    {[t.models.rank, t.models.model, t.models.segment, t.share.qty, t.share.qtyShare, t.share.amount, t.share.amountShare, t.models.asp, t.models.retail, t.models.gap].map((h, i) => (
                       <th key={h} scope="col" className={cn("border-b border-line bg-head px-3 py-2 font-semibold", i >= 3 ? "text-right" : "text-left")}>
                         {h}
                       </th>
@@ -191,31 +233,60 @@ export function SalesView({ report, filter, range, presets, segments }: Props) {
                     const asp = m.qty > 0 ? Math.round(m.amount / m.qty) : null;
                     const gap = asp && m.minPrice ? ((m.minPrice - asp) / asp) * 100 : null;
                     const td = cn("border-b border-line-2 px-3 py-2", i % 2 === 0 ? "bg-row-a" : "bg-row-b");
+                    const sub = "border-b border-line-2 bg-head px-3 py-1.5";
+                    const isOpen = open.has(m.key);
                     return (
-                      <tr key={m.key}>
-                        <td className={cn(td, "num w-10 text-faint")}>{i + 1}</td>
-                        <td className={td}>
-                          <div className="flex items-center gap-2.5">
-                            <ProductImage src={m.thumb} className="h-7 w-10 shrink-0" sizes="40px" />
-                            {m.productSlug ? (
-                              <Link href={`/san-pham/${encodeURIComponent(m.productSlug)}`} prefetch={false} className="font-bold text-fg hover:underline">
-                                {m.label}
-                              </Link>
-                            ) : (
-                              <span className="font-semibold text-fg-2">
-                                {m.label} <span className="text-[11px] font-normal text-faint">({t.models.notInCatalog})</span>
-                              </span>
-                            )}
-                          </div>
-                        </td>
-                        <td className={cn(td, "text-[12px] text-muted")}>{m.segmentId ? segName.get(m.segmentId) : "—"}</td>
-                        <td className={cn(td, "num text-right font-semibold text-fg")}>{fmtNum(m.qty)}</td>
-                        <td className={cn(td, "num text-right text-fg-2")}>{money(m.amount)}</td>
-                        <td className={cn(td, "num text-right text-muted")}>{totals.qty ? `${((m.qty / totals.qty) * 100).toFixed(1)}%` : ""}</td>
-                        <td className={cn(td, "num text-right text-fg-2")}>{asp ? fmtNum(asp) : "—"}</td>
-                        <td className={cn(td, "num text-right", m.minPrice ? "text-best" : "text-faint")}>{m.minPrice ? fmtNum(m.minPrice) : "—"}</td>
-                        <td className={cn(td, "num text-right", gap === null ? "text-faint" : gap < 0 ? "text-up" : "text-fg-2")}>{gap === null ? "—" : fmtPct(gap)}</td>
-                      </tr>
+                      <Fragment key={m.key}>
+                        <tr>
+                          <td className={cn(td, "num w-10 text-faint")}>{i + 1}</td>
+                          <td className={td}>
+                            <div className="flex items-center gap-2">
+                              <button
+                                type="button"
+                                onClick={() => toggle(m.key)}
+                                aria-expanded={isOpen}
+                                aria-label={t.models.open(m.label)}
+                                className="grid size-6 shrink-0 place-items-center rounded-ctl text-muted hover:bg-accent-tint hover:text-fg"
+                              >
+                                <ChevronRight aria-hidden className={cn("size-4 transition-transform", isOpen && "rotate-90")} />
+                              </button>
+                              <ProductImage src={m.thumb} className="h-7 w-10 shrink-0" sizes="40px" />
+                              {m.productSlug ? (
+                                <Link href={`/san-pham/${encodeURIComponent(m.productSlug)}`} prefetch={false} className="font-bold text-fg hover:underline">
+                                  {m.label}
+                                </Link>
+                              ) : (
+                                <span className="font-semibold text-fg-2">
+                                  {m.label} <span className="text-[11px] font-normal text-faint">({t.models.notInCatalog})</span>
+                                </span>
+                              )}
+                            </div>
+                          </td>
+                          <td className={cn(td, "text-[12px] text-muted")}>{m.segmentId ? segName.get(m.segmentId) : "—"}</td>
+                          <td className={cn(td, "num text-right font-semibold text-fg")}>{fmtNum(m.qty)}</td>
+                          <td className={cn(td, "num text-right text-muted")}>{pct(m.qty, totals.qty)}</td>
+                          <td className={cn(td, "num text-right font-semibold text-fg")}>{money(m.amount)}</td>
+                          <td className={cn(td, "num text-right text-muted")}>{pct(m.amount, totals.amount)}</td>
+                          <td className={cn(td, "num text-right text-fg-2")}>{asp ? fmtNum(asp) : "—"}</td>
+                          <td className={cn(td, "num text-right", m.minPrice ? "text-best" : "text-faint")}>{m.minPrice ? fmtNum(m.minPrice) : "—"}</td>
+                          <td className={cn(td, "num text-right", gap === null ? "text-faint" : gap < 0 ? "text-up" : "text-fg-2")}>{gap === null ? "—" : fmtPct(gap)}</td>
+                        </tr>
+                        {/* The original codes behind the SO Model, per NPP (shares are within this SO Model) */}
+                        {isOpen &&
+                          m.sources.map((s) => (
+                            <tr key={`${s.model}|${s.npp}`} className="text-[12px]">
+                              <td className="border-b border-line-2 bg-head" />
+                              <td className="border-b border-line-2 bg-head py-1.5 pr-3 pl-[86px] font-mono text-fg-2">{s.model}</td>
+                              <td className={cn(sub, "text-muted")}>{s.npp}</td>
+                              <td className={cn(sub, "num text-right text-fg-2")}>{fmtNum(s.qty)}</td>
+                              <td className={cn(sub, "num text-right text-faint")}>{pct(s.qty, m.qty)}</td>
+                              <td className={cn(sub, "num text-right text-fg-2")}>{money(s.amount)}</td>
+                              <td className={cn(sub, "num text-right text-faint")}>{pct(s.amount, m.amount)}</td>
+                              <td className={cn(sub, "num text-right text-fg-2")}>{s.qty > 0 ? fmtNum(Math.round(s.amount / s.qty)) : "—"}</td>
+                              <td className="border-b border-line-2 bg-head" colSpan={2} />
+                            </tr>
+                          ))}
+                      </Fragment>
                     );
                   })}
                 </tbody>
@@ -233,46 +304,43 @@ export function SalesView({ report, filter, range, presets, segments }: Props) {
             </div>
           </Panel>
 
-          <div className="grid gap-3 xl:grid-cols-3">
-            <Breakdown title={t.bySegment} rows={bySegment} total={totals.qty} />
+          <div className="grid gap-3 md:grid-cols-2">
             <Breakdown title={t.bySize} rows={bySize} total={totals.qty} />
             <Breakdown title={t.byPanel} rows={byPanel} total={totals.qty} />
           </div>
 
-          <div className="grid items-start gap-3 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-            <Panel className="overflow-hidden">
-              <h2 className="border-b border-line px-4 py-3 text-[14px] font-bold text-fg">{t.customers.title}</h2>
-              <div className="overflow-x-auto">
-                <table className="w-full min-w-[560px] border-separate border-spacing-0 text-[12.5px]">
-                  <thead>
-                    <tr className="text-[11.5px] text-muted">
-                      {[t.models.rank, t.customers.name, t.customers.npp, t.customers.qty, t.customers.amount, t.customers.share].map((h, i) => (
-                        <th key={h} scope="col" className={cn("border-b border-line bg-head px-3 py-2 font-semibold", i >= 3 ? "text-right" : "text-left")}>
-                          {h}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {report.customers.map((c, i) => {
-                      const td = cn("border-b border-line-2 px-3 py-2", i % 2 === 0 ? "bg-row-a" : "bg-row-b");
-                      return (
-                        <tr key={c.key}>
-                          <td className={cn(td, "num w-10 text-faint")}>{i + 1}</td>
-                          <td className={cn(td, "font-semibold text-fg")}>{c.label}</td>
-                          <td className={cn(td, "text-muted")}>{c.npp ?? "—"}</td>
-                          <td className={cn(td, "num text-right font-semibold text-fg")}>{fmtNum(c.qty)}</td>
-                          <td className={cn(td, "num text-right text-fg-2")}>{money(c.amount)}</td>
-                          <td className={cn(td, "num text-right text-muted")}>{totals.qty ? `${((c.qty / totals.qty) * 100).toFixed(1)}%` : ""}</td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            </Panel>
-            <Breakdown title={t.npps.title} rows={report.npps.map((n) => [n.label, n.qty] as [string, number])} total={totals.qty} extra={(name) => money(report.npps.find((n) => n.label === name)?.amount ?? 0)} />
-          </div>
+          <Panel className="overflow-hidden">
+            <h2 className="border-b border-line px-4 py-3 text-[14px] font-bold text-fg">{t.customers.title}</h2>
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[560px] border-separate border-spacing-0 text-[12.5px]">
+                <thead>
+                  <tr className="text-[11.5px] text-muted">
+                    {[t.models.rank, t.customers.name, t.customers.npp, t.share.qty, t.share.qtyShare, t.share.amount, t.share.amountShare].map((h, i) => (
+                      <th key={h} scope="col" className={cn("border-b border-line bg-head px-3 py-2 font-semibold", i >= 3 ? "text-right" : "text-left")}>
+                        {h}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {report.customers.map((c, i) => {
+                    const td = cn("border-b border-line-2 px-3 py-2", i % 2 === 0 ? "bg-row-a" : "bg-row-b");
+                    return (
+                      <tr key={c.key}>
+                        <td className={cn(td, "num w-10 text-faint")}>{i + 1}</td>
+                        <td className={cn(td, "font-semibold text-fg")}>{c.label}</td>
+                        <td className={cn(td, "text-muted")}>{c.npp ?? "—"}</td>
+                        <td className={cn(td, "num text-right font-semibold text-fg")}>{fmtNum(c.qty)}</td>
+                        <td className={cn(td, "num text-right text-muted")}>{pct(c.qty, totals.qty)}</td>
+                        <td className={cn(td, "num text-right text-fg-2")}>{money(c.amount)}</td>
+                        <td className={cn(td, "num text-right text-muted")}>{pct(c.amount, totals.amount)}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </Panel>
           <p className="text-[12px] text-muted">{t.note}</p>
         </>
       )}
@@ -298,8 +366,82 @@ function Kpi({ label, value, unit, delta, note }: { label: string; value: string
   );
 }
 
+/** Units, revenue and both shares per row, with a revenue-share bar; a total row at the bottom */
+function ShareTable({
+  title,
+  nameHead,
+  rows,
+  totals,
+  money,
+  withModels,
+}: {
+  title: string;
+  nameHead: string;
+  rows: (SalesItem & { models?: number })[];
+  totals: { qty: number; amount: number };
+  money: (n: number) => string;
+  withModels?: boolean;
+}) {
+  const t = useT(salesMessages);
+  const heads = [nameHead, t.share.qty, t.share.qtyShare, t.share.amount, t.share.amountShare, t.share.asp, ...(withModels ? [t.share.models] : [])];
+  const max = Math.max(1, ...rows.map((r) => r.amount));
+  const foot = "num bg-head px-3 py-2 text-right";
+  return (
+    <Panel className="overflow-hidden">
+      <h2 className="border-b border-line px-4 py-3 text-[14px] font-bold text-fg">{title}</h2>
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-[560px] border-separate border-spacing-0 text-[12.5px] whitespace-nowrap">
+          <thead>
+            <tr className="text-[11.5px] text-muted">
+              {heads.map((h, i) => (
+                <th key={h} scope="col" className={cn("border-b border-line bg-head px-3 py-2 font-semibold", i >= 1 ? "text-right" : "text-left")}>
+                  {h}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r, i) => {
+              const td = cn("border-b border-line-2 px-3 py-2", i % 2 === 0 ? "bg-row-a" : "bg-row-b");
+              return (
+                <tr key={r.key}>
+                  <td className={cn(td, "font-semibold text-fg")}>
+                    <div className="max-w-[220px] truncate" title={r.label}>
+                      {r.label}
+                    </div>
+                    <div className="mt-1 h-1 overflow-hidden rounded-full bg-line-2" aria-hidden>
+                      <div className="h-full rounded-full bg-accent" style={{ width: `${Math.max(2, (r.amount / max) * 100)}%` }} />
+                    </div>
+                  </td>
+                  <td className={cn(td, "num text-right text-fg")}>{fmtNum(r.qty)}</td>
+                  <td className={cn(td, "num text-right text-muted")}>{pct(r.qty, totals.qty)}</td>
+                  <td className={cn(td, "num text-right font-semibold text-fg")}>{money(r.amount)}</td>
+                  <td className={cn(td, "num text-right font-semibold text-key")}>{pct(r.amount, totals.amount)}</td>
+                  <td className={cn(td, "num text-right text-fg-2")}>{r.qty > 0 ? fmtNum(Math.round(r.amount / r.qty)) : "—"}</td>
+                  {withModels && <td className={cn(td, "num text-right text-muted")}>{r.models ?? "—"}</td>}
+                </tr>
+              );
+            })}
+          </tbody>
+          <tfoot>
+            <tr className="font-semibold">
+              <td className="bg-head px-3 py-2 text-fg">{t.share.total}</td>
+              <td className={cn(foot, "text-fg")}>{fmtNum(totals.qty)}</td>
+              <td className={cn(foot, "text-muted")}>100%</td>
+              <td className={cn(foot, "text-fg")}>{money(totals.amount)}</td>
+              <td className={cn(foot, "text-muted")}>100%</td>
+              <td className={cn(foot, "text-fg-2")}>{totals.qty > 0 ? fmtNum(Math.round(totals.amount / totals.qty)) : "—"}</td>
+              {withModels && <td className="bg-head" />}
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </Panel>
+  );
+}
+
 /** Horizontal bars, labelled with units and share (one measure, one colour) */
-function Breakdown({ title, rows, total, extra }: { title: string; rows: [string, number][]; total: number; extra?: (name: string) => string }) {
+function Breakdown({ title, rows, total }: { title: string; rows: [string, number][]; total: number }) {
   const max = Math.max(1, ...rows.map((r) => r[1]));
   return (
     <Panel className="p-4">
@@ -312,8 +454,7 @@ function Breakdown({ title, rows, total, extra }: { title: string; rows: [string
                 {name}
               </span>
               <span className="num shrink-0 text-[12px] text-fg">
-                {fmtNum(v)} <span className="text-muted">· {total ? `${((v / total) * 100).toFixed(1)}%` : ""}</span>
-                {extra && <span className="text-muted"> · {extra(name)}</span>}
+                {fmtNum(v)} <span className="text-muted">· {pct(v, total)}</span>
               </span>
             </div>
             <div className="h-1.5 overflow-hidden rounded-full bg-line-2" aria-hidden>

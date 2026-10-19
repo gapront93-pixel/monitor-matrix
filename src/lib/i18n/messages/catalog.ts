@@ -84,6 +84,9 @@ const vi = {
     note: "Ô xanh: giá trị tốt nhất của cột. Thông số đối thủ lấy từ trang chính hãng (hoặc bài review khi trang hãng bị chặn); mẫu đối thủ chưa có giá đại lý Việt Nam.",
     reviews: "Số đo review trong phân khúc",
     noReviews: "Chưa có bài review đo đạc cho phân khúc này.",
+    reviewCount: (n: number) => `${n} bài review`,
+    showReviews: "Xem số đo",
+    hideReviews: "Ẩn số đo",
   },
   bench: {
     empty: "Chưa có số đo review",
@@ -187,6 +190,9 @@ const en: typeof vi = {
     note: "Green cell: best value of the column. Competitor specs come from the maker's page (or a review when the page is blocked); competitor models have no Vietnamese dealer prices.",
     reviews: "Review measurements in this segment",
     noReviews: "No measured reviews for this segment yet.",
+    reviewCount: (n: number) => `${n} review${n === 1 ? "" : "s"}`,
+    showReviews: "Show measurements",
+    hideReviews: "Hide measurements",
   },
   bench: {
     empty: "No review measurements",

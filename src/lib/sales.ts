@@ -4,8 +4,10 @@ import { Pool } from "pg";
 
 import type { Catalog } from "./catalog";
 import { productIndex } from "./import/plan";
+import { normKey } from "./normalize";
 import { prisma } from "./prisma";
 import { matchSale } from "./sales-map";
+import { monthsBetween, shiftMonth } from "./sales-period";
 
 // LCD sell-in from vnpromotion's SaleRow, read with a SELECT-only role (SALES_DATABASE_URL).
 // vnpromotion syncs its sheets hourly, so these numbers are always current.
@@ -42,7 +44,7 @@ export async function salesRange(): Promise<{ first: string | null; last: string
   return { first: f ? ym(f) : null, last: l ? ym(l) : null, lastDay: l ?? null, npps: n.rows.map((x) => x.npp) };
 }
 
-type Row = { model: string | null; so_model: string | null; qty: string; amount: string };
+type Row = { model: string | null; so_model: string | null; npp: string | null; segment: string | null; qty: string; amount: string };
 
 export type SalesItem = {
   key: string;
@@ -56,8 +58,17 @@ export type SalesReport = {
   totals: { qty: number; amount: number; models: number; customers: number };
   previous: { qty: number; amount: number } | null; // the same number of months just before
   months: { month: string; qty: number; amount: number }[];
-  models: (SalesItem & { segmentId: string | null; sizeIn: number | null; panel: string | null; minPrice: number | null; thumb: string | null })[];
+  // One row per SO Model (the code vnpromotion merges across NPPs), with the original codes behind it
+  models: (SalesItem & {
+    segmentId: string | null;
+    sizeIn: number | null;
+    panel: string | null;
+    minPrice: number | null;
+    thumb: string | null;
+    sources: { model: string; npp: string; qty: number; amount: number }[];
+  })[];
   unmatched: number; // units whose model is not in the catalog
+  segments: (SalesItem & { models: number })[]; // the segment column of the sales sheet
   customers: (SalesItem & { npp: string | null })[];
   npps: SalesItem[];
 };
@@ -72,24 +83,14 @@ function where(f: SalesFilter, start = 1): { sql: string; params: string[] } {
   return { sql, params };
 }
 
-function monthsBetween(from: string, to: string): number {
-  const [a, b] = [from, to].map((m) => m.split("-").map(Number));
-  return (b[0] - a[0]) * 12 + (b[1] - a[1]) + 1;
-}
-
-function shiftMonth(m: string, by: number): string {
-  const [y, mo] = m.split("-").map(Number);
-  const t = y * 12 + (mo - 1) + by;
-  return `${Math.floor(t / 12)}-${String((t % 12) + 1).padStart(2, "0")}`;
-}
-
 export async function salesReport(f: SalesFilter, catalog: Catalog): Promise<SalesReport> {
   const w = where(f);
   const span = monthsBetween(f.from, f.to);
   const prev = where({ from: shiftMonth(f.from, -span), to: shiftMonth(f.from, -1), npp: f.npp });
   const db = pool();
   const [byModel, byMonth, byCustomer, byNpp, customers, prevTotals, products] = await Promise.all([
-    db.query<Row>(`select model, "soModel" as so_model, sum(quantity)::text as qty, sum(amount)::text as amount from "SaleRow" where ${w.sql} group by 1, 2`, w.params),
+    db.query<Row>(`select model, nullif(trim("soModel"), '') as so_model, nullif(npp, '') as npp, nullif(trim(segment), '') as segment, sum(quantity)::text as qty, sum(amount)::text as amount
+       from "SaleRow" where ${w.sql} group by 1, 2, 3, 4`, w.params),
     db.query<{ month: string; qty: string; amount: string }>(
       `select to_char(date, 'YYYY-MM') as month, sum(quantity)::text as qty, sum(amount)::text as amount from "SaleRow" where ${w.sql} group by 1 order by 1`,
       w.params,
@@ -111,17 +112,20 @@ export async function salesReport(f: SalesFilter, catalog: Catalog): Promise<Sal
   const idx = productIndex(products);
   const byId = new Map(products.map((p) => [p.id, p]));
   const merged = new Map<string, SalesReport["models"][number]>();
+  const segs = new Map<string, SalesReport["segments"][number] & { names: Set<string> }>();
   let unmatched = 0;
   for (const r of byModel.rows) {
     const qty = Number(r.qty), amount = Number(r.amount);
     const id = matchSale(r.model, r.so_model, idx, (x) => byId.get(x)?.model ?? "");
     const p = id ? byId.get(id) : undefined;
     const view = p ? catalog.bySlug.get(p.slug) : undefined;
-    const key = p ? p.slug : `?${r.so_model || r.model || "?"}`;
     if (!p) unmatched += qty;
+    // The SO Model names the row; 2025 rows have none, so the catalog model (or the raw code) stands in
+    const name = r.so_model ?? p?.model ?? r.model ?? "?";
+    const key = normKey(name) || name;
     const cur = merged.get(key) ?? {
       key,
-      label: p ? p.model : (r.so_model || r.model || "?"),
+      label: name,
       productSlug: p?.slug ?? null,
       qty: 0,
       amount: 0,
@@ -130,11 +134,30 @@ export async function salesReport(f: SalesFilter, catalog: Catalog): Promise<Sal
       panel: view?.panel ?? null,
       minPrice: view?.minPrice ?? null,
       thumb: view?.thumb ?? null,
+      sources: [],
     };
     cur.qty += qty;
     cur.amount += amount;
+    const src = r.model ?? name, npp = r.npp ?? "?";
+    const s0 = cur.sources.find((x) => x.model === src && x.npp === npp);
+    if (s0) {
+      s0.qty += qty;
+      s0.amount += amount;
+    } else cur.sources.push({ model: src, npp, qty, amount });
     merged.set(key, cur);
+
+    const segName = r.segment ?? "?";
+    const sg = segs.get(segName) ?? { key: segName, label: segName, productSlug: null, qty: 0, amount: 0, models: 0, names: new Set<string>() };
+    sg.qty += qty;
+    sg.amount += amount;
+    sg.names.add(key);
+    segs.set(segName, sg);
   }
+  for (const m of merged.values()) m.sources.sort((a, b) => b.amount - a.amount);
+  const segments = [...segs.values()]
+    .filter((x) => x.qty !== 0 || x.amount !== 0)
+    .map(({ names, ...x }) => ({ ...x, models: names.size }))
+    .sort((a, b) => b.amount - a.amount);
   const models = [...merged.values()].filter((m) => m.qty !== 0 || m.amount !== 0).sort((a, b) => b.qty - a.qty || b.amount - a.amount);
 
   // Every month of the range, zero when nothing was sold
@@ -154,6 +177,7 @@ export async function salesReport(f: SalesFilter, catalog: Catalog): Promise<Sal
     months,
     models,
     unmatched,
+    segments,
     customers: byCustomer.rows.map((c) => ({ key: c.name, label: c.name, productSlug: null, npp: c.npp, qty: Number(c.qty), amount: Number(c.amount) })),
     npps: byNpp.rows.map((n) => ({ key: n.name, label: n.name, productSlug: null, qty: Number(n.qty), amount: Number(n.amount) })),
   };

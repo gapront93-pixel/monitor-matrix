@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ChevronDown } from "lucide-react";
 import Link from "next/link";
 
 import { BenchmarkCards } from "@/components/benchmark-cards";
@@ -67,8 +68,23 @@ export default async function RivalsPage({ searchParams }: { searchParams: Promi
 
           <RivalsTable items={items} />
 
-          <h2 className="mt-6 mb-3 text-[15px] font-bold text-fg">{t.reviews}</h2>
-          <BenchmarkCards cards={benchmarks} emptyText={t.noReviews} />
+          {/* Collapsed by default: the table is the main view, the review quotes are opened on demand */}
+          <details className="group mt-6">
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-3 rounded-panel border border-line bg-panel px-4 py-3 hover:border-accent [&::-webkit-details-marker]:hidden">
+              <span className="flex items-baseline gap-2">
+                <span className="text-[15px] font-bold text-fg">{t.reviews}</span>
+                <span className="text-[12px] text-muted">{t.reviewCount(benchmarks.length)}</span>
+              </span>
+              <span className="flex items-center gap-1 text-[12.5px] font-semibold text-key">
+                <span className="group-open:hidden">{t.showReviews}</span>
+                <span className="hidden group-open:inline">{t.hideReviews}</span>
+                <ChevronDown aria-hidden className="size-4 transition-transform group-open:rotate-180" />
+              </span>
+            </summary>
+            <div className="mt-3">
+              <BenchmarkCards cards={benchmarks} emptyText={t.noReviews} />
+            </div>
+          </details>
         </div>
       </div>
     </>
