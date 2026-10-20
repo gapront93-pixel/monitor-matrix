@@ -23,7 +23,7 @@ const fontMono = JetBrains_Mono({
   display: "swap",
 });
 
-// Aldrich, Vietnamese build, for the eyebrow label above page titles (components/ui/eyebrow.tsx). One weight only.
+// Aldrich, Vietnamese build: page headings (--font-aldrich in globals.css) and the eyebrow label (components/ui/eyebrow.tsx). One weight only.
 const fontAldrichVn = localFont({
   src: "../fonts/Aldrich-VN.ttf",
   variable: "--font-aldrich-vn",
