@@ -49,6 +49,10 @@ const vi = {
     badEmail: "Email không hợp lệ.",
     wrong: "Email hoặc mật khẩu không đúng.",
     locked: "Tài khoản này đã bị khoá. Liên hệ Admin.",
+    or: "hoặc",
+    google: "Đăng nhập bằng Google",
+    googleFailed: "Đăng nhập Google không thành công. Thử lại.",
+    googleUnknown: "Email Google này chưa có tài khoản trong công cụ. Liên hệ Admin để được cấp quyền.",
     intro: {
       eyebrow: "GIGABYTE Việt Nam · Marketing",
       title: "Dữ liệu màn hình GIGABYTE, gom về một chỗ",
@@ -155,6 +159,10 @@ const en: typeof vi = {
     badEmail: "Invalid email address.",
     wrong: "Wrong email or password.",
     locked: "This account is locked. Contact an Admin.",
+    or: "or",
+    google: "Sign in with Google",
+    googleFailed: "Google sign-in failed. Try again.",
+    googleUnknown: "This Google email has no account in the tool. Ask an Admin for access.",
     intro: {
       eyebrow: "GIGABYTE Vietnam · Marketing",
       title: "GIGABYTE monitor data, all in one place",

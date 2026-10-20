@@ -3,7 +3,7 @@ import type { NextRequest } from "next/server";
 
 import { SESSION_COOKIE, verifySession } from "@/lib/session";
 
-// The whole site needs a login (viewer or admin); public fonts are not secret and load without one. Admin pages and admin APIs re-check the admin role themselves.
+// The whole site needs a login (viewer or admin); public fonts are not secret and load without one, and the Google sign-in routes run before there is a session. Admin pages and admin APIs re-check the admin role themselves.
 export async function proxy(request: NextRequest): Promise<NextResponse> {
   const session = await verifySession(request.cookies.get(SESSION_COOKIE)?.value);
   if (session) return NextResponse.next();
@@ -18,5 +18,5 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
 }
 
 export const config = {
-  matcher: ["/((?!dang-nhap|_next/static|_next/image|fonts/|favicon.ico|icon.png|apple-icon.png|robots.txt).*)"],
+  matcher: ["/((?!dang-nhap|api/auth/google|_next/static|_next/image|fonts/|favicon.ico|icon.png|apple-icon.png|robots.txt).*)"],
 };

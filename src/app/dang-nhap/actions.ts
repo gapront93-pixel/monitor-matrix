@@ -8,14 +8,9 @@ import { shellMessages } from "@/lib/i18n/messages/shell";
 import { getT } from "@/lib/i18n/server";
 import { DUMMY_HASH, verifyPassword } from "@/lib/password";
 import { prisma } from "@/lib/prisma";
+import { safeNext } from "@/lib/safe-next";
 
 export type LoginState = { error?: string; email?: string };
-
-/** Only same-site paths, so ?next= cannot send people elsewhere */
-function safeNext(v: FormDataEntryValue | null): string {
-  const s = typeof v === "string" ? v : "";
-  return s.startsWith("/") && !s.startsWith("//") && !s.startsWith("/dang-nhap") ? s : "/";
-}
 
 export async function login(_prev: LoginState, form: FormData): Promise<LoginState> {
   const email = String(form.get("email") ?? "").trim().toLowerCase();
