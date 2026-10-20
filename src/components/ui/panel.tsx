@@ -2,6 +2,7 @@ import type { ComponentProps, ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 
+import { Eyebrow } from "./eyebrow";
 import type { Verdict } from "./verdict-tag";
 
 export function Panel({ className, ...props }: ComponentProps<"section">) {
@@ -23,16 +24,10 @@ export function PageHeader({
   className?: string;
 }) {
   return (
-    // The page-title style of the import page: gradient eyebrow, Aldrich VN heading, 15px subline
+    // The page-title style of the import page: gradient eyebrow (see ./eyebrow), Aldrich VN heading, 15px subline
     <div className={cn("mb-5 flex flex-wrap items-end justify-between gap-4", className)}>
       <div className="flex min-w-0 flex-col gap-1.5">
-        {eyebrow && (
-          // One solid colour and the font's own weight: the cyan-to-pink gradient made the first word look heavier
-          // than the last, and Aldrich has no bold so a synthetic one only smears it
-          <span className="w-fit font-aldrich text-[14px] tracking-[0.18em] text-accent uppercase">
-            {eyebrow}
-          </span>
-        )}
+        {eyebrow && <Eyebrow>{eyebrow}</Eyebrow>}
         <h1 className="font-aldrich text-[30px] leading-[1.15] tracking-[0.01em] text-balance text-fg md:text-[44px]">{title}</h1>
         {sub && <div className="text-[15px] text-muted">{sub}</div>}
       </div>

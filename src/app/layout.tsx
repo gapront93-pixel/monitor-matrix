@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Be_Vietnam_Pro, JetBrains_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import type { ReactNode } from "react";
 
 import { ToastProvider } from "@/components/ui/toast";
@@ -22,6 +23,15 @@ const fontMono = JetBrains_Mono({
   display: "swap",
 });
 
+// Aldrich, Vietnamese build, for the eyebrow label above page titles (components/ui/eyebrow.tsx). One weight only.
+const fontAldrichVn = localFont({
+  src: "../fonts/Aldrich-VN.ttf",
+  variable: "--font-aldrich-vn",
+  weight: "400",
+  style: "normal",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: { default: "GIGABYTE Monitor Matrix", template: "%s · Monitor Matrix" },
   description: "Tra cứu thông số, so sánh đối thủ và theo dõi giá màn hình GIGABYTE tại đại lý Việt Nam",
@@ -35,7 +45,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
   // Read on the server, so the page arrives in the right language and colours (no flash)
   const [locale, theme] = await Promise.all([getLocale(), getTheme()]);
   return (
-    <html lang={locale} data-theme={theme} className={`${fontSans.variable} ${fontMono.variable}`}>
+    <html lang={locale} data-theme={theme} className={`${fontSans.variable} ${fontMono.variable} ${fontAldrichVn.variable}`}>
       <body className="min-h-dvh">
         <I18nProvider locale={locale}>
           <ToastProvider>{children}</ToastProvider>
