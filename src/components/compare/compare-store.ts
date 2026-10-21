@@ -58,5 +58,5 @@ export function useCompareList(): [string[], (next: string[]) => void] {
 }
 
 export function compareHref(slugs: string[]): string {
-  return `/so-sanh?m=${slugs.map(encodeURIComponent).join(",")}`;
+  return `/compare?m=${slugs.map(encodeURIComponent).join(",")}`;
 }

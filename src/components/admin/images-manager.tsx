@@ -4,7 +4,7 @@ import { LinkIcon, RefreshCwIcon, Trash2Icon, UploadIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useMemo, useRef, useState, useTransition } from "react";
 
-import { removeImage } from "@/app/(app)/admin/anh/actions";
+import { removeImage } from "@/app/(app)/admin/images/actions";
 import { ProductImage } from "@/components/product-image";
 import { Button } from "@/components/ui/button";
 import { Chip } from "@/components/ui/chip";
@@ -98,7 +98,7 @@ export function ImagesManager({ items }: { items: Item[] }) {
       for (;;) {
         const req = JSON.stringify({ mode, scope: withRivals ? "all" : "gigabyte", skip });
         // One retry after a pause: the app may be restarting (deploy or memory limit), the run goes on from where it was
-        const body = await post("/api/admin/anh/tu-dong", req).catch(() => new Promise((r) => setTimeout(r, 8000)).then(() => post("/api/admin/anh/tu-dong", req)));
+        const body = await post("/api/admin/images/auto", req).catch(() => new Promise((r) => setTimeout(r, 8000)).then(() => post("/api/admin/images/auto", req)));
         for (const r of body.results as FetchRow[]) skip.push(r.slug);
         setLog((l) => [...l, ...body.results]);
         setLeft(body.remaining);
@@ -116,7 +116,7 @@ export function ImagesManager({ items }: { items: Item[] }) {
   const fetchOne = async (slug: string) => {
     setBusySlug(slug);
     try {
-      const body = await post("/api/admin/anh/tu-dong", JSON.stringify({ slug, mode: "refresh" }));
+      const body = await post("/api/admin/images/auto", JSON.stringify({ slug, mode: "refresh" }));
       const r = body.results?.[0] as FetchRow | undefined;
       toast(r?.ok ? t.gotOne(r.model) : t.failedOne(r?.error ?? t.unknown));
     } catch (e) {
@@ -145,7 +145,7 @@ export function ImagesManager({ items }: { items: Item[] }) {
         const form = new FormData();
         for (const f of g) form.append("files", f);
         if (slug) form.set("slug", slug);
-        const body = await post("/api/admin/anh/tai-len", form, false);
+        const body = await post("/api/admin/images/upload", form, false);
         rows.push(...(body.results as UploadRow[]));
         setUploads([...rows]);
       }
@@ -164,7 +164,7 @@ export function ImagesManager({ items }: { items: Item[] }) {
     setLinking(true);
     if (payload.slug) setBusySlug(payload.slug);
     try {
-      const body = await post("/api/admin/anh/link", JSON.stringify(payload));
+      const body = await post("/api/admin/images/link", JSON.stringify(payload));
       const rows = body.results as LinkRow[];
       setLinkRows(rows);
       toast(t.linkDone(rows.filter((r) => r.ok).length, rows.length));

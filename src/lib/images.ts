@@ -75,7 +75,7 @@ export async function deleteProductImage(productId: number): Promise<void> {
   await prisma.product.update({ where: { id: productId }, data: { imageFile: null, imageSource: null, imageSourceUrl: null, imageUpdatedAt: null } });
 }
 
-/** /anh/<file>: only names this module writes */
+/** /images/<file>: only names this module writes */
 export async function readStoredImage(file: string): Promise<Buffer | null> {
   if (!/^[A-Za-z0-9_-]+(-thumb)?\.webp$/.test(file)) return null;
   try {

@@ -11,20 +11,20 @@ export const NAV_GROUPS: { label: NavKey; links: NavLink[] }[] = [
     label: "browse",
     links: [
       { href: "/", label: "overview", Icon: LayoutDashboardIcon },
-      { href: "/san-pham", label: "products", Icon: MonitorIcon, child: true },
-      { href: "/bang-gia", label: "prices", Icon: Table2Icon, child: true },
-      { href: "/so-sanh", label: "compare", Icon: GitCompareArrowsIcon, child: true },
-      { href: "/doi-thu", label: "rivals", Icon: SwordsIcon, child: true },
+      { href: "/products", label: "products", Icon: MonitorIcon, child: true },
+      { href: "/prices", label: "prices", Icon: Table2Icon, child: true },
+      { href: "/compare", label: "compare", Icon: GitCompareArrowsIcon, child: true },
+      { href: "/competitors", label: "rivals", Icon: SwordsIcon, child: true },
       // Their own entries, not part of Matrix LCD
-      { href: "/doanh-so", label: "sales", Icon: BarChart3Icon, sales: true },
-      { href: "/nhap-khau", label: "imports", Icon: ShipIcon, sales: true },
+      { href: "/sales", label: "sales", Icon: BarChart3Icon, sales: true },
+      { href: "/imports", label: "imports", Icon: ShipIcon, sales: true },
     ],
   },
   {
     label: "manage",
     links: [
       { href: "/admin", label: "admin", Icon: ShieldIcon, manage: true },
-      { href: "/admin/anh", label: "images", Icon: ImageIcon, manage: true },
+      { href: "/admin/images", label: "images", Icon: ImageIcon, manage: true },
     ],
   },
 ];

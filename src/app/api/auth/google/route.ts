@@ -8,7 +8,7 @@ import { safeNext } from "@/lib/safe-next";
 // Step 1: send the browser to Google's account picker
 export async function GET(request: NextRequest): Promise<never> {
   const cfg = googleConfig();
-  if (!cfg) redirect("/dang-nhap");
+  if (!cfg) redirect("/login");
 
   const state = crypto.randomUUID();
   const next = safeNext(request.nextUrl.searchParams.get("next"));

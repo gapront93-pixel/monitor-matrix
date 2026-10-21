@@ -41,10 +41,10 @@ export default async function OverviewPage() {
         title={t.title}
         actions={
           <>
-            <ButtonLink href="/bang-gia" variant="primary">
+            <ButtonLink href="/prices" variant="primary">
               {t.openPrices}
             </ButtonLink>
-            <ButtonLink href="/san-pham">{t.seeProducts}</ButtonLink>
+            <ButtonLink href="/products">{t.seeProducts}</ButtonLink>
           </>
         }
       />
@@ -82,7 +82,7 @@ export default async function OverviewPage() {
             return (
               <Link
                 key={s.id}
-                href={`/doi-thu?pk=${s.id}`}
+                href={`/competitors?pk=${s.id}`}
                 className={cn(
                   "group flex flex-col overflow-hidden rounded-panel border bg-panel transition-colors duration-200 hover:border-accent",
                   featured ? "border-accent shadow-(--shadow-feature)" : "border-line",

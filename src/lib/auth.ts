@@ -25,7 +25,7 @@ export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
 /** Pages: send anonymous visitors to the login page */
 export async function requireUser(): Promise<CurrentUser> {
   const u = await getCurrentUser();
-  if (!u) redirect("/dang-nhap");
+  if (!u) redirect("/login");
   return u;
 }
 

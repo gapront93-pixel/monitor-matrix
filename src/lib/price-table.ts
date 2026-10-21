@@ -1,4 +1,4 @@
-// Rows of the price grid (/bang-gia) and its Excel export, built from the catalog. Shared so both show the same thing.
+// Rows of the price grid (/prices) and its Excel export, built from the catalog. Shared so both show the same thing.
 import type { Catalog } from "./catalog";
 import type { StockStatus } from "./import/prices";
 import { isBuyable } from "./import/prices";

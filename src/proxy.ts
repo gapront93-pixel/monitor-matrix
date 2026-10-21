@@ -12,11 +12,11 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
   if (pathname.startsWith("/api/")) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-  const url = new URL("/dang-nhap", request.url);
+  const url = new URL("/login", request.url);
   if (pathname !== "/") url.searchParams.set("next", pathname + search);
   return NextResponse.redirect(url);
 }
 
 export const config = {
-  matcher: ["/((?!dang-nhap|api/auth/google|_next/static|_next/image|fonts/|favicon.ico|icon.png|apple-icon.png|robots.txt).*)"],
+  matcher: ["/((?!login|dang-nhap|api/auth/google|_next/static|_next/image|fonts/|favicon.ico|icon.png|apple-icon.png|robots.txt).*)"],
 };

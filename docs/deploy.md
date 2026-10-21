@@ -33,7 +33,7 @@ Push bằng `git push` thường cũng deploy y như vậy, chỉ là terminal k
 2. Chỉ nhận commit nằm trên `origin/main` và nối tiếp bản đang chạy (fast-forward).
 3. Giải nén bản build cạnh bản đang chạy. Cập nhật code; `package-lock.json` đổi thì `npm ci`. Luôn `prisma generate`.
 4. Có migration mới thì backup DB vào `/home/deploy/backups/monitor_matrix/*_pre_deploy.dump` (giữ 5 bản) rồi `prisma migrate deploy`.
-5. Ghi bản build mới vào `.deploy/current` (PM2 đọc qua `ecosystem.config.cjs`), restart `monitor-matrix`, kiểm tra `/dang-nhap` và mọi file JS/CSS của nó phải trả 200. Lỗi thì **tự quay về bản cũ**.
+5. Ghi bản build mới vào `.deploy/current` (PM2 đọc qua `ecosystem.config.cjs`), restart `monitor-matrix`, kiểm tra `/login` và mọi file JS/CSS của nó phải trả 200. Lỗi thì **tự quay về bản cũ**.
 6. `pm2 save`, xoá các bản build cũ, chỉ giữ bản đang chạy và bản trước.
 
 Mỗi lần deploy, site gián đoạn vài giây lúc restart.

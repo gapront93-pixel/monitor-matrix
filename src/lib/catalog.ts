@@ -49,7 +49,7 @@ export type ProductView = {
   heightAdjMm: number | null;
   pivot: boolean | null;
   url: string | null;
-  image: string | null; // /anh/<slug>.webp?v=..
+  image: string | null; // /images/<slug>.webp?v=..
   thumb: string | null;
   prices: PriceCell[]; // in dealer column order
   minPrice: number | null;

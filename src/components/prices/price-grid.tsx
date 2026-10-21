@@ -142,7 +142,7 @@ export function PriceGrid({ rows, dealers, days, day, isHistory, dayLabel }: Pro
     p.set("m", sorted.map((r) => r.original.slug).join(","));
     // A file download, not a page: a temporary <a download> keeps the current page
     const a = document.createElement("a");
-    a.href = `/api/bang-gia/xlsx?${p}`;
+    a.href = `/api/prices/xlsx?${p}`;
     a.download = "";
     document.body.append(a);
     a.click();
@@ -307,7 +307,7 @@ export function PriceGrid({ rows, dealers, days, day, isHistory, dayLabel }: Pro
                     >
                       <div className="min-w-0">
                         <Link
-                          href={`/san-pham/${encodeURIComponent(r.slug)}?tab=gia`}
+                          href={`/products/${encodeURIComponent(r.slug)}?tab=gia`}
                           prefetch={false}
                           onClick={(e) => e.stopPropagation()}
                           className="text-[12.5px] leading-tight font-bold break-words text-fg hover:underline"

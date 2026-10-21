@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
-import { logout } from "@/app/dang-nhap/actions";
+import { logout } from "@/app/login/actions";
 import { useT } from "@/lib/i18n/client";
 import { shellMessages } from "@/lib/i18n/messages/shell";
 import type { Role } from "@/lib/permissions";
@@ -46,7 +46,7 @@ export function UserMenu({ user }: { user: HeaderUser }) {
             <div className="truncate text-[11.5px] text-muted">{user.email}</div>
             <div className="mt-1 text-[11px] font-semibold text-fg-2">{t.user.role(t.roles[user.role].label)}</div>
           </div>
-          <Link href="/tai-khoan" onClick={() => setOpen(false)} className="mt-1 block rounded-chip px-2.5 py-2 text-[13px] text-fg hover:bg-row-a">
+          <Link href="/account" onClick={() => setOpen(false)} className="mt-1 block rounded-chip px-2.5 py-2 text-[13px] text-fg hover:bg-row-a">
             {t.user.accountLink}
           </Link>
           <form action={logout}>

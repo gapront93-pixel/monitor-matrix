@@ -36,7 +36,7 @@ export function CompareView({ items, choices }: { items: Comparable[]; choices: 
 
   const go = (next: string[]) => {
     setStored(next);
-    router.push(next.length ? compareHref(next) : "/so-sanh");
+    router.push(next.length ? compareHref(next) : "/compare");
   };
 
   return (
@@ -61,7 +61,7 @@ export function CompareView({ items, choices }: { items: Comparable[]; choices: 
         <EmptyState
           title={t.needTwo}
           action={
-            <ButtonLink href="/san-pham" variant="primary" size="sm">
+            <ButtonLink href="/products" variant="primary" size="sm">
               {t.pickInProducts}
             </ButtonLink>
           }

@@ -38,5 +38,5 @@ export function imageUrls(p: { imageFile: string | null; imageUpdatedAt: Date | 
   if (!p.imageFile) return { image: null, thumb: null };
   const v = p.imageUpdatedAt ? `?v=${p.imageUpdatedAt.getTime().toString(36)}` : "";
   const base = p.imageFile.replace(/\.webp$/, "");
-  return { image: `/anh/${base}.webp${v}`, thumb: `/anh/${base}-thumb.webp${v}` };
+  return { image: `/images/${base}.webp${v}`, thumb: `/images/${base}-thumb.webp${v}` };
 }

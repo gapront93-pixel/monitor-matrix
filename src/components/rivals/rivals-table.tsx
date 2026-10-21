@@ -85,7 +85,7 @@ export function RivalsTable({ items }: { items: Comparable[] }) {
                     className={cn("sticky left-0 z-10 border-r border-b border-line-2 px-3 py-1.5 text-left font-normal", bg, p.isGigabyte && "shadow-[inset_3px_0_0_var(--color-accent)]")}
                   >
                     <div className={cn("text-[10.5px] font-bold tracking-[0.06em] uppercase", p.isGigabyte ? "text-brand-gb" : "text-muted")}>{p.brand}</div>
-                    <Link href={`/san-pham/${encodeURIComponent(p.slug)}`} prefetch={false} className="text-[13px] font-bold text-fg hover:underline">
+                    <Link href={`/products/${encodeURIComponent(p.slug)}`} prefetch={false} className="text-[13px] font-bold text-fg hover:underline">
                       {p.model}
                     </Link>
                   </th>
@@ -121,7 +121,7 @@ export function SegmentSelect({ segments, current }: { segments: { id: string; n
     <select
       aria-label={t.segments}
       value={current}
-      onChange={(e) => router.push(`/doi-thu?pk=${e.target.value}`)}
+      onChange={(e) => router.push(`/competitors?pk=${e.target.value}`)}
       className="h-9 w-full rounded-ctl border border-line bg-app px-2.5 text-[13px] font-semibold text-fg md:hidden"
     >
       {segments.map((s) => (

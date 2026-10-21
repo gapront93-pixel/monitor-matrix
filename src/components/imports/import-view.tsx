@@ -80,7 +80,7 @@ export function ImportView() {
 
   useEffect(() => {
     let live = true;
-    fetch("/api/nhap-khau?f=raw")
+    fetch("/api/imports?f=raw")
       .then((r) => {
         if (!r.ok) throw new Error(String(r.status));
         return r.json();

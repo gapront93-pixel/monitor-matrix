@@ -44,12 +44,12 @@ status() {
 health_check() {
   local page code f bad=0
   for _ in $(seq 1 30); do
-    code=$(curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:$PORT/dang-nhap" || true)
+    code=$(curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:$PORT/login" || true)
     [ "$code" = 200 ] && break
     sleep 1
   done
-  [ "$code" = 200 ] || { say "/dang-nhap trả $code"; return 1; }
-  page=$(curl -s "http://127.0.0.1:$PORT/dang-nhap") || return 1
+  [ "$code" = 200 ] || { say "/login trả $code"; return 1; }
+  page=$(curl -s "http://127.0.0.1:$PORT/login") || return 1
   for f in $(grep -o '/_next/static/[^"\\]*\.\(js\|css\)' <<<"$page" | sort -u); do
     code=$(curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:$PORT$f" || true)
     [ "$code" = 200 ] || { say "$f trả $code"; bad=1; }

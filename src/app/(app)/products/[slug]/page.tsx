@@ -71,7 +71,7 @@ export default async function ProductPage({ params, searchParams }: Params) {
   return (
     <>
       <nav aria-label={t.breadcrumb} className="mb-3 text-[12.5px] text-muted">
-        <Link href="/san-pham" className="hover:text-fg">
+        <Link href="/products" className="hover:text-fg">
           {msgs.matrix.title}
         </Link>
         <span className="mx-1.5">/</span>
@@ -89,7 +89,7 @@ export default async function ProductPage({ params, searchParams }: Params) {
           <h1 className="mt-1 text-[22px] leading-tight font-bold text-fg md:text-[28px]">{p.model}</h1>
           <div className="mt-1 flex flex-wrap gap-x-3 text-[12.5px] text-muted">
             {segment && (
-              <Link href={`/doi-thu?pk=${segment.id}`} className="hover:text-fg">
+              <Link href={`/competitors?pk=${segment.id}`} className="hover:text-fg">
                 {segment.shortName}
               </Link>
             )}
@@ -159,7 +159,7 @@ export default async function ProductPage({ params, searchParams }: Params) {
                   <p className="text-[12.5px] text-muted">
                     {t.bestNote(segment?.shortName ?? "")}
                   </p>
-                  <ButtonLink href={`/so-sanh?m=${[p, ...others].map((o) => encodeURIComponent(o.slug)).join(",")}`} size="sm">
+                  <ButtonLink href={`/compare?m=${[p, ...others].map((o) => encodeURIComponent(o.slug)).join(",")}`} size="sm">
                     {t.openCompare}
                   </ButtonLink>
                 </div>
@@ -169,7 +169,7 @@ export default async function ProductPage({ params, searchParams }: Params) {
               <EmptyState
                 title={sameSegment.length ? t.noImportedRivals : t.noSegment}
                 action={
-                  <ButtonLink href={`/so-sanh?m=${encodeURIComponent(p.slug)}`} variant="primary" size="sm">
+                  <ButtonLink href={`/compare?m=${encodeURIComponent(p.slug)}`} variant="primary" size="sm">
                     {t.pickYourself}
                   </ButtonLink>
                 }

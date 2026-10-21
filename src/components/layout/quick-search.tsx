@@ -27,7 +27,7 @@ export function QuickSearch({ className }: { className?: string }) {
     const ctl = new AbortController();
     const t = setTimeout(async () => {
       try {
-        const res = await fetch(`/api/tim-kiem?q=${encodeURIComponent(term)}`, { signal: ctl.signal });
+        const res = await fetch(`/api/search?q=${encodeURIComponent(term)}`, { signal: ctl.signal });
         if (res.ok) {
           setHits((await res.json()).hits);
           setCursor(0);
@@ -54,7 +54,7 @@ export function QuickSearch({ className }: { className?: string }) {
     setOpen(false);
     setQ("");
     setHits([]);
-    router.push(`/san-pham/${encodeURIComponent(h.slug)}`);
+    router.push(`/products/${encodeURIComponent(h.slug)}`);
   };
 
   const shown = q.trim() ? hits : [];

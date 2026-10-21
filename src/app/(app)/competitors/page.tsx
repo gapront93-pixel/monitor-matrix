@@ -42,7 +42,7 @@ export default async function RivalsPage({ searchParams }: { searchParams: Promi
           {segments.map((s) => (
             <Link
               key={s.id}
-              href={`/doi-thu?pk=${s.id}`}
+              href={`/competitors?pk=${s.id}`}
               aria-current={s.id === seg.id ? "page" : undefined}
               className={cn(
                 "flex items-center justify-between gap-2 border-b border-line-2 px-3 py-2.5 text-[13px] font-semibold last:border-b-0",

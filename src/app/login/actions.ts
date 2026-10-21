@@ -39,5 +39,5 @@ export async function login(_prev: LoginState, form: FormData): Promise<LoginSta
 
 export async function logout(): Promise<void> {
   await endSession();
-  redirect("/dang-nhap");
+  redirect("/login");
 }

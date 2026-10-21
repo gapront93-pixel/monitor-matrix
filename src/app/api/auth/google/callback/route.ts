@@ -31,7 +31,7 @@ async function googleEmail(code: string, cfg: NonNullable<ReturnType<typeof goog
 // Step 2: Google sends the browser back here with ?code=&state=
 export async function GET(request: NextRequest): Promise<never> {
   const cfg = googleConfig();
-  if (!cfg) redirect("/dang-nhap");
+  if (!cfg) redirect("/login");
 
   const jar = await cookies();
   const [state, next] = (jar.get(GOOGLE_STATE_COOKIE)?.value ?? "").split(":");
@@ -39,15 +39,15 @@ export async function GET(request: NextRequest): Promise<never> {
   const q = request.nextUrl.searchParams;
   const code = q.get("code");
   // Cancelled at Google, expired cookie or a forged callback
-  if (!code || !state || q.get("state") !== state) redirect("/dang-nhap?error=google");
+  if (!code || !state || q.get("state") !== state) redirect("/login?error=google");
 
   const email = await googleEmail(code, cfg).catch(() => null);
-  if (!email) redirect("/dang-nhap?error=google");
+  if (!email) redirect("/login?error=google");
 
   // Only accounts an Admin already created may sign in; nobody is auto-registered
   const user = await prisma.user.findUnique({ where: { email } });
-  if (!user) redirect("/dang-nhap?error=google-unknown");
-  if (!user.active) redirect("/dang-nhap?error=locked");
+  if (!user) redirect("/login?error=google-unknown");
+  if (!user.active) redirect("/login?error=locked");
 
   await prisma.user.update({ where: { id: user.id }, data: { lastLoginAt: new Date() } });
   await startSession(user);

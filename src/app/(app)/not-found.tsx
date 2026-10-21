@@ -9,7 +9,7 @@ export default async function NotFound() {
     <EmptyState
       title={t.notFound}
       action={
-        <ButtonLink href="/san-pham" variant="primary" size="sm">
+        <ButtonLink href="/products" variant="primary" size="sm">
           {t.toProducts}
         </ButtonLink>
       }

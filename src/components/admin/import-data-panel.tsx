@@ -68,7 +68,7 @@ export function ImportDataPanel({ info: initial }: { info: AdminImportInfo }) {
       const rows: unknown[][] = [];
       ws.eachRow({ includeEmpty: false }, (row) => rows.push((row.values as unknown[]).slice(1).map(cellValue)));
       // Brand spellings already in use, so a re-upload keeps them
-      const current = await fetch("/api/nhap-khau?f=raw").then((r) => (r.ok ? (r.json() as Promise<ImportData>) : null)).catch(() => null);
+      const current = await fetch("/api/imports?f=raw").then((r) => (r.ok ? (r.json() as Promise<ImportData>) : null)).catch(() => null);
       const res = convertRaw(rows, current?.dicts.brand ?? []);
       if (!res.ok) throw new Error(t.missing(res.missing.join(", ")));
       setPreview({ fileName: file.name, sheet: ws.name, data: res.data, latest: res.latest, counts: res.counts, skipped: res.skipped });

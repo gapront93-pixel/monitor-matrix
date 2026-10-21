@@ -134,13 +134,13 @@ export function UploadPanel({ dealers }: { dealers: AdminDealer[] }) {
                 <Button variant="primary" onClick={() => input.current?.click()}>
                   {t.choose}
                 </Button>
-                <a className="h-8 content-center rounded-ctl border border-line px-3 text-[12.5px] font-semibold text-fg hover:border-line-hover" href="/api/admin/mau?loai=csv-doc">
+                <a className="h-8 content-center rounded-ctl border border-line px-3 text-[12.5px] font-semibold text-fg hover:border-line-hover" href="/api/admin/template?loai=csv-doc">
                   {t.tplLong}
                 </a>
-                <a className="h-8 content-center rounded-ctl border border-line px-3 text-[12.5px] font-semibold text-fg hover:border-line-hover" href="/api/admin/mau?loai=bang-gia">
+                <a className="h-8 content-center rounded-ctl border border-line px-3 text-[12.5px] font-semibold text-fg hover:border-line-hover" href="/api/admin/template?loai=bang-gia">
                   {t.tplTable}
                 </a>
-                <a className="h-8 content-center rounded-ctl border border-line px-3 text-[12.5px] font-semibold text-fg hover:border-line-hover" href="/api/admin/mau?loai=json">
+                <a className="h-8 content-center rounded-ctl border border-line px-3 text-[12.5px] font-semibold text-fg hover:border-line-hover" href="/api/admin/template?loai=json">
                   {t.tplJson}
                 </a>
               </div>

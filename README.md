@@ -8,13 +8,13 @@ Công cụ nội bộ cho team Marketing GIGABYTE Việt Nam: tra cứu thông s
 | Trang | Dùng để |
 |---|---|
 | `/` Tổng quan | Số liệu nhanh + 11 phân khúc với nhãn kết luận |
-| `/san-pham` | Ma trận các mẫu đang bán, bộ lọc (lưu trên URL), chọn 2–4 mẫu để so sánh |
-| `/san-pham/<mã>` | Thông số đầy đủ, giá theo đại lý + biểu đồ lịch sử giá, so với đối thủ, benchmark |
-| `/bang-gia` | Bảng giá theo đại lý, xem giá ngày cũ, xuất Excel |
-| `/so-sanh?m=mã1,mã2` | So sánh 2–4 mẫu (cả đối thủ), tô giá trị tốt nhất |
-| `/doi-thu` | GIGABYTE so với đối thủ theo từng phân khúc |
-| `/doanh-so` | Doanh số LCD (sell-in) lấy từ dữ liệu vnpromotion, chỉ Mod và Admin xem được (mục 2c) |
-| `/nhap-khau` | Import Data - LCD: số liệu nhập khẩu màn hình vào Việt Nam 2024–2026, chỉ Mod và Admin xem được (mục 2e) |
+| `/products` | Ma trận các mẫu đang bán, bộ lọc (lưu trên URL), chọn 2–4 mẫu để so sánh |
+| `/products/<mã>` | Thông số đầy đủ, giá theo đại lý + biểu đồ lịch sử giá, so với đối thủ, benchmark |
+| `/prices` | Bảng giá theo đại lý, xem giá ngày cũ, xuất Excel |
+| `/compare?m=mã1,mã2` | So sánh 2–4 mẫu (cả đối thủ), tô giá trị tốt nhất |
+| `/competitors` | GIGABYTE so với đối thủ theo từng phân khúc |
+| `/sales` | Doanh số LCD (sell-in) lấy từ dữ liệu vnpromotion, chỉ Mod và Admin xem được (mục 2c) |
+| `/imports` | Import Data - LCD: số liệu nhập khẩu màn hình vào Việt Nam 2024–2026, chỉ Mod và Admin xem được (mục 2e) |
 | `/admin` | Tải file giá, quản lý đại lý, sửa kết luận phân khúc |
 
 **Giao diện và ngôn ngữ:** hai nút ở góc phải trên. Nút chữ A để đổi **Tiếng Việt / English**. Nút mặt trời để chọn giao diện **Tối / Sáng / Theo máy**. Lựa chọn được lưu trên trình duyệt của từng người. Ở chế độ English, các nhãn và menu chuyển sang tiếng Anh. Nội dung dữ liệu (kết luận phân khúc, trích dẫn review, tên phân khúc) vẫn giữ như bản gốc.
@@ -184,7 +184,7 @@ Menu **Import Data - LCD** (chỉ Mod và Admin), nằm dưới Doanh số LCD. 
   - Tab **So với đối thủ** chỉ hiện đối thủ có số lượng nhập khẩu lớn hơn 0 trong **9 tháng gần nhất**, xếp theo số lượng nhập khẩu.
   - Bảng so sánh, ở cả tab này lẫn trang So sánh, có hàng **Giá FOB lô nhập gần nhất** (kèm ngày nhập) ngay trên hàng Giá thấp nhất. Đây là giá của lô gần nhất, không phải giá trung bình.
   - Mẫu được so khớp với dữ liệu hải quan theo brand và mã model (tên model hoặc alias; nếu không khớp thì so theo mã con). Samsung không có trong dữ liệu hải quan, nên **Samsung không áp dụng điều kiện nhập khẩu**: mẫu Samsung cùng phân khúc luôn được thêm vào sau 3 đối thủ nhập khẩu nhiều nhất, hàng FOB của Samsung để "—".
-- **Dữ liệu:** bản tải lên gần nhất (`storage/import/import-raw.json`), hoặc file gốc `data/import/import-raw-2024-2026.json` (số liệu đến 22/09/2026). Chỉ tài khoản Mod và Admin tải được (`/api/nhap-khau`).
+- **Dữ liệu:** bản tải lên gần nhất (`storage/import/import-raw.json`), hoặc file gốc `data/import/import-raw-2024-2026.json` (số liệu đến 22/09/2026). Chỉ tài khoản Mod và Admin tải được (`/api/imports`).
   - **Lưu ý về file gốc:** model "LEGION 27Q-10" (Lenovo) bị lặp ở nhiều brand khác, do lỗi kéo-điền trong file Excel. Trang vẫn hiển thị đúng như dữ liệu gốc.
 - **Cập nhật số liệu mới:** vào **Quản trị → tab Import Data**, bấm **Chọn file Excel**, rồi chọn file *LCD IMPORT DATA - Analysis* (.xlsx, có sheet RAW).
   - File được đọc ngay trên máy của bạn, mất khoảng 20–30 giây với file khoảng 9MB. App tự chuẩn hoá dữ liệu: tên hãng viết thống nhất, kích thước và Hz thành số, cột xuất xứ / cửa khẩu bị nhập đổi chỗ được đặt lại đúng.

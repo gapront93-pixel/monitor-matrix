@@ -288,7 +288,7 @@ export function SalesView({ report, filter, range, segments }: Props) {
                               </button>
                               <ProductImage src={m.thumb} className="h-7 w-10 shrink-0" sizes="40px" />
                               {m.productSlug ? (
-                                <Link href={`/san-pham/${encodeURIComponent(m.productSlug)}`} prefetch={false} className="font-bold text-fg hover:underline">
+                                <Link href={`/products/${encodeURIComponent(m.productSlug)}`} prefetch={false} className="font-bold text-fg hover:underline">
                                   {m.label}
                                 </Link>
                               ) : (
