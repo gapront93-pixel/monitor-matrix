@@ -286,3 +286,19 @@ main :is(h1, h2, h3) {
     scroll-behavior: auto !important;
   }
 }
+
+/* Charts: hovered column stays lit, the other bars fade (see chart-hover.ts); a hidden series and its axis labels fade instead of popping */
+.recharts-bar-rectangle,
+.chart-dim .recharts-rectangle {
+  transition: opacity 0.15s;
+}
+.chart-dim:has(.bar-on) .recharts-rectangle:not(.bar-on, .recharts-tooltip-cursor) {
+  opacity: 0.45;
+}
+.chart-fade .recharts-line-curve,
+.chart-fade .recharts-line-dots circle,
+.chart-fade .recharts-cartesian-axis-tick-value {
+  transition:
+    stroke-opacity 0.5s,
+    fill-opacity 0.5s;
+}

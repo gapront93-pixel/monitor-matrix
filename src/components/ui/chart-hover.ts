@@ -1,24 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { createElement, useId } from "react";
 
 /**
- * Column the pointer is over in a Recharts chart (the chart splits its width into one band per category):
- * the hovered column stays lit, the others fade to 45%.
+ * Hovered column: Recharts marks the bars of the active tooltip column with `activeBar`; CSS (globals.css, .chart-dim)
+ * fades every other bar to 45%. Nothing re-renders the chart, so hovering never disturbs its animation.
  */
-export function useChartHover() {
-  const [hover, setHover] = useState<number | null>(null);
-  return {
-    hover,
-    chartProps: {
-      onMouseMove: (s: { activeTooltipIndex?: number | string | null }) => setHover(s.activeTooltipIndex === null || s.activeTooltipIndex === undefined ? null : Number(s.activeTooltipIndex)),
-      onMouseLeave: () => setHover(null),
-    },
-  };
-}
+export const activeBar = { className: "bar-on" };
 
-export const dimmed = (hover: number | null, i: number) => (hover === null || hover === i ? 1 : 0.45);
-export const cellFade = { transition: "fill-opacity .15s" };
+/** For a highlight driven from outside the chart (a table row): class for the wrapper and a <style> fading all but bar `index` */
+export function useBarFade(index: number | null) {
+  const cls = `ch${useId().replace(/[^a-zA-Z0-9]/g, "")}`;
+  const css = index === null || index < 0 ? "" : `.${cls} .recharts-bar-rectangle:not(:nth-child(${index + 1})){opacity:.45}`;
+  return { cls, style: createElement("style", null, css) };
+}
 
 /** Tooltip that follows the pointer 16px away (Recharts flips it near the right edge), sliding in 80ms */
 export const tooltipFollow = { offset: 16, isAnimationActive: true, animationDuration: 80, animationEasing: "linear" } as const;

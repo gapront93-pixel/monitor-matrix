@@ -11,8 +11,9 @@ export async function GET(req: NextRequest) {
   if (!(await userWith("sales"))) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   if (req.nextUrl.searchParams.get("f") !== "raw") return NextResponse.json({ error: "Bad request" }, { status: 400 });
   const { text, mtime } = await readImport();
-  return new Response(text, {
-    // Revalidated on every load: a new upload must show at once (the ETag keeps repeat loads cheap)
-    headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "private, no-cache", ETag: `"${Math.round(mtime)}"` },
-  });
+  // Revalidated on every load: a new upload must show at once; until then the browser's copy is reused (304, no body)
+  const etag = `"${Math.round(mtime)}"`;
+  const headers = { "Cache-Control": "private, no-cache", ETag: etag };
+  if (req.headers.get("if-none-match") === etag) return new Response(null, { status: 304, headers });
+  return new Response(text, { headers: { ...headers, "Content-Type": "application/json; charset=utf-8" } });
 }

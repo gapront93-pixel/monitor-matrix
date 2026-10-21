@@ -8,8 +8,8 @@ import { Bar, BarChart, CartesianGrid, Cell, ComposedChart, LabelList, Legend, L
 
 import { ProductImage } from "@/components/product-image";
 import { Chip } from "@/components/ui/chip";
-import { ACTIVE_DOT_R, DOT_R, cellFade, dimmed, tooltipFollow, useChartHover } from "@/components/ui/chart-hover";
-import { CountUp, Reveal, useTweenRows, useTweens } from "@/components/ui/motion";
+import { ACTIVE_DOT_R, DOT_R, activeBar, tooltipFollow, useBarFade } from "@/components/ui/chart-hover";
+import { ChartMount, CountUp, Reveal, chartAnim, useGrown, useRevealedRows } from "@/components/ui/motion";
 import { Panel } from "@/components/ui/panel";
 import { EmptyState } from "@/components/ui/states";
 import { fmtNum, fmtPct, fmtVndCompact } from "@/lib/format";
@@ -357,49 +357,46 @@ export function SalesView({ report, filter, range, segments }: Props) {
   );
 }
 
-/** Revenue as bars on the left axis, units as a line on the right axis; bars grow and the line rises month by month */
+/** Revenue as bars on the left axis, units as a line on the right axis; bars grow and the line rises from the axis */
 function MonthChart({ months, money }: { months: SalesReport["months"]; money: (n: number) => string }) {
   const t = useT(salesMessages);
-  const data = useTweenRows(months, ["amount", "qty"], { stagger: 70 });
-  const { hover, chartProps } = useChartHover();
+  const data = useRevealedRows(months, ["amount", "qty"]);
   return (
     <Panel className="p-4">
       <h2 className="mb-2 text-[17px] font-bold text-fg">{t.chart.title}</h2>
-      <div className="h-[260px]">
-        <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 900, height: 260 }}>
-          <ComposedChart data={data} margin={{ top: 8, right: 4, bottom: 0, left: 0 }} {...chartProps}>
-            <CartesianGrid vertical={false} stroke="var(--color-line-2)" />
-            <XAxis dataKey="month" tickFormatter={label} tickLine={false} axisLine={false} tick={axisTick} />
-            <YAxis yAxisId="amount" width={60} tickLine={false} axisLine={false} tickFormatter={(v: number) => money(v)} tick={axisTick} />
-            <YAxis yAxisId="qty" orientation="right" width={52} tickLine={false} axisLine={false} tickFormatter={(v: number) => fmtNum(Math.round(v))} tick={axisTick} />
-            <Tooltip
-              {...tooltipFollow}
-              cursor={{ fill: "var(--color-accent-tint)" }}
-              contentStyle={tooltipBox}
-              labelStyle={{ color: "var(--color-fg)", fontWeight: 600 }}
-              itemStyle={{ color: "var(--color-fg-2)", fontFamily: "var(--font-mono)" }}
-              labelFormatter={(m) => label(String(m))}
-              formatter={(v, name) => [name === t.chart.amount ? `${fmtNum(Math.round(Number(v)))} VNĐ` : fmtNum(Math.round(Number(v))), name]}
-            />
-            <Legend iconSize={10} wrapperStyle={{ fontSize: 12, color: "var(--color-fg-2)" }} />
-            <Bar yAxisId="amount" dataKey="amount" name={t.chart.amount} fill="var(--color-accent)" radius={[4, 4, 0, 0]} maxBarSize={40} isAnimationActive={false}>
-              {data.map((_, i) => (
-                <Cell key={i} fillOpacity={dimmed(hover, i)} style={cellFade} />
-              ))}
-            </Bar>
-            <Line
-              yAxisId="qty"
-              dataKey="qty"
-              name={t.chart.qty}
-              type="monotone"
-              stroke="var(--color-aorus)"
-              strokeWidth={2.5}
-              dot={{ r: DOT_R, fill: "var(--color-aorus)", strokeWidth: 0 }}
-              activeDot={{ r: ACTIVE_DOT_R, fill: "var(--color-aorus)", strokeWidth: 0 }}
-              isAnimationActive={false}
-            />
-          </ComposedChart>
-        </ResponsiveContainer>
+      <div className="chart-dim h-[260px]">
+        <ChartMount height="100%">
+          <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 900, height: 260 }}>
+            <ComposedChart data={data} margin={{ top: 8, right: 4, bottom: 0, left: 0 }}>
+              <CartesianGrid vertical={false} stroke="var(--color-line-2)" />
+              <XAxis dataKey="month" tickFormatter={label} tickLine={false} axisLine={false} tick={axisTick} />
+              <YAxis yAxisId="amount" width={60} tickLine={false} axisLine={false} tickFormatter={(v: number) => money(v)} tick={axisTick} />
+              <YAxis yAxisId="qty" orientation="right" width={52} tickLine={false} axisLine={false} tickFormatter={(v: number) => fmtNum(Math.round(v))} tick={axisTick} />
+              <Tooltip
+                {...tooltipFollow}
+                cursor={{ fill: "var(--color-accent-tint)" }}
+                contentStyle={tooltipBox}
+                labelStyle={{ color: "var(--color-fg)", fontWeight: 600 }}
+                itemStyle={{ color: "var(--color-fg-2)", fontFamily: "var(--font-mono)" }}
+                labelFormatter={(m) => label(String(m))}
+                formatter={(v, name) => [name === t.chart.amount ? `${fmtNum(Number(v))} VNĐ` : fmtNum(Number(v)), name]}
+              />
+              <Legend iconSize={10} wrapperStyle={{ fontSize: 12, color: "var(--color-fg-2)" }} />
+              <Bar yAxisId="amount" dataKey="amount" name={t.chart.amount} fill="var(--color-accent)" radius={[4, 4, 0, 0]} maxBarSize={40} activeBar={activeBar} {...chartAnim} />
+              <Line
+                yAxisId="qty"
+                dataKey="qty"
+                name={t.chart.qty}
+                type="monotone"
+                stroke="var(--color-aorus)"
+                strokeWidth={2.5}
+                dot={{ r: DOT_R, fill: "var(--color-aorus)", strokeWidth: 0 }}
+                activeDot={{ r: ACTIVE_DOT_R, fill: "var(--color-aorus)", strokeWidth: 0 }}
+                {...chartAnim}
+              />
+            </ComposedChart>
+          </ResponsiveContainer>
+        </ChartMount>
       </div>
     </Panel>
   );
@@ -539,42 +536,38 @@ function DonutTable({
 
 function Donut({ model, label: aria, money }: { model: ReturnType<typeof donut>; label: string; money: (n: number) => string }) {
   const t = useT(salesMessages);
-  // Slices sweep in one after another (150ms apart); a transparent slice fills the part of the ring not drawn yet
-  const full = model.slices.reduce((n, s) => n + s.amount, 0);
-  const grown = useTweens(
-    model.slices.map((s) => s.amount),
-    { stagger: 150 },
-  );
-  const drawn = grown.reduce((n, v) => n + v, 0);
-  const data = [...model.slices.map((s, i) => ({ ...s, amount: grown[i] })), { name: "", amount: Math.max(0, full - drawn), color: "transparent" }];
+  // Empty until revealed, then the ring sweeps in; new data moves each slice from where it is
+  const shown = useGrown();
   if (!model.slices.length) return null;
   return (
     <figure className="relative size-[130px] shrink-0" aria-label={aria}>
-      <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 130, height: 130 }}>
-        <PieChart>
-          <Tooltip
-            {...tooltipFollow}
-            contentStyle={tooltipBox}
-            itemStyle={{ color: "var(--color-fg-2)", fontFamily: "var(--font-mono)" }}
-            formatter={(v, name) => [`${fmtNum(Math.round(Number(v)))} VNĐ · ${pct(Number(v), model.total)}`, name]}
-          />
-          <Pie
-            data={data}
-            dataKey="amount"
-            nameKey="name"
-            innerRadius={42}
-            outerRadius={64}
-            startAngle={90}
-            endAngle={-270}
-            strokeWidth={0}
-            isAnimationActive={false}
-          >
-            {data.map((s, i) => (
-              <Cell key={s.name || `rest${i}`} fill={s.color} style={s.name ? undefined : { pointerEvents: "none" }} />
-            ))}
-          </Pie>
-        </PieChart>
-      </ResponsiveContainer>
+      <ChartMount height="100%">
+        <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 130, height: 130 }}>
+          <PieChart>
+            <Tooltip
+              {...tooltipFollow}
+              contentStyle={tooltipBox}
+              itemStyle={{ color: "var(--color-fg-2)", fontFamily: "var(--font-mono)" }}
+              formatter={(v, name) => [`${fmtNum(Number(v))} VNĐ · ${pct(Number(v), model.total)}`, name]}
+            />
+            <Pie
+              data={shown ? model.slices : []}
+              dataKey="amount"
+              nameKey="name"
+              innerRadius={42}
+              outerRadius={64}
+              startAngle={90}
+              endAngle={-270}
+              strokeWidth={0}
+              {...chartAnim}
+            >
+              {model.slices.map((s) => (
+                <Cell key={s.name} fill={s.color} />
+              ))}
+            </Pie>
+          </PieChart>
+        </ResponsiveContainer>
+      </ChartMount>
       <figcaption className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
         <span className="text-[11px] text-muted">{t.share.donutTotal}</span>
         <span className="num text-[13px] font-extrabold text-fg">
@@ -685,19 +678,16 @@ function shareBars(rows: ShareRow[], others: string | ((n: number) => string)) {
   return { bars, rest };
 }
 
-/** Share of each segment in revenue: horizontal bars that run out one after another */
+/** Share of each segment in revenue: horizontal bars that run out from the axis */
 function SegmentShare({ rows, money, hover, setHover }: { rows: ShareRow[]; money: (n: number) => string } & HoverProps) {
   const t = useT(salesMessages);
-  const { bars: target } = shareBars(rows, t.share.others);
-  const bars = useTweenRows(target, ["share", "amount"], { stagger: 60 });
+  const target = useMemo(() => shareBars(rows, t.share.others).bars, [rows, t]);
+  const bars = useRevealedRows(target, ["share", "amount"]);
+  const { cls, style } = useBarFade(hover === null ? null : target.findIndex((b) => b.key === hover));
   const height = Math.max(160, bars.length * 30 + 20);
-  return (
-    <Panel className="flex flex-col overflow-hidden">
-      <div className="flex items-baseline justify-between gap-2 border-b border-line px-4 py-3">
-        <h2 className="text-[17px] font-bold text-fg">{t.share.segmentShare}</h2>
-        <span className="text-[11.5px] text-muted">{t.share.segmentShareNote}</span>
-      </div>
-      <div className="flex-1 p-3" style={{ minHeight: height }}>
+  const chart = useMemo(
+    () => (
+      <ChartMount height={height}>
         <ResponsiveContainer width="100%" height={height} initialDimension={{ width: 600, height }}>
           <BarChart
             data={bars}
@@ -725,19 +715,27 @@ function SegmentShare({ rows, money, hover, setHover }: { rows: ShareRow[]; mone
               itemStyle={{ color: "var(--color-fg-2)", fontFamily: "var(--font-mono)" }}
               formatter={(_v, _n, item) => [`${money(item.payload.amount)} · ${item.payload.share.toFixed(1)}%`, t.share.amount]}
             />
-            <Bar dataKey="share" radius={[0, 4, 4, 0]} maxBarSize={18} isAnimationActive={false}>
+            <Bar dataKey="share" radius={[0, 4, 4, 0]} maxBarSize={18} {...chartAnim}>
               {bars.map((b, i) => (
-                <Cell
-                  key={b.key}
-                  fill={b.other ? OTHER_COLOR : SLICE_COLORS[Math.min(i, SLICE_COLORS.length - 1)]}
-                  fillOpacity={hover === null || hover === b.key ? 1 : 0.45}
-                  style={cellFade}
-                />
+                <Cell key={b.key} fill={b.other ? OTHER_COLOR : SLICE_COLORS[Math.min(i, SLICE_COLORS.length - 1)]} />
               ))}
               <LabelList dataKey="share" position="right" formatter={(v) => `${Number(v).toFixed(1)}%`} style={{ fill: "var(--color-fg-2)", fontSize: 11, fontFamily: "var(--font-mono)" }} />
             </Bar>
           </BarChart>
         </ResponsiveContainer>
+      </ChartMount>
+    ),
+    [bars, target, height, money, setHover, t],
+  );
+  return (
+    <Panel className="flex flex-col overflow-hidden">
+      <div className="flex items-baseline justify-between gap-2 border-b border-line px-4 py-3">
+        <h2 className="text-[17px] font-bold text-fg">{t.share.segmentShare}</h2>
+        <span className="text-[11.5px] text-muted">{t.share.segmentShareNote}</span>
+      </div>
+      <div className={cn("flex-1 p-3", cls)} style={{ minHeight: height }}>
+        {style}
+        {chart}
       </div>
     </Panel>
   );
@@ -749,67 +747,56 @@ const CUR_LINE = "var(--color-aorus)";
 const PREV_LINE = "color-mix(in oklab, var(--color-aorus) 45%, transparent)";
 const range = (ms: string[]) => (ms.length ? (ms.length === 1 ? label(ms[0]) : `${label(ms[0])} – ${label(ms[ms.length - 1])}`) : "");
 
+type CompareRow = { name: string; amount: number; prevAmount: number; qty: number; prevQty: number };
+
 /** Combo chart of this period against the previous one: revenue bars (left axis), units lines (right axis) */
-function CompareChart({ data, money, height = 250 }: { data: { name: string; amount: number; prevAmount: number; qty: number; prevQty: number }[]; money: (n: number) => string; height?: number }) {
+function CompareChart({ data, money, height = 250 }: { data: CompareRow[]; money: (n: number) => string; height?: number }) {
   const t = useT(salesMessages);
-  const rows = useTweenRows(data, ["amount", "prevAmount", "qty", "prevQty"], { stagger: 70 });
-  const { hover, chartProps } = useChartHover();
+  const rows = useRevealedRows(data, ["amount", "prevAmount", "qty", "prevQty"]);
   return (
-    <div style={{ height }}>
-      <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 600, height }}>
-        <ComposedChart data={rows} margin={{ top: 8, right: 4, bottom: 0, left: 0 }} barGap={2} {...chartProps}>
-          <CartesianGrid vertical={false} stroke="var(--color-line-2)" />
-          <XAxis dataKey="name" tickLine={false} axisLine={false} tick={{ ...axisTick, fill: "var(--color-fg-2)" }} interval={0} />
-          <YAxis yAxisId="amount" width={76} tickLine={false} axisLine={false} tickFormatter={(v: number) => money(v)} tick={axisTick} />
-          <YAxis yAxisId="qty" orientation="right" width={48} tickLine={false} axisLine={false} tickFormatter={(v: number) => fmtNum(Math.round(v))} tick={axisTick} />
-          <Tooltip
-            {...tooltipFollow}
-            cursor={{ fill: "var(--color-accent-tint)" }}
-            contentStyle={tooltipBox}
-            labelStyle={{ color: "var(--color-fg)", fontWeight: 600 }}
-            itemStyle={{ color: "var(--color-fg-2)", fontFamily: "var(--font-mono)" }}
-            formatter={(v, name) => [name === t.share.amountCur || name === t.share.amountPrev ? `${fmtNum(Math.round(Number(v)))} VNĐ` : fmtNum(Math.round(Number(v))), name]}
-          />
-          <Legend iconSize={10} wrapperStyle={{ fontSize: 11.5, color: "var(--color-fg-2)" }} />
-          {(["amount", "prevAmount"] as const).map((k) => (
-            <Bar
-              key={k}
-              yAxisId="amount"
-              dataKey={k}
-              name={k === "amount" ? t.share.amountCur : t.share.amountPrev}
-              fill={k === "amount" ? CUR_BAR : PREV_BAR}
-              radius={[3, 3, 0, 0]}
-              maxBarSize={34}
-              isAnimationActive={false}
-            >
-              {rows.map((_, i) => (
-                <Cell key={i} fillOpacity={dimmed(hover, i)} style={cellFade} />
-              ))}
-            </Bar>
-          ))}
-          <Line
-            yAxisId="qty"
-            dataKey="qty"
-            name={t.share.qtyCur}
-            stroke={CUR_LINE}
-            strokeWidth={2.5}
-            dot={{ r: DOT_R, fill: CUR_LINE, strokeWidth: 0 }}
-            activeDot={{ r: ACTIVE_DOT_R, fill: CUR_LINE, strokeWidth: 0 }}
-            isAnimationActive={false}
-          />
-          <Line
-            yAxisId="qty"
-            dataKey="prevQty"
-            name={t.share.qtyPrev}
-            stroke={PREV_LINE}
-            strokeWidth={2}
-            strokeDasharray="4 3"
-            dot={{ r: 3, fill: PREV_LINE, strokeWidth: 0 }}
-            activeDot={{ r: ACTIVE_DOT_R - 0.5, fill: PREV_LINE, strokeWidth: 0 }}
-            isAnimationActive={false}
-          />
-        </ComposedChart>
-      </ResponsiveContainer>
+    <div className="chart-dim" style={{ height }}>
+      <ChartMount height="100%">
+        <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 600, height }}>
+          <ComposedChart data={rows} margin={{ top: 8, right: 4, bottom: 0, left: 0 }} barGap={2}>
+            <CartesianGrid vertical={false} stroke="var(--color-line-2)" />
+            <XAxis dataKey="name" tickLine={false} axisLine={false} tick={{ ...axisTick, fill: "var(--color-fg-2)" }} interval={0} />
+            <YAxis yAxisId="amount" width={76} tickLine={false} axisLine={false} tickFormatter={(v: number) => money(v)} tick={axisTick} />
+            <YAxis yAxisId="qty" orientation="right" width={48} tickLine={false} axisLine={false} tickFormatter={(v: number) => fmtNum(Math.round(v))} tick={axisTick} />
+            <Tooltip
+              {...tooltipFollow}
+              cursor={{ fill: "var(--color-accent-tint)" }}
+              contentStyle={tooltipBox}
+              labelStyle={{ color: "var(--color-fg)", fontWeight: 600 }}
+              itemStyle={{ color: "var(--color-fg-2)", fontFamily: "var(--font-mono)" }}
+              formatter={(v, name) => [name === t.share.amountCur || name === t.share.amountPrev ? `${fmtNum(Number(v))} VNĐ` : fmtNum(Number(v)), name]}
+            />
+            <Legend iconSize={10} wrapperStyle={{ fontSize: 11.5, color: "var(--color-fg-2)" }} />
+            <Bar yAxisId="amount" dataKey="amount" name={t.share.amountCur} fill={CUR_BAR} radius={[3, 3, 0, 0]} maxBarSize={34} activeBar={activeBar} {...chartAnim} />
+            <Bar yAxisId="amount" dataKey="prevAmount" name={t.share.amountPrev} fill={PREV_BAR} radius={[3, 3, 0, 0]} maxBarSize={34} activeBar={activeBar} {...chartAnim} />
+            <Line
+              yAxisId="qty"
+              dataKey="qty"
+              name={t.share.qtyCur}
+              stroke={CUR_LINE}
+              strokeWidth={2.5}
+              dot={{ r: DOT_R, fill: CUR_LINE, strokeWidth: 0 }}
+              activeDot={{ r: ACTIVE_DOT_R, fill: CUR_LINE, strokeWidth: 0 }}
+              {...chartAnim}
+            />
+            <Line
+              yAxisId="qty"
+              dataKey="prevQty"
+              name={t.share.qtyPrev}
+              stroke={PREV_LINE}
+              strokeWidth={2}
+              strokeDasharray="4 3"
+              dot={{ r: 3, fill: PREV_LINE, strokeWidth: 0 }}
+              activeDot={{ r: ACTIVE_DOT_R - 0.5, fill: PREV_LINE, strokeWidth: 0 }}
+              {...chartAnim}
+            />
+          </ComposedChart>
+        </ResponsiveContainer>
+      </ChartMount>
     </div>
   );
 }
@@ -833,6 +820,7 @@ function NppCompare({
   money: (n: number) => string;
 }) {
   const t = useT(salesMessages);
+  const data = useMemo(() => rows.map((r) => ({ name: r.label, amount: r.amount, prevAmount: r.prevAmount, qty: r.qty, prevQty: r.prevQty })), [rows]);
   return (
     <Panel className="flex flex-col overflow-hidden">
       <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-line px-4 py-3">
@@ -840,7 +828,7 @@ function NppCompare({
         <span className="num text-[11.5px] text-muted">{t.share.periods(range(months), range(prevMonths))}</span>
       </div>
       <div className="flex-1 p-3">
-        <CompareChart data={rows.map((r) => ({ name: r.label, amount: r.amount, prevAmount: r.prevAmount, qty: r.qty, prevQty: r.prevQty }))} money={money} />
+        <CompareChart data={data} money={money} />
       </div>
     </Panel>
   );
@@ -857,7 +845,7 @@ function Dealers({ report, money }: { report: SalesReport; money: (n: number) =>
   const sel = list.find((c) => c.key === picked) ?? list[0] ?? null;
   const months = report.months.map((m) => m.month);
   const chart = sel
-    ? months.map((m, i) => ({
+    ? report.months.map(({ month: m }, i) => ({
         name: t.share.monthPair(Number(m.slice(5)), Number(report.prevMonths[i]?.slice(5) ?? 0)),
         amount: sel.series.cur[i]?.amount ?? 0,
         prevAmount: sel.series.prev[i]?.amount ?? 0,

@@ -1,11 +1,11 @@
 "use client";
 
 import { ArrowLeftRightIcon, ChevronDownIcon } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
-import { Bar, CartesianGrid, Cell, ComposedChart, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Bar, CartesianGrid, ComposedChart, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
-import { ACTIVE_DOT_R, DOT_R, cellFade, dimmed, tooltipFollow, useChartHover } from "@/components/ui/chart-hover";
-import { Reveal, useTween, useTweenRows } from "@/components/ui/motion";
+import { ACTIVE_DOT_R, DOT_R, activeBar, tooltipFollow } from "@/components/ui/chart-hover";
+import { ChartMount, Reveal, chartAnim, useDomTween, useRevealedRows } from "@/components/ui/motion";
 import { ErrorState } from "@/components/ui/states";
 import { useLocale, useT } from "@/lib/i18n/client";
 import { importsMessages } from "@/lib/i18n/messages/imports";
@@ -209,26 +209,82 @@ function YearChart({ data, filter }: { data: ImportData; filter: ChartFilter }) 
   const series = useMemo(() => yearSeries(data, filter), [data, filter]);
   // Both: value bars + units lines; one measure alone: bars side by side per year, on the left axis
   const [metric, setMetric] = useState<"both" | "qty" | "rev">("both");
-  // Every year keeps its series (hidden when not chosen) so a change of year or measure tweens instead of redrawing;
-  // series not on screen tween to 0, so they grow back from the axis
+  // Every year keeps its series (hidden when not chosen) so a change of year or measure animates from the bars on
+  // screen instead of redrawing; units not shown go to 0 and their line and axis fade out
   const target = series.map((s) => {
     const o: Record<string, number | string | null> = { name: t.monthChip(s.month) };
     for (const y of YEARS) {
-      const on = years.includes(y);
       const v = s.byYear[y];
-      o[`bar${y}`] = !on ? 0 : ((metric === "qty" ? v?.qty : v?.rev) ?? null);
-      o[`qty${y}`] = !on || metric !== "both" ? 0 : (v?.qty ?? null);
+      o[`bar${y}`] = !years.includes(y) ? 0 : ((metric === "qty" ? v?.qty : v?.rev) ?? null);
+      o[`qty${y}`] = !years.includes(y) || metric !== "both" ? 0 : (v?.qty ?? null);
     }
     return o;
   });
-  const rows = useTweenRows(
+  const rows = useRevealedRows(
     target,
     YEARS.flatMap((y) => [`bar${y}`, `qty${y}`]),
-    { stagger: 60 },
   );
-  const lines = useTween(metric === "both" ? 1 : 0);
-  const { hover, chartProps } = useChartHover();
+  const lines = metric === "both" ? 1 : 0;
   const tick = { fontSize: 12, fontFamily: "var(--font-mono)" };
+  const chart = (
+    <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 1000, height: 300 }}>
+      <ComposedChart data={rows} margin={{ top: 8, right: 4, bottom: 0, left: 0 }} barGap={2}>
+        <CartesianGrid vertical={false} stroke="var(--color-line-2)" strokeDasharray="3 3" />
+        <XAxis dataKey="name" tickLine={false} axisLine={{ stroke: "var(--color-line)" }} tick={{ ...tick, fill: "var(--color-fg-2)" }} />
+        <YAxis
+          yAxisId="rev"
+          width={64}
+          tickLine={false}
+          axisLine={false}
+          tickFormatter={(v: number) => compact(v)}
+          tick={{ ...tick, fill: metric === "qty" ? "var(--color-imp-qty)" : "var(--color-imp-rev)" }}
+        />
+        {/* Kept for one measure too, its labels faded out with the lines */}
+        <YAxis yAxisId="qty" orientation="right" width={64} tickLine={false} axisLine={false} tickFormatter={(v: number) => compact(v)} tick={{ ...tick, fill: "var(--color-imp-qty)", fillOpacity: lines }} />
+        <Tooltip
+          {...tooltipFollow}
+          cursor={{ fill: "var(--color-accent-tint)" }}
+          contentStyle={{ background: "var(--color-head)", border: "1px solid var(--color-line)", borderRadius: 6, fontSize: 12.5 }}
+          labelStyle={{ color: "var(--color-fg)", fontWeight: 600 }}
+          itemStyle={{ fontFamily: "var(--font-mono)" }}
+          formatter={(v, key) => {
+            const k = String(key);
+            const y = Number(k.slice(3));
+            return k.startsWith("bar") && metric !== "qty" ? [`${num(Number(v))} USD`, `${t.compare.rev} ${y}`] : [`${num(Number(v))} ${t.compare.unit}`, `${t.compare.qty} ${y}`];
+          }}
+        />
+        {YEARS.map((y) => (
+          <Bar
+            key={`b${y}`}
+            yAxisId="rev"
+            dataKey={`bar${y}`}
+            hide={!years.includes(y)}
+            fill={YEAR_COLORS[y].bar}
+            radius={[3, 3, 0, 0]}
+            maxBarSize={years.length > 1 ? 22 : 44}
+            activeBar={activeBar}
+            {...chartAnim}
+          />
+        ))}
+        {YEARS.map((y) => (
+          <Line
+            key={`l${y}`}
+            yAxisId="qty"
+            dataKey={`qty${y}`}
+            hide={!years.includes(y)}
+            tooltipType={lines ? undefined : "none"}
+            stroke={YEAR_COLORS[y].line}
+            strokeOpacity={lines}
+            strokeWidth={2.5}
+            dot={{ r: DOT_R, fill: "var(--color-panel)", stroke: YEAR_COLORS[y].line, strokeWidth: 2, strokeOpacity: lines, fillOpacity: lines }}
+            activeDot={lines ? { r: ACTIVE_DOT_R, fill: "var(--color-panel)", stroke: YEAR_COLORS[y].line, strokeWidth: 2 } : false}
+            connectNulls={false}
+            {...chartAnim}
+          />
+        ))}
+      </ComposedChart>
+    </ResponsiveContainer>
+  );
   return (
     <section className="flex min-w-0 flex-col gap-3 rounded-[10px] border border-line bg-panel px-5 py-4.5">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -248,76 +304,8 @@ function YearChart({ data, filter }: { data: ImportData; filter: ChartFilter }) 
           ))}
         </div>
       </div>
-      <div className="h-[300px]">
-        <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 1000, height: 300 }}>
-          <ComposedChart data={rows} margin={{ top: 8, right: 4, bottom: 0, left: 0 }} barGap={2} {...chartProps}>
-            <CartesianGrid vertical={false} stroke="var(--color-line-2)" strokeDasharray="3 3" />
-            <XAxis dataKey="name" tickLine={false} axisLine={{ stroke: "var(--color-line)" }} tick={{ ...tick, fill: "var(--color-fg-2)" }} />
-            <YAxis
-              yAxisId="rev"
-              width={64}
-              tickLine={false}
-              axisLine={false}
-              tickFormatter={(v: number) => compact(v)}
-              tick={{ ...tick, fill: metric === "qty" ? "var(--color-imp-qty)" : "var(--color-imp-rev)" }}
-            />
-            {/* Kept for one measure too, its labels faded out with the lines */}
-            <YAxis
-              yAxisId="qty"
-              orientation="right"
-              width={64}
-              tickLine={false}
-              axisLine={false}
-              tickFormatter={(v: number) => compact(v)}
-              tick={{ ...tick, fill: "var(--color-imp-qty)", fillOpacity: lines }}
-            />
-            <Tooltip
-              {...tooltipFollow}
-              cursor={{ fill: "var(--color-accent-tint)" }}
-              contentStyle={{ background: "var(--color-head)", border: "1px solid var(--color-line)", borderRadius: 6, fontSize: 12.5 }}
-              labelStyle={{ color: "var(--color-fg)", fontWeight: 600 }}
-              itemStyle={{ fontFamily: "var(--font-mono)" }}
-              formatter={(v, key) => {
-                const k = String(key);
-                const y = Number(k.slice(3));
-                const n = num(Math.round(Number(v)));
-                return k.startsWith("bar") && metric !== "qty" ? [`${n} USD`, `${t.compare.rev} ${y}`] : [`${n} ${t.compare.unit}`, `${t.compare.qty} ${y}`];
-              }}
-            />
-            {YEARS.map((y) => (
-              <Bar
-                key={`b${y}`}
-                yAxisId="rev"
-                dataKey={`bar${y}`}
-                hide={!years.includes(y)}
-                fill={YEAR_COLORS[y].bar}
-                radius={[3, 3, 0, 0]}
-                maxBarSize={years.length > 1 ? 22 : 44}
-                isAnimationActive={false}
-              >
-                {rows.map((_, i) => (
-                  <Cell key={i} fillOpacity={dimmed(hover, i)} style={cellFade} />
-                ))}
-              </Bar>
-            ))}
-            {YEARS.map((y) => (
-              <Line
-                key={`l${y}`}
-                yAxisId="qty"
-                dataKey={`qty${y}`}
-                hide={!years.includes(y)}
-                tooltipType={metric === "both" ? undefined : "none"}
-                stroke={YEAR_COLORS[y].line}
-                strokeOpacity={lines}
-                strokeWidth={2.5}
-                dot={{ r: DOT_R, fill: "var(--color-panel)", stroke: YEAR_COLORS[y].line, strokeWidth: 2, strokeOpacity: lines, fillOpacity: lines }}
-                activeDot={metric === "both" ? { r: ACTIVE_DOT_R, fill: "var(--color-panel)", stroke: YEAR_COLORS[y].line, strokeWidth: 2 } : false}
-                connectNulls={false}
-                isAnimationActive={false}
-              />
-            ))}
-          </ComposedChart>
-        </ResponsiveContainer>
+      <div className="chart-fade chart-dim h-[300px]">
+        <ChartMount height="100%">{chart}</ChartMount>
       </div>
       {/* Legend under the chart: one bar swatch and one line swatch per year */}
       <ul className="flex flex-wrap items-center justify-center gap-x-5 gap-y-1.5 text-[13px] text-fg-2">
@@ -624,14 +612,31 @@ function PivotCard({
 
 /** A pivot number that counts up, its heat colour (share of the largest value) tweening with it */
 function NumCell({ value, heatMax, show, className, animate }: { value: number; heatMax: number; show: (v: number) => string; className: string; animate: boolean }) {
-  const v = useTween(value, { enabled: animate });
-  const ratio = heatMax && v > 0 ? Math.min(1, v / heatMax) : 0;
+  const ref = useRef<HTMLTableCellElement>(null);
+  // Written straight into the cell each frame: a big table costs no React render while it counts
+  useDomTween(
+    value,
+    (v) => {
+      const el = ref.current;
+      if (!el) return;
+      const node = el.firstChild;
+      if (node) node.nodeValue = show(v);
+      el.style.background = heat(v, heatMax);
+    },
+    { enabled: animate },
+  );
+  const start = animate ? 0 : value;
   return (
-    <td className={className} style={ratio > 0 ? { background: `rgba(0,212,230,${(0.05 + ratio * 0.5).toFixed(3)})` } : undefined}>
-      {show(v)}
+    <td ref={ref} className={className} style={{ background: heat(start, heatMax) }}>
+      {show(start)}
     </td>
   );
 }
+
+const heat = (v: number, max: number) => {
+  const ratio = max && v > 0 ? Math.min(1, v / max) : 0;
+  return ratio > 0 ? `rgba(0,212,230,${(0.05 + ratio * 0.5).toFixed(3)})` : "";
+};
 
 // --- Multi-select popover with presets, "clear" and an optional search box ---
 
