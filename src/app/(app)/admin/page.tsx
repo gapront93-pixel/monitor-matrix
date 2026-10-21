@@ -5,6 +5,7 @@ import { ButtonLink } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/panel";
 import { EmptyState } from "@/components/ui/states";
 import { requireUser } from "@/lib/auth";
+import { getCatalog, representative } from "@/lib/catalog";
 import { importInfo } from "@/lib/import-file";
 import { fmtDate, fmtDateTime } from "@/lib/format";
 import { adminMessages } from "@/lib/i18n/messages/admin";
@@ -39,7 +40,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
   const manageUsers = can(me.role, "users");
   const importData = can(me.role, "sales");
 
-  const [dealers, used, segments, imports, unmatched, products, users, imp] = await Promise.all([
+  const [dealers, used, segments, imports, unmatched, products, users, imp, catalog] = await Promise.all([
     prisma.dealer.findMany({ orderBy: { sortOrder: "asc" } }),
     prisma.priceSnapshot.groupBy({ by: ["dealerId"], _count: { _all: true } }),
     prisma.segment.findMany({ where: { hidden: false }, orderBy: { sortOrder: "asc" } }),
@@ -52,6 +53,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
     prisma.product.findMany({ where: { isGigabyte: true, hidden: false }, select: { id: true, model: true }, orderBy: { model: "asc" } }),
     manageUsers ? prisma.user.findMany({ orderBy: [{ active: "desc" }, { role: "asc" }, { name: "asc" }], include: { _count: { select: { imports: true } } } }) : Promise.resolve([]),
     importData ? importInfo().catch(() => null) : Promise.resolve(null),
+    getCatalog(),
   ]);
   const usedBy = new Map(used.map((u) => [u.dealerId, u._count._all]));
 
@@ -82,7 +84,18 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
           status: d.status,
           prices: usedBy.get(d.id) ?? 0,
         }))}
-        segments={segments.map((s) => ({ id: s.id, name: s.shortName ?? s.nameVi, verdict: s.verdict, conclusionVi: s.conclusionVi ?? "" }))}
+        segments={segments.map((s) => {
+          const mine = catalog.products.filter((p) => p.isGigabyte && p.segmentId === s.id);
+          return {
+            id: s.id,
+            name: s.shortName ?? s.nameVi,
+            verdict: s.verdict,
+            conclusionVi: s.conclusionVi ?? "",
+            representativeId: s.representativeProductId,
+            models: mine.map((p) => ({ id: p.id, model: p.model, hasImage: !!p.image })),
+            autoModel: representative({ id: s.id, representativeProductId: null }, catalog.products)?.model ?? null,
+          };
+        })}
         imports={imports.map((i) => ({
           id: i.id,
           day: fmtDate(i.capturedAt),

@@ -90,6 +90,9 @@
 
   --shadow-pop: 0 14px 36px rgba(0, 0, 0, 0.55);
   --shadow-float: 0 16px 40px rgba(0, 0, 0, 0.6);
+  /* Product photo stage on the Overview segment cards, and the glow of a segment with 10+ models */
+  --stage-gradient: radial-gradient(120% 90% at 50% 100%, #1a2130, #0e1117);
+  --shadow-feature: 0 0 0 1px rgba(0, 200, 255, 0.25), 0 8px 28px rgba(0, 200, 255, 0.12);
 
   /* The design has one breakpoint: 760px */
   --breakpoint-md: 47.5rem;
@@ -153,6 +156,8 @@
   --color-err-title: #a3231c;
   --shadow-pop: 0 14px 36px rgba(10, 14, 20, 0.16);
   --shadow-float: 0 16px 40px rgba(10, 14, 20, 0.18);
+  --stage-gradient: radial-gradient(120% 90% at 50% 100%, #ffffff, #e6eaf0);
+  --shadow-feature: 0 0 0 1px rgba(0, 194, 240, 0.3), 0 8px 28px rgba(0, 194, 240, 0.16);
 }
 @media (prefers-color-scheme: light) {
   :root[data-theme="system"] {
@@ -201,6 +206,8 @@
     --color-err-title: #a3231c;
     --shadow-pop: 0 14px 36px rgba(10, 14, 20, 0.16);
     --shadow-float: 0 16px 40px rgba(10, 14, 20, 0.18);
+    --stage-gradient: radial-gradient(120% 90% at 50% 100%, #ffffff, #e6eaf0);
+    --shadow-feature: 0 0 0 1px rgba(0, 194, 240, 0.3), 0 8px 28px rgba(0, 194, 240, 0.16);
   }
 }
 

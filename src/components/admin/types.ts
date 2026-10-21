@@ -9,7 +9,15 @@ export type AdminDealer = {
   prices: number; // price rows in history
 };
 
-export type AdminSegment = { id: string; name: string; verdict: "lead" | "even" | "weak" | null; conclusionVi: string };
+export type AdminSegment = {
+  id: string;
+  name: string;
+  verdict: "lead" | "even" | "weak" | null;
+  conclusionVi: string;
+  representativeId: number | null;
+  models: { id: number; model: string; hasImage: boolean }[]; // GIGABYTE models of the segment
+  autoModel: string | null; // shown when no model is picked
+};
 
 export type AdminImport = {
   id: number;

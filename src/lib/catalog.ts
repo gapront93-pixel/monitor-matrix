@@ -67,6 +67,7 @@ export type SegmentView = {
   conclusionVi: string | null;
   notes: string | null;
   sortOrder: number;
+  representativeProductId: number | null;
 };
 
 export type ImportView = { id: number; capturedAt: Date; createdAt: Date; source: string; fileName: string | null };
@@ -152,6 +153,7 @@ export const getCatalog = cache(async (day?: string): Promise<Catalog> => {
       conclusionVi: s.conclusionVi,
       notes: s.notes,
       sortOrder: s.sortOrder,
+      representativeProductId: s.representativeProductId,
     })),
     imports,
     asOf,
@@ -188,4 +190,14 @@ export function comparable(p: ProductView): Comparable & { line: string | null; 
     inStock: p.inStock,
     sellers: p.sellers,
   };
+}
+
+/** The GIGABYTE model whose photo stands for a segment: the one picked in admin if it has a photo, else the cheapest with a photo */
+export function representative(segment: Pick<SegmentView, "id" | "representativeProductId">, products: ProductView[]): ProductView | null {
+  const withPhoto = products.filter((p) => p.isGigabyte && p.segmentId === segment.id && p.image);
+  return (
+    withPhoto.find((p) => p.id === segment.representativeProductId) ??
+    [...withPhoto].sort((a, b) => (a.minPrice ?? Infinity) - (b.minPrice ?? Infinity) || a.model.localeCompare(b.model))[0] ??
+    null
+  );
 }

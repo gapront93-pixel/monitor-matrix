@@ -26,6 +26,9 @@ const vi = {
     noSegmentsText: "Chạy lệnh seed để nạp dữ liệu phân khúc.",
     mainRivals: "Đối thủ chính:",
     seeRivals: "Xem đối thủ →",
+    featured: "10+ MẪU",
+    imageOf: (s: string) => `Ảnh mẫu GIGABYTE đại diện ${s}`,
+    noImage: "Chưa có ảnh sản phẩm",
   },
   fields: {
     fob: "Giá FOB lô nhập gần nhất",
@@ -133,6 +136,9 @@ const en: typeof vi = {
     noSegmentsText: "Run the seed command to load the segments.",
     mainRivals: "Main rivals:",
     seeRivals: "See competitors →",
+    featured: "10+ MODELS",
+    imageOf: (s: string) => `GIGABYTE model representing ${s}`,
+    noImage: "No product photo yet",
   },
   fields: {
     fob: "FOB of the latest import",

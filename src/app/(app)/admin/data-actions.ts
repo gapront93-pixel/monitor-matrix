@@ -104,13 +104,20 @@ export async function deleteDealer(id: string): Promise<ActionResult> {
 const SegmentPatch = z.object({
   verdict: z.enum(["lead", "even", "weak"]).nullable().optional(),
   conclusionVi: z.string().trim().max(4000).optional(),
+  representativeProductId: z.number().int().positive().nullable().optional(),
 });
 
-export async function updateSegment(id: string, patch: { verdict?: "lead" | "even" | "weak" | null; conclusionVi?: string }): Promise<ActionResult> {
+export async function updateSegment(
+  id: string,
+  patch: { verdict?: "lead" | "even" | "weak" | null; conclusionVi?: string; representativeProductId?: number | null },
+): Promise<ActionResult> {
   const denied = await guard("segments");
   if (denied) return denied;
   const p = SegmentPatch.safeParse(patch);
   if (!p.success) return fail(p.error.issues[0].message);
+  // Only a GIGABYTE model of this segment can stand for it
+  if (p.data.representativeProductId && !(await prisma.product.count({ where: { id: p.data.representativeProductId, segmentId: id, isGigabyte: true } })))
+    return fail((await t()).notInSegment);
   await prisma.segment.update({ where: { id }, data: p.data });
   return done((await t()).segmentSaved);
 }

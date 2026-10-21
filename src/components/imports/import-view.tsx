@@ -2,8 +2,10 @@
 
 import { ArrowLeftRightIcon, ChevronDownIcon } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { Bar, CartesianGrid, ComposedChart, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { Bar, CartesianGrid, Cell, ComposedChart, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
+import { ACTIVE_DOT_R, DOT_R, cellFade, dimmed, tooltipFollow, useChartHover } from "@/components/ui/chart-hover";
+import { Reveal, useTween, useTweenRows } from "@/components/ui/motion";
 import { ErrorState } from "@/components/ui/states";
 import { useLocale, useT } from "@/lib/i18n/client";
 import { importsMessages } from "@/lib/i18n/messages/imports";
@@ -99,9 +101,15 @@ export function ImportView() {
         <div className="py-20 text-center text-[14px] text-muted">{t.loading}</div>
       ) : (
         <>
-          <YearChart data={data} filter={filter} />
-          <PivotBuilder data={data} />
-          <ModelTable data={data} />
+          <Reveal>
+            <YearChart data={data} filter={filter} />
+          </Reveal>
+          <Reveal>
+            <PivotBuilder data={data} />
+          </Reveal>
+          <Reveal>
+            <ModelTable data={data} />
+          </Reveal>
         </>
       )}
     </div>
@@ -201,15 +209,25 @@ function YearChart({ data, filter }: { data: ImportData; filter: ChartFilter }) 
   const series = useMemo(() => yearSeries(data, filter), [data, filter]);
   // Both: value bars + units lines; one measure alone: bars side by side per year, on the left axis
   const [metric, setMetric] = useState<"both" | "qty" | "rev">("both");
-  const barKey = metric === "qty" ? "qty" : "rev";
-  const rows = series.map((s) => {
+  // Every year keeps its series (hidden when not chosen) so a change of year or measure tweens instead of redrawing;
+  // series not on screen tween to 0, so they grow back from the axis
+  const target = series.map((s) => {
     const o: Record<string, number | string | null> = { name: t.monthChip(s.month) };
-    for (const y of years) {
-      o[`rev${y}`] = s.byYear[y]?.rev ?? null;
-      o[`qty${y}`] = s.byYear[y]?.qty ?? null;
+    for (const y of YEARS) {
+      const on = years.includes(y);
+      const v = s.byYear[y];
+      o[`bar${y}`] = !on ? 0 : ((metric === "qty" ? v?.qty : v?.rev) ?? null);
+      o[`qty${y}`] = !on || metric !== "both" ? 0 : (v?.qty ?? null);
     }
     return o;
   });
+  const rows = useTweenRows(
+    target,
+    YEARS.flatMap((y) => [`bar${y}`, `qty${y}`]),
+    { stagger: 60 },
+  );
+  const lines = useTween(metric === "both" ? 1 : 0);
+  const { hover, chartProps } = useChartHover();
   const tick = { fontSize: 12, fontFamily: "var(--font-mono)" };
   return (
     <section className="flex min-w-0 flex-col gap-3 rounded-[10px] border border-line bg-panel px-5 py-4.5">
@@ -232,8 +250,7 @@ function YearChart({ data, filter }: { data: ImportData; filter: ChartFilter }) 
       </div>
       <div className="h-[300px]">
         <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 1000, height: 300 }}>
-          {/* Remounted when the years or the measure change: Recharts keeps series in the order they were first added */}
-          <ComposedChart key={`${years.join("-")}-${metric}`} data={rows} margin={{ top: 8, right: 4, bottom: 0, left: 0 }} barGap={2}>
+          <ComposedChart data={rows} margin={{ top: 8, right: 4, bottom: 0, left: 0 }} barGap={2} {...chartProps}>
             <CartesianGrid vertical={false} stroke="var(--color-line-2)" strokeDasharray="3 3" />
             <XAxis dataKey="name" tickLine={false} axisLine={{ stroke: "var(--color-line)" }} tick={{ ...tick, fill: "var(--color-fg-2)" }} />
             <YAxis
@@ -244,10 +261,18 @@ function YearChart({ data, filter }: { data: ImportData; filter: ChartFilter }) 
               tickFormatter={(v: number) => compact(v)}
               tick={{ ...tick, fill: metric === "qty" ? "var(--color-imp-qty)" : "var(--color-imp-rev)" }}
             />
-            {metric === "both" && (
-              <YAxis yAxisId="qty" orientation="right" width={64} tickLine={false} axisLine={false} tickFormatter={(v: number) => compact(v)} tick={{ ...tick, fill: "var(--color-imp-qty)" }} />
-            )}
+            {/* Kept for one measure too, its labels faded out with the lines */}
+            <YAxis
+              yAxisId="qty"
+              orientation="right"
+              width={64}
+              tickLine={false}
+              axisLine={false}
+              tickFormatter={(v: number) => compact(v)}
+              tick={{ ...tick, fill: "var(--color-imp-qty)", fillOpacity: lines }}
+            />
             <Tooltip
+              {...tooltipFollow}
               cursor={{ fill: "var(--color-accent-tint)" }}
               contentStyle={{ background: "var(--color-head)", border: "1px solid var(--color-line)", borderRadius: 6, fontSize: 12.5 }}
               labelStyle={{ color: "var(--color-fg)", fontWeight: 600 }}
@@ -255,20 +280,38 @@ function YearChart({ data, filter }: { data: ImportData; filter: ChartFilter }) 
               formatter={(v, key) => {
                 const k = String(key);
                 const y = Number(k.slice(3));
-                return k.startsWith("rev") ? [`${num(Number(v))} USD`, `${t.compare.rev} ${y}`] : [`${num(Number(v))} ${t.compare.unit}`, `${t.compare.qty} ${y}`];
+                const n = num(Math.round(Number(v)));
+                return k.startsWith("bar") && metric !== "qty" ? [`${n} USD`, `${t.compare.rev} ${y}`] : [`${n} ${t.compare.unit}`, `${t.compare.qty} ${y}`];
               }}
             />
-            {years.map((y) => (
-              <Bar key={`b${y}`} yAxisId="rev" dataKey={`${barKey}${y}`} fill={YEAR_COLORS[y].bar} radius={[3, 3, 0, 0]} maxBarSize={years.length > 1 ? 22 : 44} isAnimationActive={false} />
+            {YEARS.map((y) => (
+              <Bar
+                key={`b${y}`}
+                yAxisId="rev"
+                dataKey={`bar${y}`}
+                hide={!years.includes(y)}
+                fill={YEAR_COLORS[y].bar}
+                radius={[3, 3, 0, 0]}
+                maxBarSize={years.length > 1 ? 22 : 44}
+                isAnimationActive={false}
+              >
+                {rows.map((_, i) => (
+                  <Cell key={i} fillOpacity={dimmed(hover, i)} style={cellFade} />
+                ))}
+              </Bar>
             ))}
-            {metric === "both" && years.map((y) => (
+            {YEARS.map((y) => (
               <Line
                 key={`l${y}`}
                 yAxisId="qty"
                 dataKey={`qty${y}`}
+                hide={!years.includes(y)}
+                tooltipType={metric === "both" ? undefined : "none"}
                 stroke={YEAR_COLORS[y].line}
+                strokeOpacity={lines}
                 strokeWidth={2.5}
-                dot={{ r: 3.5, fill: "var(--color-panel)", stroke: YEAR_COLORS[y].line, strokeWidth: 2 }}
+                dot={{ r: DOT_R, fill: "var(--color-panel)", stroke: YEAR_COLORS[y].line, strokeWidth: 2, strokeOpacity: lines, fillOpacity: lines }}
+                activeDot={metric === "both" ? { r: ACTIVE_DOT_R, fill: "var(--color-panel)", stroke: YEAR_COLORS[y].line, strokeWidth: 2 } : false}
                 connectNulls={false}
                 isAnimationActive={false}
               />
@@ -463,6 +506,8 @@ function PivotCard({
   const show = (v: number) => (table.unit === "pct" ? `${dec(v)}%` : table.unit === "usd" ? dec(v) : num(v));
   const leaf = Math.max(0, ...table.rows.map((r) => r.l));
   const mx = heatMax(table);
+  // Cells count up with their heat colour; very large tables are drawn at once
+  const animate = table.rows.length * nc <= 1500;
   const parents = table.rows.flatMap((_, ri) => (hasKids(table, ri) ? [ri] : []));
   const anyCollapsed = parents.some((ri) => collapsed.has(ri));
   const toggle = (ri: number) => {
@@ -552,19 +597,18 @@ function PivotCard({
                     const isNum = typeof v === "number";
                     const totalCol = isTotalCol(table, i);
                     const g = isRevCol(table, i) ? mx.r : mx.q;
-                    const ratio = isNum && !grand && !totalCol && r.l === leaf && g ? (v as number) / g : 0;
-                    return (
-                      <td
-                        key={i}
-                        className={cn(
-                          "border-b border-line-2 px-2.5 py-1.5 text-right whitespace-nowrap",
-                          grand || parent || totalCol ? "font-semibold" : "font-normal",
-                          isNum ? (hlRow || table.cols[i] === HIGHLIGHT ? "text-key" : "text-fg") : "text-faint",
-                          grand ? "bg-head" : ratio > 0 ? "" : parent || totalCol ? "bg-head/60" : "",
-                        )}
-                        style={ratio > 0 ? { background: `rgba(0,212,230,${(0.05 + ratio * 0.5).toFixed(3)})` } : undefined}
-                      >
-                        {isNum ? show(v as number) : v === "" ? "" : String(v)}
+                    const heat = isNum && !grand && !totalCol && r.l === leaf && g > 0 ? g : 0;
+                    const cls = cn(
+                      "border-b border-line-2 px-2.5 py-1.5 text-right whitespace-nowrap",
+                      grand || parent || totalCol ? "font-semibold" : "font-normal",
+                      isNum ? (hlRow || table.cols[i] === HIGHLIGHT ? "text-key" : "text-fg") : "text-faint",
+                      grand ? "bg-head" : heat && (v as number) > 0 ? "" : parent || totalCol ? "bg-head/60" : "",
+                    );
+                    return isNum ? (
+                      <NumCell key={i} value={v as number} heatMax={heat} show={show} className={cls} animate={animate} />
+                    ) : (
+                      <td key={i} className={cls}>
+                        {v === "" ? "" : String(v)}
                       </td>
                     );
                   })}
@@ -575,6 +619,17 @@ function PivotCard({
         </table>
       </div>
     </div>
+  );
+}
+
+/** A pivot number that counts up, its heat colour (share of the largest value) tweening with it */
+function NumCell({ value, heatMax, show, className, animate }: { value: number; heatMax: number; show: (v: number) => string; className: string; animate: boolean }) {
+  const v = useTween(value, { enabled: animate });
+  const ratio = heatMax && v > 0 ? Math.min(1, v / heatMax) : 0;
+  return (
+    <td className={className} style={ratio > 0 ? { background: `rgba(0,212,230,${(0.05 + ratio * 0.5).toFixed(3)})` } : undefined}>
+      {show(v)}
+    </td>
   );
 }
 

@@ -8,6 +8,8 @@ import { Bar, BarChart, CartesianGrid, Cell, ComposedChart, LabelList, Legend, L
 
 import { ProductImage } from "@/components/product-image";
 import { Chip } from "@/components/ui/chip";
+import { ACTIVE_DOT_R, DOT_R, cellFade, dimmed, tooltipFollow, useChartHover } from "@/components/ui/chart-hover";
+import { CountUp, Reveal, useTweenRows, useTweens } from "@/components/ui/motion";
 import { Panel } from "@/components/ui/panel";
 import { EmptyState } from "@/components/ui/states";
 import { fmtNum, fmtPct, fmtVndCompact } from "@/lib/format";
@@ -28,6 +30,11 @@ type ShareRow = { key: string; label: string; qty: number; amount: number };
 
 const label = (m: string) => `${m.slice(5)}/${m.slice(0, 4)}`;
 const pct = (v: number, total: number) => (total ? `${((v / total) * 100).toFixed(1)}%` : "—");
+const pct1 = (n: number) => `${n.toFixed(1)}%`;
+/** Share that counts up with its row */
+function Pct({ v, total }: { v: number; total: number }) {
+  return total ? <CountUp value={(v / total) * 100} format={pct1} /> : <>—</>;
+}
 
 // Donut slices along the cyan -> magenta -> pink steps of the vnpromotion dashboard, largest first; the rest is grey
 const SLICE_COLORS = ["#00c2f0", "#4aa8ff", "#7b7cff", "#a855f7", "#d02fe0", "#ff2bc4", "#ff6fb3"];
@@ -181,11 +188,13 @@ export function SalesView({ report, filter, range, segments }: Props) {
       ) : (
         <>
           {/* One row: units and revenue as the headline tiles (64%), the three smaller figures stacked beside them (36%) */}
+          <Reveal>
           <div className="grid gap-3 lg:grid-cols-[minmax(0,32fr)_minmax(0,32fr)_minmax(0,36fr)]">
             <HeroKpi
               tone="qty"
               label={t.kpi.qty}
-              value={fmtNum(totals.qty)}
+              value={totals.qty}
+              format={(n) => fmtNum(Math.round(n))}
               unit={t.kpi.qtyUnit}
               delta={delta(totals.qty, previous?.qty)}
               note={previous ? t.kpi.vsPrev(span) : t.kpi.noPrev}
@@ -193,68 +202,45 @@ export function SalesView({ report, filter, range, segments }: Props) {
             <HeroKpi
               tone="amount"
               label={t.kpi.amount}
-              value={money(totals.amount)}
+              value={totals.amount}
+              format={money}
               delta={delta(totals.amount, previous?.amount)}
               note={previous ? t.kpi.vsPrev(span) : t.kpi.noPrev}
               title={`${fmtNum(totals.amount)} VNĐ`}
             />
             <div className="grid gap-2 max-lg:grid-cols-3">
-              <SmallKpi label={t.kpi.asp} value={totals.qty > 0 ? fmtNum(Math.round(totals.amount / totals.qty)) : "—"} unit="VNĐ" />
-              <SmallKpi label={t.kpi.models} value={fmtNum(totals.models)} />
-              <SmallKpi label={t.kpi.customers} value={fmtNum(totals.customers)} />
+              <SmallKpi label={t.kpi.asp} value={totals.qty > 0 ? Math.round(totals.amount / totals.qty) : null} unit="VNĐ" />
+              <SmallKpi label={t.kpi.models} value={totals.models} />
+              <SmallKpi label={t.kpi.customers} value={totals.customers} />
             </div>
           </div>
+          </Reveal>
 
-          {/* Revenue as bars on the left axis, units as a line on the right axis */}
-          <Panel className="p-4">
-            <h2 className="mb-2 text-[17px] font-bold text-fg">{t.chart.title}</h2>
-            <div className="h-[260px]">
-              <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 900, height: 260 }}>
-                <ComposedChart data={report.months} margin={{ top: 8, right: 4, bottom: 0, left: 0 }}>
-                  <CartesianGrid vertical={false} stroke="var(--color-line-2)" />
-                  <XAxis dataKey="month" tickFormatter={label} tickLine={false} axisLine={false} tick={axisTick} />
-                  <YAxis yAxisId="amount" width={60} tickLine={false} axisLine={false} tickFormatter={(v: number) => money(v)} tick={axisTick} />
-                  <YAxis yAxisId="qty" orientation="right" width={52} tickLine={false} axisLine={false} tickFormatter={(v: number) => fmtNum(v)} tick={axisTick} />
-                  <Tooltip
-                    cursor={{ fill: "var(--color-accent-tint)" }}
-                    contentStyle={tooltipBox}
-                    labelStyle={{ color: "var(--color-fg)", fontWeight: 600 }}
-                    itemStyle={{ color: "var(--color-fg-2)", fontFamily: "var(--font-mono)" }}
-                    labelFormatter={(m) => label(String(m))}
-                    formatter={(v, name) => [name === t.chart.amount ? `${fmtNum(Number(v))} VNĐ` : fmtNum(Number(v)), name]}
-                  />
-                  <Legend iconSize={10} wrapperStyle={{ fontSize: 12, color: "var(--color-fg-2)" }} />
-                  <Bar yAxisId="amount" dataKey="amount" name={t.chart.amount} fill="var(--color-accent)" radius={[4, 4, 0, 0]} maxBarSize={40} isAnimationActive={false} />
-                  <Line
-                    yAxisId="qty"
-                    dataKey="qty"
-                    name={t.chart.qty}
-                    type="monotone"
-                    stroke="var(--color-aorus)"
-                    strokeWidth={2.5}
-                    dot={{ r: 3.5, fill: "var(--color-aorus)", strokeWidth: 0 }}
-                    isAnimationActive={false}
-                  />
-                </ComposedChart>
-              </ResponsiveContainer>
-            </div>
-          </Panel>
+          <Reveal>
+            <MonthChart months={report.months} money={money} />
+          </Reveal>
 
           <div className="grid items-stretch gap-3 xl:grid-cols-2">
-            <DonutTable title={t.share.npp} nameHead={t.share.nppCol} rows={report.npps} totals={totals} money={money} />
-            <NppCompare rows={report.npps} months={report.months.map((m) => m.month)} prevMonths={report.prevMonths} money={money} />
+            <Reveal>
+              <DonutTable title={t.share.npp} nameHead={t.share.nppCol} rows={report.npps} totals={totals} money={money} />
+            </Reveal>
+            <Reveal>
+              <NppCompare rows={report.npps} months={report.months.map((m) => m.month)} prevMonths={report.prevMonths} money={money} />
+            </Reveal>
           </div>
 
-          <div className="grid items-stretch gap-3 xl:grid-cols-2">
-            <SegmentTable rows={segRows} totals={totals} money={money} />
-            <SegmentShare rows={segRows} money={money} />
-          </div>
+          <Segments rows={segRows} totals={totals} money={money} />
 
           <div className="grid items-start gap-3 xl:grid-cols-2">
-            <DonutTable title={t.bySize} nameHead={t.share.sizeCol} rows={bySize} totals={totals} money={money} />
-            <DonutTable title={t.byPanel} nameHead={t.share.panelCol} rows={byPanel} totals={totals} money={money} />
+            <Reveal>
+              <DonutTable title={t.bySize} nameHead={t.share.sizeCol} rows={bySize} totals={totals} money={money} />
+            </Reveal>
+            <Reveal>
+              <DonutTable title={t.byPanel} nameHead={t.share.panelCol} rows={byPanel} totals={totals} money={money} />
+            </Reveal>
           </div>
 
+          <Reveal>
           <Panel className="overflow-hidden">
             <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line px-4 py-3">
               <h2 className="text-[17px] font-bold text-fg">{t.models.title}</h2>
@@ -313,12 +299,20 @@ export function SalesView({ report, filter, range, segments }: Props) {
                             </div>
                           </td>
                           <td className={cn(td, "text-[12px] text-muted")}>{m.segmentId ? segName.get(m.segmentId) : "—"}</td>
-                          <td className={cn(td, "num text-right font-semibold text-fg")}>{fmtNum(m.qty)}</td>
-                          <td className={cn(td, "num text-right text-muted")}>{pct(m.qty, totals.qty)}</td>
-                          <td className={cn(td, "num text-right font-semibold text-fg")}>{money(m.amount)}</td>
-                          <td className={cn(td, "num text-right text-muted")}>{pct(m.amount, totals.amount)}</td>
-                          <td className={cn(td, "num text-right text-fg-2")}>{asp ? fmtNum(asp) : "—"}</td>
-                          <td className={cn(td, "num text-right", m.minPrice ? "text-best" : "text-faint")}>{m.minPrice ? fmtNum(m.minPrice) : "—"}</td>
+                          <td className={cn(td, "num text-right font-semibold text-fg")}>
+                            <CountUp value={m.qty} />
+                          </td>
+                          <td className={cn(td, "num text-right text-muted")}>
+                            <Pct v={m.qty} total={totals.qty} />
+                          </td>
+                          <td className={cn(td, "num text-right font-semibold text-fg")}>
+                            <CountUp value={m.amount} format={money} />
+                          </td>
+                          <td className={cn(td, "num text-right text-muted")}>
+                            <Pct v={m.amount} total={totals.amount} />
+                          </td>
+                          <td className={cn(td, "num text-right text-fg-2")}>{asp ? <CountUp value={asp} /> : "—"}</td>
+                          <td className={cn(td, "num text-right", m.minPrice ? "text-best" : "text-faint")}>{m.minPrice ? <CountUp value={m.minPrice} /> : "—"}</td>
                           <td className={cn(td, "num text-right", gap === null ? "text-faint" : gap < 0 ? "text-up" : "text-fg-2")}>{gap === null ? "—" : fmtPct(gap)}</td>
                         </tr>
                         {/* The original codes behind the SO Model, per NPP (shares are within this SO Model) */}
@@ -353,12 +347,61 @@ export function SalesView({ report, filter, range, segments }: Props) {
               )}
             </div>
           </Panel>
+          </Reveal>
 
           <Dealers report={report} money={money} />
           <p className="text-[12px] text-muted">{t.note}</p>
         </>
       )}
     </div>
+  );
+}
+
+/** Revenue as bars on the left axis, units as a line on the right axis; bars grow and the line rises month by month */
+function MonthChart({ months, money }: { months: SalesReport["months"]; money: (n: number) => string }) {
+  const t = useT(salesMessages);
+  const data = useTweenRows(months, ["amount", "qty"], { stagger: 70 });
+  const { hover, chartProps } = useChartHover();
+  return (
+    <Panel className="p-4">
+      <h2 className="mb-2 text-[17px] font-bold text-fg">{t.chart.title}</h2>
+      <div className="h-[260px]">
+        <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 900, height: 260 }}>
+          <ComposedChart data={data} margin={{ top: 8, right: 4, bottom: 0, left: 0 }} {...chartProps}>
+            <CartesianGrid vertical={false} stroke="var(--color-line-2)" />
+            <XAxis dataKey="month" tickFormatter={label} tickLine={false} axisLine={false} tick={axisTick} />
+            <YAxis yAxisId="amount" width={60} tickLine={false} axisLine={false} tickFormatter={(v: number) => money(v)} tick={axisTick} />
+            <YAxis yAxisId="qty" orientation="right" width={52} tickLine={false} axisLine={false} tickFormatter={(v: number) => fmtNum(Math.round(v))} tick={axisTick} />
+            <Tooltip
+              {...tooltipFollow}
+              cursor={{ fill: "var(--color-accent-tint)" }}
+              contentStyle={tooltipBox}
+              labelStyle={{ color: "var(--color-fg)", fontWeight: 600 }}
+              itemStyle={{ color: "var(--color-fg-2)", fontFamily: "var(--font-mono)" }}
+              labelFormatter={(m) => label(String(m))}
+              formatter={(v, name) => [name === t.chart.amount ? `${fmtNum(Math.round(Number(v)))} VNĐ` : fmtNum(Math.round(Number(v))), name]}
+            />
+            <Legend iconSize={10} wrapperStyle={{ fontSize: 12, color: "var(--color-fg-2)" }} />
+            <Bar yAxisId="amount" dataKey="amount" name={t.chart.amount} fill="var(--color-accent)" radius={[4, 4, 0, 0]} maxBarSize={40} isAnimationActive={false}>
+              {data.map((_, i) => (
+                <Cell key={i} fillOpacity={dimmed(hover, i)} style={cellFade} />
+              ))}
+            </Bar>
+            <Line
+              yAxisId="qty"
+              dataKey="qty"
+              name={t.chart.qty}
+              type="monotone"
+              stroke="var(--color-aorus)"
+              strokeWidth={2.5}
+              dot={{ r: DOT_R, fill: "var(--color-aorus)", strokeWidth: 0 }}
+              activeDot={{ r: ACTIVE_DOT_R, fill: "var(--color-aorus)", strokeWidth: 0 }}
+              isAnimationActive={false}
+            />
+          </ComposedChart>
+        </ResponsiveContainer>
+      </div>
+    </Panel>
   );
 }
 
@@ -372,6 +415,7 @@ function HeroKpi({
   tone,
   label,
   value,
+  format,
   unit,
   delta,
   note,
@@ -379,7 +423,8 @@ function HeroKpi({
 }: {
   tone: keyof typeof HERO;
   label: string;
-  value: string;
+  value: number;
+  format: (n: number) => string;
   unit?: string;
   delta: number | null;
   note: string;
@@ -389,7 +434,7 @@ function HeroKpi({
     <div className={cn("flex min-h-28 min-w-0 flex-col justify-center gap-1.5 rounded-[14px] px-5 py-4 text-white md:px-6", HERO[tone])}>
       <span className="text-[13.5px] font-medium text-white/85">{label}</span>
       <span className="num text-[30px] leading-tight font-extrabold tracking-[-0.02em] md:text-[40px]" title={title}>
-        {value}
+        <CountUp value={value} format={format} />
         {unit && <span className="ml-1.5 font-sans text-[14px] font-medium text-white/80">{unit}</span>}
       </span>
       <span className="text-[12.5px] text-white/85">
@@ -402,15 +447,15 @@ function HeroKpi({
   );
 }
 
-function SmallKpi({ label, value, unit }: { label: string; value: string; unit?: string }) {
+function SmallKpi({ label, value, unit }: { label: string; value: number | null; unit?: string }) {
   return (
     <Panel className="flex min-w-0 items-center justify-between gap-3 px-3.5 py-2 max-lg:flex-col max-lg:items-start max-lg:gap-0.5">
       <div className="truncate text-[12px] text-muted" title={label}>
         {label}
       </div>
       <div className="num shrink-0 text-[16px] leading-tight font-semibold text-fg">
-        {value}
-        {unit && <span className="ml-1 font-sans text-[11px] font-normal text-muted">{unit}</span>}
+        {value === null ? "—" : <CountUp value={value} />}
+        {value !== null && unit && <span className="ml-1 font-sans text-[11px] font-normal text-muted">{unit}</span>}
       </div>
     </Panel>
   );
@@ -459,11 +504,15 @@ function DonutTable({
                         {r.label}
                       </span>
                     </td>
-                    <td className={cn(td, "num text-right text-fg")}>{fmtNum(r.qty)}</td>
-                    <td className={cn(td, "num text-right font-semibold text-fg")} title={`${fmtNum(r.amount)} VNĐ`}>
-                      {money(r.amount)}
+                    <td className={cn(td, "num text-right text-fg")}>
+                      <CountUp value={r.qty} />
                     </td>
-                    <td className={cn(td, "num text-right text-key")}>{pct(r.amount, totals.amount)}</td>
+                    <td className={cn(td, "num text-right font-semibold text-fg")} title={`${fmtNum(r.amount)} VNĐ`}>
+                      <CountUp value={r.amount} format={money} />
+                    </td>
+                    <td className={cn(td, "num text-right text-key")}>
+                      <Pct v={r.amount} total={totals.amount} />
+                    </td>
                   </tr>
                 );
               })}
@@ -471,8 +520,12 @@ function DonutTable({
             <tfoot>
               <tr className="font-semibold">
                 <td className="bg-head px-3 py-2 text-fg">{t.share.total}</td>
-                <td className="num bg-head px-3 py-2 text-right text-fg">{fmtNum(totals.qty)}</td>
-                <td className="num bg-head px-3 py-2 text-right text-fg">{money(totals.amount)}</td>
+                <td className="num bg-head px-3 py-2 text-right text-fg">
+                  <CountUp value={totals.qty} />
+                </td>
+                <td className="num bg-head px-3 py-2 text-right text-fg">
+                  <CountUp value={totals.amount} format={money} />
+                </td>
                 <td className="num bg-head px-3 py-2 text-right text-muted">100%</td>
               </tr>
             </tfoot>
@@ -486,18 +539,27 @@ function DonutTable({
 
 function Donut({ model, label: aria, money }: { model: ReturnType<typeof donut>; label: string; money: (n: number) => string }) {
   const t = useT(salesMessages);
+  // Slices sweep in one after another (150ms apart); a transparent slice fills the part of the ring not drawn yet
+  const full = model.slices.reduce((n, s) => n + s.amount, 0);
+  const grown = useTweens(
+    model.slices.map((s) => s.amount),
+    { stagger: 150 },
+  );
+  const drawn = grown.reduce((n, v) => n + v, 0);
+  const data = [...model.slices.map((s, i) => ({ ...s, amount: grown[i] })), { name: "", amount: Math.max(0, full - drawn), color: "transparent" }];
   if (!model.slices.length) return null;
   return (
     <figure className="relative size-[130px] shrink-0" aria-label={aria}>
       <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 130, height: 130 }}>
         <PieChart>
           <Tooltip
+            {...tooltipFollow}
             contentStyle={tooltipBox}
             itemStyle={{ color: "var(--color-fg-2)", fontFamily: "var(--font-mono)" }}
-            formatter={(v, name) => [`${fmtNum(Number(v))} VNĐ · ${pct(Number(v), model.total)}`, name]}
+            formatter={(v, name) => [`${fmtNum(Math.round(Number(v)))} VNĐ · ${pct(Number(v), model.total)}`, name]}
           />
           <Pie
-            data={model.slices}
+            data={data}
             dataKey="amount"
             nameKey="name"
             innerRadius={42}
@@ -507,23 +569,50 @@ function Donut({ model, label: aria, money }: { model: ReturnType<typeof donut>;
             strokeWidth={0}
             isAnimationActive={false}
           >
-            {model.slices.map((s) => (
-              <Cell key={s.name} fill={s.color} />
+            {data.map((s, i) => (
+              <Cell key={s.name || `rest${i}`} fill={s.color} style={s.name ? undefined : { pointerEvents: "none" }} />
             ))}
           </Pie>
         </PieChart>
       </ResponsiveContainer>
       <figcaption className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
         <span className="text-[11px] text-muted">{t.share.donutTotal}</span>
-        <span className="num text-[13px] font-extrabold text-fg">{money(model.total)}</span>
+        <span className="num text-[13px] font-extrabold text-fg">
+          <CountUp value={model.total} format={money} />
+        </span>
       </figcaption>
     </figure>
   );
 }
 
+/** Segment table and segment share side by side; hovering a row lights its bar and the other way round */
+function Segments({ rows, totals, money }: { rows: (ShareRow & { models: number })[]; totals: { qty: number; amount: number }; money: (n: number) => string }) {
+  const [hover, setHover] = useState<string | null>(null);
+  return (
+    <div className="grid items-stretch gap-3 xl:grid-cols-2">
+      <Reveal>
+        <SegmentTable rows={rows} totals={totals} money={money} hover={hover} setHover={setHover} />
+      </Reveal>
+      <Reveal>
+        <SegmentShare rows={rows} money={money} hover={hover} setHover={setHover} />
+      </Reveal>
+    </div>
+  );
+}
+
+type HoverProps = { hover: string | null; setHover: (key: string | null) => void };
+const REST_KEY = "__rest";
+
 /** Segment, units, revenue, share — the dashboard's segment table (one CAT here: LCD) */
-function SegmentTable({ rows, totals, money }: { rows: (ShareRow & { models: number })[]; totals: { qty: number; amount: number }; money: (n: number) => string }) {
+function SegmentTable({
+  rows,
+  totals,
+  money,
+  hover,
+  setHover,
+}: { rows: (ShareRow & { models: number })[]; totals: { qty: number; amount: number }; money: (n: number) => string } & HoverProps) {
   const t = useT(salesMessages);
+  const rest = new Set(shareBars(rows, "").rest.map((r) => r.key));
   return (
     <Panel className="flex flex-col overflow-hidden">
       <h2 className="border-b border-line px-4 py-3 text-[17px] font-bold text-fg">{t.share.segment}</h2>
@@ -540,16 +629,23 @@ function SegmentTable({ rows, totals, money }: { rows: (ShareRow & { models: num
           </thead>
           <tbody>
             {rows.map((r, i) => {
-              const td = cn("border-b border-line-2 px-3 py-2", i % 2 === 0 ? "bg-row-a" : "bg-row-b");
+              const lit = hover === r.key || (hover === REST_KEY && rest.has(r.key));
+              const td = cn("border-b border-line-2 px-3 py-2 transition-colors", lit ? "bg-accent-tint" : i % 2 === 0 ? "bg-row-a" : "bg-row-b");
               return (
-                <tr key={r.key}>
+                <tr key={r.key} onMouseEnter={() => setHover(rest.has(r.key) ? REST_KEY : r.key)} onMouseLeave={() => setHover(null)}>
                   <td className={cn(td, "font-semibold text-fg")}>{r.label}</td>
-                  <td className={cn(td, "num text-right text-fg")}>{fmtNum(r.qty)}</td>
-                  <td className={cn(td, "num text-right font-semibold text-fg")} title={`${fmtNum(r.amount)} VNĐ`}>
-                    {money(r.amount)}
+                  <td className={cn(td, "num text-right text-fg")}>
+                    <CountUp value={r.qty} />
                   </td>
-                  <td className={cn(td, "num text-right text-key")}>{pct(r.amount, totals.amount)}</td>
-                  <td className={cn(td, "num text-right text-muted")}>{r.models}</td>
+                  <td className={cn(td, "num text-right font-semibold text-fg")} title={`${fmtNum(r.amount)} VNĐ`}>
+                    <CountUp value={r.amount} format={money} />
+                  </td>
+                  <td className={cn(td, "num text-right text-key")}>
+                    <Pct v={r.amount} total={totals.amount} />
+                  </td>
+                  <td className={cn(td, "num text-right text-muted")}>
+                    <CountUp value={r.models} />
+                  </td>
                 </tr>
               );
             })}
@@ -557,8 +653,12 @@ function SegmentTable({ rows, totals, money }: { rows: (ShareRow & { models: num
           <tfoot className="sticky bottom-0">
             <tr className="font-semibold">
               <td className="bg-head px-3 py-2 text-fg">{t.share.total}</td>
-              <td className="num bg-head px-3 py-2 text-right text-fg">{fmtNum(totals.qty)}</td>
-              <td className="num bg-head px-3 py-2 text-right text-fg">{money(totals.amount)}</td>
+              <td className="num bg-head px-3 py-2 text-right text-fg">
+                <CountUp value={totals.qty} />
+              </td>
+              <td className="num bg-head px-3 py-2 text-right text-fg">
+                <CountUp value={totals.amount} format={money} />
+              </td>
               <td className="num bg-head px-3 py-2 text-right text-muted">100%</td>
               <td className="bg-head" />
             </tr>
@@ -569,17 +669,27 @@ function SegmentTable({ rows, totals, money }: { rows: (ShareRow & { models: num
   );
 }
 
-/** Share of each segment in revenue: horizontal bars, the largest 11 and one grey bar for the rest */
-function SegmentShare({ rows, money }: { rows: ShareRow[]; money: (n: number) => string }) {
-  const t = useT(salesMessages);
+/** The largest 11 segments by revenue and one grey bar for the rest, shares in % of revenue */
+function shareBars(rows: ShareRow[], others: string | ((n: number) => string)) {
   const sold = rows.filter((r) => r.amount > 0).sort((a, b) => b.amount - a.amount);
   const total = sold.reduce((n, r) => n + r.amount, 0);
   const shown = sold.length > MAX_BARS ? sold.slice(0, MAX_BARS - 1) : sold;
   const rest = sold.slice(shown.length);
+  const share = (amount: number) => (total ? (amount / total) * 100 : 0);
   const bars = [
-    ...shown.map((r) => ({ name: r.label, amount: r.amount, share: total ? (r.amount / total) * 100 : 0, other: false })),
-    ...(rest.length ? [{ name: t.share.others(rest.length), amount: rest.reduce((n, r) => n + r.amount, 0), share: 0, other: true }] : []),
-  ].map((b) => (b.other ? { ...b, share: total ? (b.amount / total) * 100 : 0 } : b));
+    ...shown.map((r) => ({ key: r.key, name: r.label, amount: r.amount, share: share(r.amount), other: false })),
+    ...(rest.length
+      ? [{ key: REST_KEY, name: typeof others === "function" ? others(rest.length) : others, amount: rest.reduce((n, r) => n + r.amount, 0), share: 0, other: true }]
+      : []),
+  ].map((b) => (b.other ? { ...b, share: share(b.amount) } : b));
+  return { bars, rest };
+}
+
+/** Share of each segment in revenue: horizontal bars that run out one after another */
+function SegmentShare({ rows, money, hover, setHover }: { rows: ShareRow[]; money: (n: number) => string } & HoverProps) {
+  const t = useT(salesMessages);
+  const { bars: target } = shareBars(rows, t.share.others);
+  const bars = useTweenRows(target, ["share", "amount"], { stagger: 60 });
   const height = Math.max(160, bars.length * 30 + 20);
   return (
     <Panel className="flex flex-col overflow-hidden">
@@ -589,9 +699,16 @@ function SegmentShare({ rows, money }: { rows: ShareRow[]; money: (n: number) =>
       </div>
       <div className="flex-1 p-3" style={{ minHeight: height }}>
         <ResponsiveContainer width="100%" height={height} initialDimension={{ width: 600, height }}>
-          <BarChart data={bars} layout="vertical" margin={{ top: 0, right: 48, bottom: 0, left: 0 }}>
+          <BarChart
+            data={bars}
+            layout="vertical"
+            margin={{ top: 0, right: 48, bottom: 0, left: 0 }}
+            onMouseMove={(st) => setHover(st.activeTooltipIndex == null ? null : (bars[Number(st.activeTooltipIndex)]?.key ?? null))}
+            onMouseLeave={() => setHover(null)}
+          >
             <CartesianGrid horizontal={false} stroke="var(--color-line-2)" />
-            <XAxis type="number" hide domain={[0, "dataMax"]} />
+            {/* Fixed to the real largest share so the bars grow instead of the axis */}
+            <XAxis type="number" hide domain={[0, Math.max(1, ...target.map((b) => b.share))]} />
             <YAxis
               type="category"
               dataKey="name"
@@ -602,6 +719,7 @@ function SegmentShare({ rows, money }: { rows: ShareRow[]; money: (n: number) =>
               tickFormatter={(v: string) => (v.length > 22 ? `${v.slice(0, 21)}…` : v)}
             />
             <Tooltip
+              {...tooltipFollow}
               cursor={{ fill: "var(--color-accent-tint)" }}
               contentStyle={tooltipBox}
               itemStyle={{ color: "var(--color-fg-2)", fontFamily: "var(--font-mono)" }}
@@ -609,7 +727,12 @@ function SegmentShare({ rows, money }: { rows: ShareRow[]; money: (n: number) =>
             />
             <Bar dataKey="share" radius={[0, 4, 4, 0]} maxBarSize={18} isAnimationActive={false}>
               {bars.map((b, i) => (
-                <Cell key={b.name} fill={b.other ? OTHER_COLOR : SLICE_COLORS[Math.min(i, SLICE_COLORS.length - 1)]} />
+                <Cell
+                  key={b.key}
+                  fill={b.other ? OTHER_COLOR : SLICE_COLORS[Math.min(i, SLICE_COLORS.length - 1)]}
+                  fillOpacity={hover === null || hover === b.key ? 1 : 0.45}
+                  style={cellFade}
+                />
               ))}
               <LabelList dataKey="share" position="right" formatter={(v) => `${Number(v).toFixed(1)}%`} style={{ fill: "var(--color-fg-2)", fontSize: 11, fontFamily: "var(--font-mono)" }} />
             </Bar>
@@ -629,25 +752,51 @@ const range = (ms: string[]) => (ms.length ? (ms.length === 1 ? label(ms[0]) : `
 /** Combo chart of this period against the previous one: revenue bars (left axis), units lines (right axis) */
 function CompareChart({ data, money, height = 250 }: { data: { name: string; amount: number; prevAmount: number; qty: number; prevQty: number }[]; money: (n: number) => string; height?: number }) {
   const t = useT(salesMessages);
+  const rows = useTweenRows(data, ["amount", "prevAmount", "qty", "prevQty"], { stagger: 70 });
+  const { hover, chartProps } = useChartHover();
   return (
     <div style={{ height }}>
       <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 600, height }}>
-        <ComposedChart data={data} margin={{ top: 8, right: 4, bottom: 0, left: 0 }} barGap={2}>
+        <ComposedChart data={rows} margin={{ top: 8, right: 4, bottom: 0, left: 0 }} barGap={2} {...chartProps}>
           <CartesianGrid vertical={false} stroke="var(--color-line-2)" />
           <XAxis dataKey="name" tickLine={false} axisLine={false} tick={{ ...axisTick, fill: "var(--color-fg-2)" }} interval={0} />
           <YAxis yAxisId="amount" width={76} tickLine={false} axisLine={false} tickFormatter={(v: number) => money(v)} tick={axisTick} />
-          <YAxis yAxisId="qty" orientation="right" width={48} tickLine={false} axisLine={false} tickFormatter={(v: number) => fmtNum(v)} tick={axisTick} />
+          <YAxis yAxisId="qty" orientation="right" width={48} tickLine={false} axisLine={false} tickFormatter={(v: number) => fmtNum(Math.round(v))} tick={axisTick} />
           <Tooltip
+            {...tooltipFollow}
             cursor={{ fill: "var(--color-accent-tint)" }}
             contentStyle={tooltipBox}
             labelStyle={{ color: "var(--color-fg)", fontWeight: 600 }}
             itemStyle={{ color: "var(--color-fg-2)", fontFamily: "var(--font-mono)" }}
-            formatter={(v, name) => [name === t.share.amountCur || name === t.share.amountPrev ? `${fmtNum(Number(v))} VNĐ` : fmtNum(Number(v)), name]}
+            formatter={(v, name) => [name === t.share.amountCur || name === t.share.amountPrev ? `${fmtNum(Math.round(Number(v)))} VNĐ` : fmtNum(Math.round(Number(v))), name]}
           />
           <Legend iconSize={10} wrapperStyle={{ fontSize: 11.5, color: "var(--color-fg-2)" }} />
-          <Bar yAxisId="amount" dataKey="amount" name={t.share.amountCur} fill={CUR_BAR} radius={[3, 3, 0, 0]} maxBarSize={34} isAnimationActive={false} />
-          <Bar yAxisId="amount" dataKey="prevAmount" name={t.share.amountPrev} fill={PREV_BAR} radius={[3, 3, 0, 0]} maxBarSize={34} isAnimationActive={false} />
-          <Line yAxisId="qty" dataKey="qty" name={t.share.qtyCur} stroke={CUR_LINE} strokeWidth={2.5} dot={{ r: 3.5, fill: CUR_LINE, strokeWidth: 0 }} isAnimationActive={false} />
+          {(["amount", "prevAmount"] as const).map((k) => (
+            <Bar
+              key={k}
+              yAxisId="amount"
+              dataKey={k}
+              name={k === "amount" ? t.share.amountCur : t.share.amountPrev}
+              fill={k === "amount" ? CUR_BAR : PREV_BAR}
+              radius={[3, 3, 0, 0]}
+              maxBarSize={34}
+              isAnimationActive={false}
+            >
+              {rows.map((_, i) => (
+                <Cell key={i} fillOpacity={dimmed(hover, i)} style={cellFade} />
+              ))}
+            </Bar>
+          ))}
+          <Line
+            yAxisId="qty"
+            dataKey="qty"
+            name={t.share.qtyCur}
+            stroke={CUR_LINE}
+            strokeWidth={2.5}
+            dot={{ r: DOT_R, fill: CUR_LINE, strokeWidth: 0 }}
+            activeDot={{ r: ACTIVE_DOT_R, fill: CUR_LINE, strokeWidth: 0 }}
+            isAnimationActive={false}
+          />
           <Line
             yAxisId="qty"
             dataKey="prevQty"
@@ -656,6 +805,7 @@ function CompareChart({ data, money, height = 250 }: { data: { name: string; amo
             strokeWidth={2}
             strokeDasharray="4 3"
             dot={{ r: 3, fill: PREV_LINE, strokeWidth: 0 }}
+            activeDot={{ r: ACTIVE_DOT_R - 0.5, fill: PREV_LINE, strokeWidth: 0 }}
             isAnimationActive={false}
           />
         </ComposedChart>
@@ -717,6 +867,7 @@ function Dealers({ report, money }: { report: SalesReport; money: (n: number) =>
     : [];
   return (
     <div className="grid items-stretch gap-3 xl:grid-cols-2">
+      <Reveal>
       <Panel className="flex flex-col overflow-hidden">
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line px-4 py-3">
           <h2 className="text-[17px] font-bold text-fg">{t.customers.title}</h2>
@@ -763,9 +914,11 @@ function Dealers({ report, money }: { report: SalesReport; money: (n: number) =>
                           {c.label}
                         </button>
                       </td>
-                      <td className={cn(td, "num text-right font-semibold text-fg")}>{fmtNum(c.qty)}</td>
+                      <td className={cn(td, "num text-right font-semibold text-fg")}>
+                        <CountUp value={c.qty} />
+                      </td>
                       <td className={cn(td, "num text-right text-fg-2")} title={`${fmtNum(c.amount)} VNĐ`}>
-                        {money(c.amount)}
+                        <CountUp value={c.amount} format={money} />
                       </td>
                     </tr>
                   );
@@ -782,7 +935,9 @@ function Dealers({ report, money }: { report: SalesReport; money: (n: number) =>
           </div>
         )}
       </Panel>
+      </Reveal>
 
+      <Reveal>
       <Panel className="flex flex-col overflow-hidden">
         <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-line px-4 py-3">
           <h2 className="min-w-0 truncate text-[17px] font-bold text-fg">{sel ? t.share.dealerCompare(sel.label) : t.share.compareTitle}</h2>
@@ -798,7 +953,7 @@ function Dealers({ report, money }: { report: SalesReport; money: (n: number) =>
                 <div key={k.l} className="rounded-ctl border border-line bg-app px-3 py-2">
                   <div className="text-muted">{k.l}</div>
                   <div className="num mt-0.5 flex flex-wrap items-baseline gap-x-2 text-[16px] font-semibold text-fg">
-                    {k.f(k.cur)}
+                    <CountUp value={k.cur} format={(n) => k.f(Math.round(n))} />
                     <span className="text-[12px] font-normal text-muted">
                       {t.share.prev}: {k.f(k.prev)}
                     </span>
@@ -820,6 +975,7 @@ function Dealers({ report, money }: { report: SalesReport; money: (n: number) =>
           <p className="px-4 py-6 text-[13px] text-muted">{t.share.noDealer}</p>
         )}
       </Panel>
+      </Reveal>
     </div>
   );
 }

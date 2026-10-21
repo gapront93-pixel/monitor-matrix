@@ -35,17 +35,18 @@ enum StockStatus {
 }
 
 model Segment {
-  id           String          @id // "oled27-qhd-240-280"
-  nameVi       String
-  shortName    String? // tên ngắn trên thẻ: 'OLED 27" QHD 240–280Hz'
-  verdict      SegmentVerdict? // nhãn kết luận, sửa được trong admin
-  criteria     String          @db.Text
-  conclusionVi String?         @db.Text // kết luận tiếng Việt (TOM-TAT-SO-SANH.md)
-  notes        String?         @db.Text // ghi chú gốc từ file phân khúc
-  sortOrder    Int
-  hidden       Boolean         @default(false) // phân khúc cũ, không còn dùng (giữ lại cho số đo review)
-  products     Product[]
-  benchmarks   Benchmark[]
+  id                      String          @id // "oled27-qhd-240-280"
+  nameVi                  String
+  shortName               String? // tên ngắn trên thẻ: 'OLED 27" QHD 240–280Hz'
+  verdict                 SegmentVerdict? // nhãn kết luận, sửa được trong admin
+  criteria                String          @db.Text
+  conclusionVi            String?         @db.Text // kết luận tiếng Việt (TOM-TAT-SO-SANH.md)
+  notes                   String?         @db.Text // ghi chú gốc từ file phân khúc
+  sortOrder               Int
+  hidden                  Boolean         @default(false) // phân khúc cũ, không còn dùng (giữ lại cho số đo review)
+  representativeProductId Int? // mẫu GIGABYTE có ảnh hiện trên thẻ ở Tổng quan (admin chọn); trống = mẫu rẻ nhất có ảnh
+  products                Product[]
+  benchmarks              Benchmark[]
 }
 
 model Product {
