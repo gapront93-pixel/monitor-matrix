@@ -168,8 +168,12 @@ git fetch -q origin "$BRANCH"
 git merge-base --is-ancestor "$sha" "origin/$BRANCH" || die "Commit ${sha:0:7} không nằm trên origin/$BRANCH"
 old=$(git rev-parse HEAD)
 git merge-base --is-ancestor "$old" "$sha" || die "Commit ${sha:0:7} không nối tiếp commit đang chạy trên VPS (${old:0:7})"
-changed=$(git diff --name-only "$old" "$sha")
-say "Deploy $(git log -1 --format='%h %s' "$sha") (từ ${old:0:7})"
+# Files changed since the build that is live, not since the VPS checkout: commits made on the VPS move HEAD
+# before the deploy, and their migrations or package.json changes must still be applied
+live=$(read_state current.commit)
+if [ -n "$live" ] && git cat-file -e "$live^{commit}" 2>/dev/null; then since=$live; else since=$old; fi
+changed=$(git diff --name-only "$since" "$sha")
+say "Deploy $(git log -1 --format='%h %s' "$sha") (từ ${since:0:7})"
 
 # 2. Unpack the build beside the live one; the live build is never touched
 incoming="$STATE/incoming"
