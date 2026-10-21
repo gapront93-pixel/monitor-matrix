@@ -30,11 +30,7 @@ type ShareRow = { key: string; label: string; qty: number; amount: number };
 
 const label = (m: string) => `${m.slice(5)}/${m.slice(0, 4)}`;
 const pct = (v: number, total: number) => (total ? `${((v / total) * 100).toFixed(1)}%` : "—");
-const pct1 = (n: number) => `${n.toFixed(1)}%`;
-/** Share that counts up with its row */
-function Pct({ v, total }: { v: number; total: number }) {
-  return total ? <CountUp value={(v / total) * 100} format={pct1} /> : <>—</>;
-}
+const whole = (n: number) => fmtNum(Math.round(n));
 
 // Donut slices along the cyan -> magenta -> pink steps of the vnpromotion dashboard, largest first; the rest is grey
 const SLICE_COLORS = ["#00c2f0", "#4aa8ff", "#7b7cff", "#a855f7", "#d02fe0", "#ff2bc4", "#ff6fb3"];
@@ -300,19 +296,19 @@ export function SalesView({ report, filter, range, segments }: Props) {
                           </td>
                           <td className={cn(td, "text-[12px] text-muted")}>{m.segmentId ? segName.get(m.segmentId) : "—"}</td>
                           <td className={cn(td, "num text-right font-semibold text-fg")}>
-                            <CountUp value={m.qty} />
+                            {whole(m.qty)}
                           </td>
                           <td className={cn(td, "num text-right text-muted")}>
-                            <Pct v={m.qty} total={totals.qty} />
+                            {pct(m.qty, totals.qty)}
                           </td>
                           <td className={cn(td, "num text-right font-semibold text-fg")}>
-                            <CountUp value={m.amount} format={money} />
+                            {money(m.amount)}
                           </td>
                           <td className={cn(td, "num text-right text-muted")}>
-                            <Pct v={m.amount} total={totals.amount} />
+                            {pct(m.amount, totals.amount)}
                           </td>
-                          <td className={cn(td, "num text-right text-fg-2")}>{asp ? <CountUp value={asp} /> : "—"}</td>
-                          <td className={cn(td, "num text-right", m.minPrice ? "text-best" : "text-faint")}>{m.minPrice ? <CountUp value={m.minPrice} /> : "—"}</td>
+                          <td className={cn(td, "num text-right text-fg-2")}>{asp ? whole(asp) : "—"}</td>
+                          <td className={cn(td, "num text-right", m.minPrice ? "text-best" : "text-faint")}>{m.minPrice ? whole(m.minPrice) : "—"}</td>
                           <td className={cn(td, "num text-right", gap === null ? "text-faint" : gap < 0 ? "text-up" : "text-fg-2")}>{gap === null ? "—" : fmtPct(gap)}</td>
                         </tr>
                         {/* The original codes behind the SO Model, per NPP (shares are within this SO Model) */}
@@ -502,13 +498,13 @@ function DonutTable({
                       </span>
                     </td>
                     <td className={cn(td, "num text-right text-fg")}>
-                      <CountUp value={r.qty} />
+                      {whole(r.qty)}
                     </td>
                     <td className={cn(td, "num text-right font-semibold text-fg")} title={`${fmtNum(r.amount)} VNĐ`}>
-                      <CountUp value={r.amount} format={money} />
+                      {money(r.amount)}
                     </td>
                     <td className={cn(td, "num text-right text-key")}>
-                      <Pct v={r.amount} total={totals.amount} />
+                      {pct(r.amount, totals.amount)}
                     </td>
                   </tr>
                 );
@@ -518,10 +514,10 @@ function DonutTable({
               <tr className="font-semibold">
                 <td className="bg-head px-3 py-2 text-fg">{t.share.total}</td>
                 <td className="num bg-head px-3 py-2 text-right text-fg">
-                  <CountUp value={totals.qty} />
+                  {whole(totals.qty)}
                 </td>
                 <td className="num bg-head px-3 py-2 text-right text-fg">
-                  <CountUp value={totals.amount} format={money} />
+                  {money(totals.amount)}
                 </td>
                 <td className="num bg-head px-3 py-2 text-right text-muted">100%</td>
               </tr>
@@ -628,16 +624,16 @@ function SegmentTable({
                 <tr key={r.key} onMouseEnter={() => setHover(rest.has(r.key) ? REST_KEY : r.key)} onMouseLeave={() => setHover(null)}>
                   <td className={cn(td, "font-semibold text-fg")}>{r.label}</td>
                   <td className={cn(td, "num text-right text-fg")}>
-                    <CountUp value={r.qty} />
+                    {whole(r.qty)}
                   </td>
                   <td className={cn(td, "num text-right font-semibold text-fg")} title={`${fmtNum(r.amount)} VNĐ`}>
-                    <CountUp value={r.amount} format={money} />
+                    {money(r.amount)}
                   </td>
                   <td className={cn(td, "num text-right text-key")}>
-                    <Pct v={r.amount} total={totals.amount} />
+                    {pct(r.amount, totals.amount)}
                   </td>
                   <td className={cn(td, "num text-right text-muted")}>
-                    <CountUp value={r.models} />
+                    {whole(r.models)}
                   </td>
                 </tr>
               );
@@ -647,10 +643,10 @@ function SegmentTable({
             <tr className="font-semibold">
               <td className="bg-head px-3 py-2 text-fg">{t.share.total}</td>
               <td className="num bg-head px-3 py-2 text-right text-fg">
-                <CountUp value={totals.qty} />
+                {whole(totals.qty)}
               </td>
               <td className="num bg-head px-3 py-2 text-right text-fg">
-                <CountUp value={totals.amount} format={money} />
+                {money(totals.amount)}
               </td>
               <td className="num bg-head px-3 py-2 text-right text-muted">100%</td>
               <td className="bg-head" />
@@ -903,10 +899,10 @@ function Dealers({ report, money }: { report: SalesReport; money: (n: number) =>
                         </button>
                       </td>
                       <td className={cn(td, "num text-right font-semibold text-fg")}>
-                        <CountUp value={c.qty} />
+                        {whole(c.qty)}
                       </td>
                       <td className={cn(td, "num text-right text-fg-2")} title={`${fmtNum(c.amount)} VNĐ`}>
-                        <CountUp value={c.amount} format={money} />
+                        {money(c.amount)}
                       </td>
                     </tr>
                   );

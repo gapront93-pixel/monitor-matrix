@@ -1,11 +1,11 @@
 "use client";
 
 import { ArrowLeftRightIcon, ChevronDownIcon } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Bar, CartesianGrid, ComposedChart, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 import { ACTIVE_DOT_R, DOT_R, activeBar, tooltipFollow } from "@/components/ui/chart-hover";
-import { ChartMount, Reveal, chartAnim, useDomTween, useRevealedRows } from "@/components/ui/motion";
+import { ChartMount, Reveal, chartAnim, useRevealedRows } from "@/components/ui/motion";
 import { ErrorState } from "@/components/ui/states";
 import { useLocale, useT } from "@/lib/i18n/client";
 import { importsMessages } from "@/lib/i18n/messages/imports";
@@ -494,8 +494,6 @@ function PivotCard({
   const show = (v: number) => (table.unit === "pct" ? `${dec(v)}%` : table.unit === "usd" ? dec(v) : num(v));
   const leaf = Math.max(0, ...table.rows.map((r) => r.l));
   const mx = heatMax(table);
-  // Cells count up with their heat colour; very large tables are drawn at once
-  const animate = table.rows.length * nc <= 1500;
   const parents = table.rows.flatMap((_, ri) => (hasKids(table, ri) ? [ri] : []));
   const anyCollapsed = parents.some((ri) => collapsed.has(ri));
   const toggle = (ri: number) => {
@@ -593,7 +591,7 @@ function PivotCard({
                       grand ? "bg-head" : heat && (v as number) > 0 ? "" : parent || totalCol ? "bg-head/60" : "",
                     );
                     return isNum ? (
-                      <NumCell key={i} value={v as number} heatMax={heat} show={show} className={cls} animate={animate} />
+                      <NumCell key={i} value={v as number} heatMax={heat} show={show} className={cls} />
                     ) : (
                       <td key={i} className={cls}>
                         {v === "" ? "" : String(v)}
@@ -610,25 +608,11 @@ function PivotCard({
   );
 }
 
-/** A pivot number that counts up, its heat colour (share of the largest value) tweening with it */
-function NumCell({ value, heatMax, show, className, animate }: { value: number; heatMax: number; show: (v: number) => string; className: string; animate: boolean }) {
-  const ref = useRef<HTMLTableCellElement>(null);
-  // Written straight into the cell each frame: a big table costs no React render while it counts
-  useDomTween(
-    value,
-    (v) => {
-      const el = ref.current;
-      if (!el) return;
-      const node = el.firstChild;
-      if (node) node.nodeValue = show(v);
-      el.style.background = heat(v, heatMax);
-    },
-    { enabled: animate },
-  );
-  const start = animate ? 0 : value;
+/** A pivot number on its heat colour (share of the largest value) */
+function NumCell({ value, heatMax, show, className }: { value: number; heatMax: number; show: (v: number) => string; className: string }) {
   return (
-    <td ref={ref} className={className} style={{ background: heat(start, heatMax) }}>
-      {show(start)}
+    <td className={className} style={{ background: heat(value, heatMax) }}>
+      {show(value)}
     </td>
   );
 }
