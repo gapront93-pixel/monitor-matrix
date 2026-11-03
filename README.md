@@ -31,6 +31,15 @@ Mọi việc làm trên web, không cần vào VPS.
 4. Bấm **Áp dụng (n)**. Giá mới hiện ngay ở mọi trang; ngày giá mới xuất hiện trong ô "Ngày giá" ở Bảng giá, và biểu đồ lịch sử giá có thêm một điểm.
 5. Lỡ tải nhầm? Ở mục **Lần tải lên gần đây**, bấm **Huỷ lần này**. Bảng giá quay về lần cập nhật trước.
 
+### Quét giá tự động (nút **Quét giá** ở Bảng giá)
+
+Mod và Admin có nút **Quét giá** ở góc phải trang **Bảng giá**. Bấm vào, app đọc lại giá trên website các đại lý (khoảng 1 phút) rồi lưu thành một lần cập nhật giá mới. Bảng giá tự tải lại khi xong.
+
+- Trang sản phẩm đã biết (link trong bảng giá) được đọc lại; trang danh mục GIGABYTE của mỗi đại lý được đọc để tìm tin đăng mới.
+- Trang không đọc được thì **giữ giá cũ** (danh sách hiện trong khung kết quả). Trang đại lý đã gỡ (lỗi 404) thì tính là **bỏ niêm yết**. Đại lý Lê Phụng (bảng giá PDF) không quét, giữ nguyên.
+- **Mẫu không còn kinh doanh:** mẫu có Sell out trước đây nhưng không có Sell out nào trong **6 tháng gần nhất** bị bỏ khỏi Bảng giá và file Excel, và không được quét. Mẫu **mới chưa có Sell out** vẫn được giữ. Danh sách mẫu bị bỏ xem ở dòng "Đã bỏ n mẫu…" dưới chú thích của bảng.
+- Lần quét hiện ở **Quản trị › Lần tải lên gần đây** với tên "Quét giá tự động"; bấm **Huỷ lần này** để quay lại giá trước đó.
+
 ### Ba định dạng file được nhận
 
 **a) CSV theo dòng** (dễ nhất khi gõ tay hoặc copy từ Excel). Cột bắt buộc: `model, dealer, price, status`. Có thể thêm `url, note`.

@@ -69,7 +69,7 @@ export function ImportsList({ imports }: { imports: AdminImport[] }) {
                       {im.source === "seed" ? "—" : t.changes(n(s.price), n(s.new), n(s.removed), n(s.stock))}
                     </td>
                     <td className={cn(td, "text-right")}>
-                      {im.source === "admin" && (
+                      {(im.source === "admin" || im.source === "crawl") && (
                         <Button
                           size="sm"
                           disabled={pending}

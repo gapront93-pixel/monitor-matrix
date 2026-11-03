@@ -6,7 +6,7 @@ import type { Catalog } from "./catalog";
 import { productIndex } from "./import/plan";
 import { normKey } from "./normalize";
 import { prisma } from "./prisma";
-import { matchSale } from "./sales-map";
+import { matchSale, monthsAgo, staleBySellOut } from "./sales-map";
 import { monthsBetween, shiftMonth } from "./sales-period";
 
 // LCD sell-in from vnpromotion's SaleRow, read with a SELECT-only role (SALES_DATABASE_URL).
@@ -247,4 +247,51 @@ export async function salesReport(f: SalesFilter, catalog: Catalog): Promise<Sal
     pics: [...new Set(customers.map((c) => c.pic).filter((x): x is string => !!x))].sort(),
     prevMonths,
   };
+}
+
+export type SellOutStatus = {
+  cutoff: Date; // sell-out since this day keeps a model
+  stale: Map<number, Date>; // product id -> last sale, for models with no sell-out since cutoff
+};
+
+const SELL_OUT_MONTHS = 6;
+const SELL_OUT_TTL = 30 * 60_000;
+const globalForSellOut = globalThis as unknown as { sellOut?: { at: number; value: Promise<SellOutStatus | null> } };
+
+async function loadSellOut(): Promise<SellOutStatus | null> {
+  if (!salesConfigured()) return null;
+  const [rows, products] = await Promise.all([
+    pool().query<{ model: string | null; so_model: string | null; last: Date }>(
+      `select model, nullif(trim("soModel"), '') as so_model, max(date) as last
+       from "SaleRow" where cat = 'LCD' and quantity > 0 and date is not null group by 1, 2`,
+    ),
+    prisma.product.findMany({ where: { isGigabyte: true }, select: { id: true, slug: true, model: true, aliases: true } }),
+  ]);
+  const idx = productIndex(products);
+  const byId = new Map(products.map((p) => [p.id, p]));
+  const last = new Map<number, Date>();
+  for (const r of rows.rows) {
+    const id = matchSale(r.model, r.so_model, idx, (x) => byId.get(x)?.model ?? "");
+    const cur = id ? last.get(id) : undefined;
+    if (id && (!cur || r.last > cur)) last.set(id, r.last);
+  }
+  const cutoff = monthsAgo(new Date(), SELL_OUT_MONTHS);
+  return { cutoff, stale: staleBySellOut(products, last, cutoff) };
+}
+
+/**
+ * GIGABYTE models with sell-out in the past but none in the last 6 months (no longer sold): the price list leaves
+ * them out and the price scan skips them. Models never sold yet are new and stay. Cached for 30 minutes;
+ * null when the sales database is not configured or not reachable (then nothing is left out).
+ */
+export async function sellOutStatus(fresh = false): Promise<SellOutStatus | null> {
+  const c = globalForSellOut.sellOut;
+  if (!fresh && c && Date.now() - c.at < SELL_OUT_TTL) return c.value;
+  const value = loadSellOut().catch((e) => {
+    console.error("sell-out status failed", e);
+    globalForSellOut.sellOut = undefined;
+    return null;
+  });
+  globalForSellOut.sellOut = { at: Date.now(), value };
+  return value;
 }

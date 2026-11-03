@@ -226,7 +226,7 @@ export function planImport(
 export async function applyPlan(
   db: Db,
   plan: ImportPlan,
-  meta: { source: "seed" | "admin"; fileName: string | null; uploadedById?: number | null },
+  meta: { source: "seed" | "admin" | "crawl"; fileName: string | null; uploadedById?: number | null },
 ): Promise<number> {
   return db.$transaction(
     async (tx) => {

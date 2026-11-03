@@ -9,6 +9,7 @@ import { getT } from "@/lib/i18n/server";
 import { fmtDate, isoDay } from "@/lib/format";
 import { isBuyable } from "@/lib/import/prices";
 import { gridDealers, gridRows, hasPrice, isBestCell } from "@/lib/price-table";
+import { sellOutStatus } from "@/lib/sales";
 
 export const runtime = "nodejs";
 
@@ -43,9 +44,9 @@ export async function GET(req: NextRequest) {
   if (!parsed.success) return new Response(t.badParams, { status: 400 });
   const { ngay, m } = parsed.data;
 
-  const catalog = await getCatalog(ngay);
+  const [catalog, sellOut] = await Promise.all([getCatalog(ngay), sellOutStatus()]);
   const dealers = gridDealers(catalog);
-  const all = gridRows(catalog);
+  const all = gridRows(catalog, sellOut?.stale);
   let rows = all.filter(hasPrice);
   if (m) {
     const bySlug = new Map(all.map((r) => [r.slug, r]));

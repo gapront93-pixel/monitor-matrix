@@ -47,3 +47,34 @@ export function matchSale(
   }
   return null;
 }
+
+/** "G34WQCP (Rev. 2.0)" -> "G34WQCP": revisions of one model share their sales */
+const baseModel = (model: string) => model.replace(/\s*\(Rev\.?\s*[\d.]+\)\s*$/i, "").trim().toLowerCase();
+
+/**
+ * Models no longer sold: they have sell-out rows, but none since `cutoff`. Models with no sell-out at all are
+ * new and stay. Returns product id -> the last sale of the model (all revisions together).
+ */
+export function staleBySellOut(products: { id: number; model: string }[], lastSale: Map<number, Date>, cutoff: Date): Map<number, Date> {
+  const lastOfBase = new Map<string, Date>();
+  for (const p of products) {
+    const d = lastSale.get(p.id);
+    const k = baseModel(p.model);
+    const cur = lastOfBase.get(k);
+    if (d && (!cur || d > cur)) lastOfBase.set(k, d);
+  }
+  const out = new Map<number, Date>();
+  for (const p of products) {
+    const d = lastOfBase.get(baseModel(p.model));
+    if (d && d < cutoff) out.set(p.id, d);
+  }
+  return out;
+}
+
+/** The first day of the window "the last n months": 2026-11-03, 6 -> 2026-05-03 */
+export function monthsAgo(now: Date, n: number): Date {
+  const d = new Date(now);
+  d.setUTCHours(0, 0, 0, 0);
+  d.setUTCMonth(d.getUTCMonth() - n);
+  return d;
+}

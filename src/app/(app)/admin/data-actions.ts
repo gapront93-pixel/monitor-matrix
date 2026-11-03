@@ -165,14 +165,14 @@ export async function dismissUnmatched(unmatchedId: number): Promise<ActionResul
 
 // --- Imports ---
 
-/** Undo an upload made from this screen (the seed import stays) */
+/** Undo an upload made from this screen or a price scan (the seed import stays) */
 export async function deleteImport(importId: number): Promise<ActionResult> {
   const denied = await guard("prices");
   if (denied) return denied;
   const imp = await prisma.priceImport.findUnique({ where: { id: importId }, select: { source: true } });
   const m = await t();
   if (!imp) return fail(m.importNotFound);
-  if (imp.source !== "admin") return fail(m.importNotAdmin);
+  if (imp.source !== "admin" && imp.source !== "crawl") return fail(m.importNotAdmin);
   await prisma.priceImport.delete({ where: { id: importId } });
   return done(m.importUndone);
 }

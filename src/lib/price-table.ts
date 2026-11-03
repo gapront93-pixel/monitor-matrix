@@ -36,11 +36,11 @@ export function gridDealers(catalog: Catalog): GridDealer[] {
     .map((d) => ({ id: d.id, name: d.name, isKey: d.isKey, wholesale: d.priceType === "dealer" }));
 }
 
-/** GIGABYTE models only: rivals have no Vietnamese dealer prices */
-export function gridRows(catalog: Catalog): GridRow[] {
+/** GIGABYTE models only: rivals have no Vietnamese dealer prices. `leaveOut`: product ids not shown (no longer sold) */
+export function gridRows(catalog: Catalog, leaveOut?: ReadonlySet<number> | ReadonlyMap<number, unknown>): GridRow[] {
   const dealers = new Map(catalog.dealers.map((d) => [d.id, d]));
   return catalog.products
-    .filter((p) => p.isGigabyte)
+    .filter((p) => p.isGigabyte && !leaveOut?.has(p.id))
     .map((p) => {
       const cells: Record<string, GridCell> = {};
       for (const c of p.prices) {

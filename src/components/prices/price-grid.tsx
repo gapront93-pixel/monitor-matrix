@@ -12,6 +12,7 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
+import { ScanButton } from "@/components/prices/scan-button";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/panel";
 import { EmptyState } from "@/components/ui/states";
@@ -33,6 +34,8 @@ type Props = {
   day: string;
   isHistory: boolean;
   dayLabel: string;
+  canScan?: boolean; // shows "Quét giá" (users who may update prices)
+  leftOut?: { model: string; last: string }[]; // models no longer sold (no sell-out in 6 months)
 };
 
 const col = createColumnHelper<GridRow>();
@@ -44,8 +47,9 @@ function parseSort(v: string | null): SortingState {
 
 const selectCls = "h-8 rounded-ctl border border-line bg-app px-2 text-[13px] text-fg";
 
-export function PriceGrid({ rows, dealers, days, day, isHistory, dayLabel }: Props) {
-  const t = useT(productsMessages).prices;
+export function PriceGrid({ rows, dealers, days, day, isHistory, dayLabel, canScan = false, leftOut = [] }: Props) {
+  const msgs = useT(productsMessages);
+  const t = msgs.prices;
   const router = useRouter();
   const pathname = usePathname();
   const params = useSearchParams();
@@ -171,9 +175,12 @@ export function PriceGrid({ rows, dealers, days, day, isHistory, dayLabel }: Pro
         title={t.heading}
         sub={t.sub(dayLabel, data.length, dealers.length)}
         actions={
-          <Button variant="primary" onClick={exportXlsx} disabled={!data.length}>
-            {t.export}
-          </Button>
+          <>
+            {canScan && <ScanButton />}
+            <Button variant="primary" onClick={exportXlsx} disabled={!data.length}>
+              {t.export}
+            </Button>
+          </>
         }
       />
 
@@ -221,6 +228,15 @@ export function PriceGrid({ rows, dealers, days, day, isHistory, dayLabel }: Pro
       </div>
 
       <Legend />
+
+      {leftOut.length > 0 && (
+        <details className="mb-3 text-[12px] text-faint">
+          <summary className="cursor-pointer hover:text-muted">{msgs.scan.leftOut(leftOut.length)}</summary>
+          <p className="mt-1 text-muted">
+            {leftOut.map((x) => `${x.model} (${msgs.scan.leftOutLast(x.last)})`).join(" · ")}
+          </p>
+        </details>
+      )}
 
       {isHistory && (
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2 rounded-panel border border-warn-line bg-warn-bg px-3.5 py-2.5 text-[12.5px] text-warn">

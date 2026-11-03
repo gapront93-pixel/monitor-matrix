@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { productIndex } from "./import/plan";
-import { matchSale, saleCandidates } from "./sales-map";
+import { matchSale, monthsAgo, saleCandidates, staleBySellOut } from "./sales-map";
 
 const idx = productIndex([
   { id: 1, slug: "GS24F14", model: "GS24F14", aliases: [] },
@@ -40,5 +40,29 @@ describe("matchSale", () => {
     expect(matchSale("G34WQCP", null, idx)).toBeNull();
     expect(matchSale("XYZ123", null, idx)).toBeNull();
     expect(matchSale(null, null, idx)).toBeNull();
+  });
+});
+
+describe("staleBySellOut", () => {
+  const products = [
+    { id: 1, model: "GS27FC" },
+    { id: 2, model: "MO34WQC" },
+    { id: 3, model: "G34WQCP (Rev. 1.0)" },
+    { id: 4, model: "G34WQCP (Rev. 2.0)" },
+    { id: 5, model: "MO27Q54G" },
+  ];
+  const d = (s: string) => new Date(`${s}T00:00:00Z`);
+  const last = new Map([
+    [1, d("2026-05-30")],
+    [2, d("2026-04-06")],
+    [4, d("2026-04-17")],
+  ]);
+  it("leaves out models whose last sell-out is before the cutoff, all revisions together; keeps new models", () => {
+    const stale = staleBySellOut(products, last, d("2026-05-03"));
+    expect([...stale.keys()].sort()).toEqual([2, 3, 4]);
+    expect(stale.get(3)).toEqual(d("2026-04-17"));
+  });
+  it("counts 6 months back from today", () => {
+    expect(monthsAgo(new Date("2026-11-03T15:00:00Z"), 6)).toEqual(d("2026-05-03"));
   });
 });
